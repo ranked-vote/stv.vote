@@ -31,7 +31,7 @@
 
 <p>If you enjoy alternate voting systems, you may also enjoy
   <a href="https://approval.vote">approval.vote</a>,
-  which is a similar project for approval voting electionss.
+  which is a similar project for approval voting elections.
 </p>
 
 <h2>License</h2>
