@@ -2,7 +2,7 @@ use crate::model::metadata::TabulationOptions;
 use serde::de::{self, Visitor};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::BTreeMap;
-use std::collections::VecDeque;
+// Removed VecDeque import - using Vec instead
 
 #[derive(Clone, Copy, Debug, PartialEq, Ord, PartialOrd, Eq, Hash)]
 pub struct CandidateId(pub u32);
@@ -86,7 +86,7 @@ impl Ballot {
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct NormalizedBallot {
     pub id: String,
-    choices: VecDeque<CandidateId>,
+    choices: Vec<CandidateId>,
     pub overvoted: bool,
 }
 
@@ -94,18 +94,18 @@ impl NormalizedBallot {
     pub fn new(id: String, choices: Vec<CandidateId>, overvoted: bool) -> NormalizedBallot {
         NormalizedBallot {
             id,
-            choices: choices.into(),
+            choices,
             overvoted,
         }
     }
 
     #[allow(unused)]
     pub fn choices(&self) -> Vec<CandidateId> {
-        self.choices.clone().into()
+        self.choices.clone()
     }
 
     pub fn top_vote(&self) -> Choice {
-        match self.choices.front() {
+        match self.choices.first() {
             Some(v) => Choice::Vote(*v),
             None => {
                 if self.overvoted {
@@ -118,7 +118,9 @@ impl NormalizedBallot {
     }
 
     pub fn pop_top_vote(mut self) -> Self {
-        self.choices.pop_front();
+        if !self.choices.is_empty() {
+            self.choices.remove(0);
+        }
         self
     }
 }

@@ -73,7 +73,7 @@ pub struct ContestReport {
     pub ballot_count: u32,
     pub candidates: Vec<Candidate>,
     pub rounds: Vec<TabulatorRound>,
-    pub winner: CandidateId,
+    pub winner: Option<CandidateId>,
     pub condorcet: Option<CandidateId>,
     pub num_candidates: u32,
     pub total_votes: Vec<CandidateVotes>,
@@ -84,7 +84,8 @@ pub struct ContestReport {
 }
 
 impl ContestReport {
-    pub fn winner(&self) -> &Candidate {
-        &self.candidates[self.winner.0 as usize]
+    pub fn winner(&self) -> Option<&Candidate> {
+        self.winner
+            .map(|winner_id| &self.candidates[winner_id.0 as usize])
     }
 }

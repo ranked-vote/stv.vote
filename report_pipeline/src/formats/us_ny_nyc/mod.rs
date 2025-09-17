@@ -196,8 +196,21 @@ fn scan_worksheets_for_race(
 
 pub fn nyc_ballot_reader(path: &Path, params: BTreeMap<String, String>) -> Election {
     let options = ReaderOptions::from_params(params);
-    let mut candidates_workbook =
-        Workbook::open(path.join(options.candidates_file).to_str().unwrap()).unwrap();
+    let candidates_path = path.join(&options.candidates_file);
+
+    let mut candidates_workbook = match Workbook::open(candidates_path.to_str().unwrap()) {
+        Ok(workbook) => workbook,
+        Err(e) => {
+            eprintln!(
+                "Warning: Could not open candidates file {}: {}",
+                candidates_path.display(),
+                e
+            );
+            eprintln!("Skipping this contest due to missing data file.");
+            // Return empty election for missing files
+            return Election::new(vec![], vec![]);
+        }
+    };
 
     let candidates = read_candidate_ids(&mut candidates_workbook);
 

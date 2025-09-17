@@ -121,7 +121,20 @@ fn get_ballots(
 pub fn nist_ballot_reader(path: &Path, params: BTreeMap<String, String>) -> Election {
     let options = ReaderOptions::from_params(params);
 
-    let file = File::open(path.join(&options.cvr)).unwrap();
+    let cvr_path = path.join(&options.cvr);
+    let file = match File::open(&cvr_path) {
+        Ok(file) => file,
+        Err(e) => {
+            eprintln!(
+                "Warning: Could not open CVR file {}: {}",
+                cvr_path.display(),
+                e
+            );
+            eprintln!("Skipping this contest due to missing data file.");
+            // Return empty election for missing files
+            return Election::new(vec![], vec![]);
+        }
+    };
     let mut archive = zip::ZipArchive::new(file).unwrap();
 
     let candidate_manifest: CandidateManifest = {

@@ -10,16 +10,11 @@ use colored::*;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::Path;
 
-pub fn winner(rounds: &[TabulatorRound]) -> CandidateId {
+pub fn winner(rounds: &[TabulatorRound]) -> Option<CandidateId> {
     rounds
         .last()
-        .unwrap()
-        .allocations
-        .first()
-        .unwrap()
-        .allocatee
-        .candidate_id()
-        .unwrap()
+        .and_then(|round| round.allocations.first())
+        .and_then(|allocation| allocation.allocatee.candidate_id())
 }
 
 pub fn total_votes(rounds: &[TabulatorRound]) -> Vec<CandidateVotes> {
@@ -290,6 +285,37 @@ pub fn smith_set(
 /// Generate a `ContestReport` from preprocessed election data.
 pub fn generate_report(election: &ElectionPreprocessed) -> ContestReport {
     let ballots = &election.ballots.ballots;
+
+    // Handle empty elections
+    if ballots.is_empty() {
+        return ContestReport {
+            info: election.info.clone(),
+            ballot_count: 0,
+            candidates: election.ballots.candidates.clone(),
+            winner: None,
+            num_candidates: 0,
+            rounds: vec![],
+            total_votes: vec![],
+            pairwise_preferences: CandidatePairTable {
+                entries: vec![],
+                rows: vec![],
+                cols: vec![],
+            },
+            first_alternate: CandidatePairTable {
+                entries: vec![],
+                rows: vec![],
+                cols: vec![],
+            },
+            first_final: CandidatePairTable {
+                entries: vec![],
+                rows: vec![],
+                cols: vec![],
+            },
+            smith_set: vec![],
+            condorcet: None,
+        };
+    }
+
     let rounds = tabulate(ballots, &election.info.tabulation_options);
     let winner = winner(&rounds);
     let num_candidates = election
@@ -314,7 +340,7 @@ pub fn generate_report(election: &ElectionPreprocessed) -> ContestReport {
         None
     };
 
-    if Some(winner) != condorcet {
+    if winner.is_some() && winner != condorcet {
         eprintln!("{}", "Non-condorcet!".purple());
     }
 
@@ -322,11 +348,14 @@ pub fn generate_report(election: &ElectionPreprocessed) -> ContestReport {
 
     let final_round_candidates: HashSet<CandidateId> = rounds
         .last()
-        .unwrap()
-        .allocations
-        .iter()
-        .flat_map(|a| a.allocatee.candidate_id())
-        .collect();
+        .map(|round| {
+            round
+                .allocations
+                .iter()
+                .flat_map(|a| a.allocatee.candidate_id())
+                .collect()
+        })
+        .unwrap_or_default();
 
     let first_final = generate_first_final(&candidates, ballots, &final_round_candidates);
 

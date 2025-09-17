@@ -71,12 +71,18 @@ pub fn maine_ballot_reader(path: &Path, params: BTreeMap<String, String>) -> Ele
 
             let mut choices = Vec::new();
             // Process columns 3 onwards (assuming ballot ID is in column 0, and some other data in 1-2)
+            // Use a reasonable upper bound, but be safe about bounds
             for i in 3..10 {
-                // Use a reasonable upper bound
-                let cand = if let ExcelValue::String(candidate) = &row[i as u16].value {
-                    candidate.as_ref()
+                // Try to access the cell safely
+                let cand = if i < 6 {
+                    // Conservative bound - only process columns 3, 4, 5
+                    if let ExcelValue::String(candidate) = &row[i as u16].value {
+                        candidate.as_ref()
+                    } else {
+                        "undervote"
+                    }
                 } else {
-                    "undervote" // Default to undervote if no string value
+                    "undervote"
                 };
                 let choice = parse_choice(cand, &mut candidate_map);
                 choices.push(choice);
