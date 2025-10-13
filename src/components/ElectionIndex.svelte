@@ -2,14 +2,20 @@
   import type { IElectionIndexEntry } from "../report_types";
 
   export let elections: IElectionIndexEntry[];
-  export let hideSimpleRaces: boolean = false;
 
   $: filteredElections = (() => {
-    const filtered = (elections || []).map(e => ({
-      ...e,
-      // Always filter out races with 1-2 candidates (not meaningful RCV races)
-      contests: e.contests.filter(c => c.numCandidates > 2 && (!hideSimpleRaces || c.numRounds > 2))
-    })).filter(e => e.contests.length > 0);
+    const filtered = (elections || []).map(e => {
+      const isNYC = e.jurisdictionName === "New York City";
+      return {
+        ...e,
+        // Always filter out races with 1-2 candidates (not meaningful RCV races)
+        // For NYC, also filter out 3-candidate races (write-in never affects outcome)
+        contests: e.contests.filter(c => {
+          const minCandidates = isNYC ? 3 : 2;
+          return c.numCandidates > minCandidates;
+        })
+      };
+    }).filter(e => e.contests.length > 0);
     return filtered;
   })();
 
@@ -24,9 +30,14 @@
     });
     return map;
   })();
+
+  $: sortedYears = [...electionsByYear].sort((a, b) => {
+    // Sort years in descending order (newest first)
+    return parseInt(b[0]) - parseInt(a[0]);
+  });
 </script>
 
-{#each [...electionsByYear] as [year, yearElections]}
+{#each sortedYears as [year, yearElections]}
   <div class="yearSection">
     <h2>{year}</h2>
     <div class="electionSection">
