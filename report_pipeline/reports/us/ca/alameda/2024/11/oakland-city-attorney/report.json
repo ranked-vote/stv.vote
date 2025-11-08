@@ -58,40 +58,40 @@
   "numCandidates": 2,
   "totalVotes": [
     {
-      "candidate": 1,
-      "firstRoundVotes": 82459,
+      "candidate": 0,
+      "firstRoundVotes": 58871,
       "transferVotes": 0,
       "roundEliminated": null
     },
     {
-      "candidate": 0,
-      "firstRoundVotes": 58871,
+      "candidate": 1,
+      "firstRoundVotes": 82459,
       "transferVotes": 0,
       "roundEliminated": null
     }
   ],
   "pairwisePreferences": {
     "rows": [
-      1,
-      0
+      0,
+      1
     ],
     "cols": [
-      1,
-      0
+      0,
+      1
     ],
     "entries": [
       [
         null,
         {
-          "frac": 0.5834501,
-          "numerator": 82459,
+          "frac": 0.41654992,
+          "numerator": 58871,
           "denominator": 141330
         }
       ],
       [
         {
-          "frac": 0.41654992,
-          "numerator": 58871,
+          "frac": 0.5834501,
+          "numerator": 82459,
           "denominator": 141330
         },
         null
@@ -100,39 +100,39 @@
   },
   "firstAlternate": {
     "rows": [
-      1,
-      0
+      0,
+      1
     ],
     "cols": [
-      1,
       0,
+      1,
       "X"
     ],
     "entries": [
       [
         null,
         {
-          "frac": 0.3916492,
-          "numerator": 32295,
-          "denominator": 82459
-        },
-        {
-          "frac": 0.6083508,
-          "numerator": 50164,
-          "denominator": 82459
-        }
-      ],
-      [
-        {
           "frac": 0.5383805,
           "numerator": 31695,
           "denominator": 58871
         },
-        null,
         {
           "frac": 0.46161947,
           "numerator": 27176,
           "denominator": 58871
+        }
+      ],
+      [
+        {
+          "frac": 0.3916492,
+          "numerator": 32295,
+          "denominator": 82459
+        },
+        null,
+        {
+          "frac": 0.6083508,
+          "numerator": 50164,
+          "denominator": 82459
         }
       ]
     ]
@@ -140,16 +140,16 @@
   "firstFinal": {
     "rows": [],
     "cols": [
-      1,
       0,
+      1,
       "X"
     ],
     "entries": []
   },
   "rankingDistribution": {
     "overallDistribution": {
-      "2": 63990,
-      "1": 77340
+      "1": 77340,
+      "2": 63990
     },
     "candidateDistributions": {
       "0": {
@@ -157,8 +157,8 @@
         "2": 31695
       },
       "1": {
-        "2": 32295,
-        "1": 50164
+        "1": 50164,
+        "2": 32295
       }
     },
     "totalBallots": 141330,

@@ -79,7 +79,16 @@ fn get_candidates(
 pub fn nist_ballot_reader(path: &Path, params: BTreeMap<String, String>) -> Election {
     let options = ReaderOptions::from_params(params);
 
-    let cvr_path = path.join(&options.cvr);
+    let mut cvr_path = path.join(&options.cvr);
+
+    // If the path ends with .zip but the file doesn't exist, try the directory name without .zip
+    // This handles cases where ZIP files were extracted but metadata still references the ZIP
+    if cvr_path.to_string_lossy().ends_with(".zip") && !cvr_path.exists() {
+        let dir_path = cvr_path.with_extension("");
+        if dir_path.is_dir() {
+            cvr_path = dir_path;
+        }
+    }
 
     // Check if cvr_path is a directory or a ZIP file
     if cvr_path.is_dir() {

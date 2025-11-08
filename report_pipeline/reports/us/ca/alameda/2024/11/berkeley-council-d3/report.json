@@ -102,12 +102,6 @@
   "numCandidates": 3,
   "totalVotes": [
     {
-      "candidate": 2,
-      "firstRoundVotes": 3391,
-      "transferVotes": 872,
-      "roundEliminated": null
-    },
-    {
       "candidate": 0,
       "firstRoundVotes": 1576,
       "transferVotes": 257,
@@ -118,22 +112,53 @@
       "firstRoundVotes": 1480,
       "transferVotes": 0,
       "roundEliminated": 1
+    },
+    {
+      "candidate": 2,
+      "firstRoundVotes": 3391,
+      "transferVotes": 872,
+      "roundEliminated": null
     }
   ],
   "pairwisePreferences": {
     "rows": [
-      2,
       0,
-      1
+      1,
+      2
     ],
     "cols": [
-      2,
       0,
-      1
+      1,
+      2
     ],
     "entries": [
       [
         null,
+        {
+          "frac": 0.5409429,
+          "numerator": 2834,
+          "denominator": 5239
+        },
+        {
+          "frac": 0.30068898,
+          "numerator": 1833,
+          "denominator": 6096
+        }
+      ],
+      [
+        {
+          "frac": 0.45905706,
+          "numerator": 2405,
+          "denominator": 5239
+        },
+        null,
+        {
+          "frac": 0.3173562,
+          "numerator": 1887,
+          "denominator": 5946
+        }
+      ],
+      [
         {
           "frac": 0.699311,
           "numerator": 4263,
@@ -143,31 +168,6 @@
           "frac": 0.6826438,
           "numerator": 4059,
           "denominator": 5946
-        }
-      ],
-      [
-        {
-          "frac": 0.30068898,
-          "numerator": 1833,
-          "denominator": 6096
-        },
-        null,
-        {
-          "frac": 0.5409429,
-          "numerator": 2834,
-          "denominator": 5239
-        }
-      ],
-      [
-        {
-          "frac": 0.3173562,
-          "numerator": 1887,
-          "denominator": 5946
-        },
-        {
-          "frac": 0.45905706,
-          "numerator": 2405,
-          "denominator": 5239
         },
         null
       ]
@@ -175,45 +175,27 @@
   },
   "firstAlternate": {
     "rows": [
-      2,
-      0,
-      1
-    ],
-    "cols": [
-      2,
       0,
       1,
+      2
+    ],
+    "cols": [
+      0,
+      1,
+      2,
       "X"
     ],
     "entries": [
       [
         null,
         {
-          "frac": 0.37098202,
-          "numerator": 1258,
-          "denominator": 3391
+          "frac": 0.25824872,
+          "numerator": 407,
+          "denominator": 1576
         },
-        {
-          "frac": 0.2727809,
-          "numerator": 925,
-          "denominator": 3391
-        },
-        {
-          "frac": 0.35623708,
-          "numerator": 1208,
-          "denominator": 3391
-        }
-      ],
-      [
         {
           "frac": 0.42385787,
           "numerator": 668,
-          "denominator": 1576
-        },
-        null,
-        {
-          "frac": 0.25824872,
-          "numerator": 407,
           "denominator": 1576
         },
         {
@@ -224,20 +206,38 @@
       ],
       [
         {
-          "frac": 0.5891892,
-          "numerator": 872,
-          "denominator": 1480
-        },
-        {
           "frac": 0.17364866,
           "numerator": 257,
           "denominator": 1480
         },
         null,
         {
+          "frac": 0.5891892,
+          "numerator": 872,
+          "denominator": 1480
+        },
+        {
           "frac": 0.23716216,
           "numerator": 351,
           "denominator": 1480
+        }
+      ],
+      [
+        {
+          "frac": 0.37098202,
+          "numerator": 1258,
+          "denominator": 3391
+        },
+        {
+          "frac": 0.2727809,
+          "numerator": 925,
+          "denominator": 3391
+        },
+        null,
+        {
+          "frac": 0.35623708,
+          "numerator": 1208,
+          "denominator": 3391
         }
       ]
     ]
@@ -247,20 +247,20 @@
       1
     ],
     "cols": [
-      2,
       0,
+      2,
       "X"
     ],
     "entries": [
       [
         {
-          "frac": 0.5891892,
-          "numerator": 872,
+          "frac": 0.17364866,
+          "numerator": 257,
           "denominator": 1480
         },
         {
-          "frac": 0.17364866,
-          "numerator": 257,
+          "frac": 0.5891892,
+          "numerator": 872,
           "denominator": 1480
         },
         {
@@ -273,19 +273,19 @@
   },
   "rankingDistribution": {
     "overallDistribution": {
-      "3": 2526,
       "1": 2060,
-      "2": 1861
+      "2": 1861,
+      "3": 2526
     },
     "candidateDistributions": {
       "0": {
         "1": 501,
-        "3": 646,
-        "2": 429
+        "2": 429,
+        "3": 646
       },
       "1": {
-        "2": 685,
         "1": 351,
+        "2": 685,
         "3": 444
       },
       "2": {
@@ -296,9 +296,9 @@
     },
     "totalBallots": 6447,
     "candidateTotals": {
-      "2": 3391,
+      "0": 1576,
       "1": 1480,
-      "0": 1576
+      "2": 3391
     }
   },
   "smithSet": [

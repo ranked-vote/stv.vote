@@ -4,7 +4,8 @@
     "date": "2018-11-06",
     "dataFormat": "us_ca_sfo",
     "tabulationOptions": {
-      "eager": true
+      "eager": true,
+      "nycStyle": false
     },
     "jurisdictionPath": "us/ca/sfo",
     "electionPath": "2018/11",
@@ -98,6 +99,20 @@
       "X"
     ],
     "entries": []
+  },
+  "rankingDistribution": {
+    "overallDistribution": {
+      "1": 292864
+    },
+    "candidateDistributions": {
+      "0": {
+        "1": 292864
+      }
+    },
+    "totalBallots": 292864,
+    "candidateTotals": {
+      "0": 292864
+    }
   },
   "smithSet": [
     0

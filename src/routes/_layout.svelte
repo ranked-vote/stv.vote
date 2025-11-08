@@ -1,6 +1,6 @@
 <script>
-	// Accept segment prop from Sapper (intentionally unused)
-	export let segment = undefined;
+// Accept segment prop from Sapper (intentionally unused)
+export const segment = undefined;
 </script>
 
 <main>

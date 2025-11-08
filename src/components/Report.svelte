@@ -15,11 +15,17 @@
 
   export let report: IContestReport;
 
+  // Defensive check
+  $: hasReport = report && report.info && report.candidates;
+  $: hasCandidates = hasReport && report.numCandidates > 0;
+
   function getCandidate(cid: Allocatee): ICandidate {
     if (cid == "X") {
       return { name: "Exhausted", writeIn: false };
+    } else if (cid == null || cid === undefined) {
+      return { name: "Unknown", writeIn: false };
     } else {
-      return report.candidates[cid];
+      return report.candidates[cid] || { name: "Unknown", writeIn: false };
     }
   }
 
@@ -55,6 +61,7 @@
   }
 </script>
 
+{#if hasReport}
 <div class="row">
   <p class="description" />
   <div class="electionHeader">
@@ -78,28 +85,38 @@
       {/if}
       was held on
       <strong>{formatDate(report.info.date)}</strong>.
-      <strong>{getCandidate(report.winner).name}</strong>
-      was the winner out of
-      <strong>{report.numCandidates}</strong>&nbsp;{#if report.numCandidates == 1}candidate {:else}candidates {/if}{#if report.rounds.length > 1}after
-        {" "}<strong>{report.rounds.length - 1}</strong>&nbsp;elimination {#if report.rounds.length == 2}round{:else}rounds{/if}.
-      {:else}. No elimination rounds were necessary to determine the outcome.
+      {#if hasCandidates}
+        {#if report.winner != null}
+        <strong>{getCandidate(report.winner).name}</strong>
+        was the winner out of
+        {:else}
+        The winner could not be determined out of
+        {/if}
+        <strong>{report.numCandidates}</strong>&nbsp;{#if report.numCandidates == 1}candidate {:else}candidates {/if}{#if report.rounds && report.rounds.length > 1}after
+          {" "}<strong>{report.rounds.length - 1}</strong>&nbsp;elimination {#if report.rounds.length == 2}round{:else}rounds{/if}.
+        {:else}. No elimination rounds were necessary to determine the outcome.
+        {/if}
+      {:else}
+        No candidate data available for this election.
       {/if}
     </p>
-    {#if report.condorcet != null}
-      <p>
-        {#if report.winner == report.condorcet}
-          <strong>{getCandidate(report.winner).name}</strong> was also the <a href="https://en.wikipedia.org/wiki/Condorcet_method">Condorcet winner</a>.
-        {:else}
-          <strong>{getCandidate(report.condorcet).name}</strong> was the <a href="https://en.wikipedia.org/wiki/Condorcet_method">Condorcet winner</a>, meaning that they would have won in a head-to-head matchup against <strong>{getCandidate(report.winner).name}</strong>.
-        {/if}
-      </p>
-    {:else}
-      <p>
-        No Condorcet winner; multiple candidates form the
-        <a href="https://en.wikipedia.org/wiki/Condorcet_paradox">Condorcet cycle</a>:
-        {report.smithSet.map(getCandidateNameById).join(", ")}
-        .
-      </p>
+    {#if hasCandidates}
+      {#if report.condorcet != null && report.winner != null}
+        <p>
+          {#if report.winner == report.condorcet}
+            <strong>{getCandidate(report.winner).name}</strong> was also the <a href="https://en.wikipedia.org/wiki/Condorcet_method">Condorcet winner</a>.
+          {:else}
+            <strong>{getCandidate(report.condorcet).name}</strong> was the <a href="https://en.wikipedia.org/wiki/Condorcet_method">Condorcet winner</a>, meaning that they would have won in a head-to-head matchup against <strong>{getCandidate(report.winner).name}</strong>.
+          {/if}
+        </p>
+      {:else if report.condorcet == null && report.winner != null && report.smithSet}
+        <p>
+          No Condorcet winner; multiple candidates form the
+          <a href="https://en.wikipedia.org/wiki/Condorcet_paradox">Condorcet cycle</a>:
+          {report.smithSet.map(getCandidateNameById).join(", ")}
+          .
+        </p>
+      {/if}
     {/if}
   </div>
   <div class="rightCol">
@@ -205,7 +222,7 @@
 {/if}
 {/if}
 
-{#if report.rounds.length > 1}
+{#if hasCandidates && report.rounds && report.rounds.length > 1}
   <div class="row">
     <div class="leftCol">
       <h2>Final Vote by First Choice</h2>
@@ -234,4 +251,5 @@
         colLabel="Final Round Choice" />
     </div>
   </div>
+{/if}
 {/if}

@@ -136,7 +136,6 @@ struct ReaderOptions {
     contest: u32,
     master_file: String,
     ballot_file: String,
-    zip_file: Option<String>,
 }
 
 impl ReaderOptions {
@@ -154,13 +153,11 @@ impl ReaderOptions {
             .get("ballotImage")
             .expect("SFO elections should have ballotImage parameter.")
             .clone();
-        let zip_file = params.get("zipFile").cloned();
 
         ReaderOptions {
             contest,
             master_file,
             ballot_file,
-            zip_file,
         }
     }
 }
@@ -168,30 +165,26 @@ impl ReaderOptions {
 pub fn sfo_ballot_reader(path: &Path, params: BTreeMap<String, String>) -> Election {
     let options = ReaderOptions::from_params(params);
 
-    let (candidates, ballots) = if let Some(zip_file) = options.zip_file {
-        let file = File::open(path.join(&zip_file)).unwrap();
-        let mut archive = zip::ZipArchive::new(file).unwrap();
-        let candidates = {
-            let master = archive.by_name(&options.master_file).unwrap();
-            let mut master_reader = BufReader::new(master);
-            read_candidates(&mut master_reader, options.contest)
-        };
+    // Read from extracted files directly (ZIP files are extracted by extract-from-archives.sh)
+    let master_path = path.join(&options.master_file);
+    let mut master_reader = BufReader::new(File::open(&master_path).unwrap_or_else(|e| {
+        panic!(
+            "❌ Failed to open SFO master file '{}': {}\n   Please ensure the file exists and is readable.\n   Run extract-from-archives.sh to extract data from archives.",
+            master_path.display(),
+            e
+        );
+    }));
+    let candidates = read_candidates(&mut master_reader, options.contest);
 
-        let ballots = {
-            let ballots = archive.by_name(&options.ballot_file).unwrap();
-            let mut ballot_reader = BufReader::new(ballots);
-            read_ballots(&mut ballot_reader, &candidates, options.contest)
-        };
-
-        (candidates, ballots)
-    } else {
-        let mut master_reader = BufReader::new(File::open(path.join(options.master_file)).unwrap());
-        let candidates = read_candidates(&mut master_reader, options.contest);
-
-        let mut ballot_reader = BufReader::new(File::open(path.join(options.ballot_file)).unwrap());
-        let ballots = read_ballots(&mut ballot_reader, &candidates, options.contest);
-        (candidates, ballots)
-    };
+    let ballot_path = path.join(&options.ballot_file);
+    let mut ballot_reader = BufReader::new(File::open(&ballot_path).unwrap_or_else(|e| {
+        panic!(
+            "❌ Failed to open SFO ballot file '{}': {}\n   Please ensure the file exists and is readable.\n   Run extract-from-archives.sh to extract data from archives.",
+            ballot_path.display(),
+            e
+        );
+    }));
+    let ballots = read_ballots(&mut ballot_reader, &candidates, options.contest);
 
     Election::new(candidates.into_vec(), ballots)
 }

@@ -7,7 +7,6 @@ use std::path::Path;
 
 struct ReaderOptions {
     ballots: String,
-    archive: String,
 }
 
 impl ReaderOptions {
@@ -16,12 +15,8 @@ impl ReaderOptions {
             .get("ballots")
             .expect("BTV elections should have ballots parameter.")
             .clone();
-        let archive = params
-            .get("archive")
-            .expect("BTV elections should have archive parameter.")
-            .clone();
 
-        ReaderOptions { ballots, archive }
+        ReaderOptions { ballots }
     }
 }
 
@@ -51,15 +46,16 @@ pub fn parse_ballot(source: &str) -> Vec<Choice> {
 pub fn btv_ballot_reader(path: &Path, params: BTreeMap<String, String>) -> Election {
     let options = ReaderOptions::from_params(params);
 
-    let mut archive = {
-        let file = File::open(path.join(&options.archive)).unwrap();
-        zip::ZipArchive::new(file).unwrap()
-    };
-
-    let lines = {
-        let file = archive.by_name(&options.ballots).unwrap();
-        BufReader::new(file).lines()
-    };
+    // Read from extracted file directly (ZIP files are extracted by extract-from-archives.sh)
+    let ballots_path = path.join(&options.ballots);
+    let file = File::open(&ballots_path).unwrap_or_else(|e| {
+        panic!(
+            "❌ Failed to open BTV ballots file '{}': {}\n   Please ensure the file exists and is readable.\n   Run extract-from-archives.sh to extract data from archives.",
+            ballots_path.display(),
+            e
+        );
+    });
+    let lines = BufReader::new(file).lines();
 
     let candidate_rx = Regex::new(r#".CANDIDATE C(\d+), "(.+)""#).unwrap();
     let ballot_rx = Regex::new(r#"([^,]+), \d\) (.+)"#).unwrap();

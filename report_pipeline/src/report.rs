@@ -240,13 +240,16 @@ pub fn generate_first_final(
     }
 }
 
+/// Generate ranking distribution statistics from normalized ballots.
+/// This function is format-agnostic and works with all CVR formats since
+/// all formats normalize to NormalizedBallot before report generation.
 pub fn generate_ranking_distribution(
     _candidates: &[CandidateId],
     ballots: &[NormalizedBallot],
 ) -> RankingDistribution {
-    let mut overall_distribution: HashMap<u32, u32> = HashMap::new();
-    let mut candidate_distributions: HashMap<CandidateId, HashMap<u32, u32>> = HashMap::new();
-    let mut candidate_totals: HashMap<CandidateId, u32> = HashMap::new();
+    let mut overall_distribution: BTreeMap<u32, u32> = BTreeMap::new();
+    let mut candidate_distributions: BTreeMap<CandidateId, BTreeMap<u32, u32>> = BTreeMap::new();
+    let mut candidate_totals: BTreeMap<CandidateId, u32> = BTreeMap::new();
     let mut total_ballots = 0u32;
 
     // Filter ballots to only those that ranked at least one candidate
@@ -267,7 +270,7 @@ pub fn generate_ranking_distribution(
             *candidate_totals.entry(*first_choice).or_insert(0) += 1;
             let candidate_dist = candidate_distributions
                 .entry(*first_choice)
-                .or_insert_with(HashMap::new);
+                .or_insert_with(BTreeMap::new);
             *candidate_dist.entry(rank_count).or_insert(0) += 1;
         }
     }
@@ -352,10 +355,10 @@ pub fn generate_report(election: &ElectionPreprocessed) -> ContestReport {
                 cols: vec![],
             },
             ranking_distribution: Some(RankingDistribution {
-                overall_distribution: HashMap::new(),
-                candidate_distributions: HashMap::new(),
+                overall_distribution: BTreeMap::new(),
+                candidate_distributions: BTreeMap::new(),
                 total_ballots: 0,
-                candidate_totals: HashMap::new(),
+                candidate_totals: BTreeMap::new(),
             }),
             smith_set: vec![],
             condorcet: None,
@@ -374,7 +377,8 @@ pub fn generate_report(election: &ElectionPreprocessed) -> ContestReport {
 
     eprintln!("  - Calculating total votes...");
     let total_votes = total_votes(&rounds);
-    let candidates: Vec<CandidateId> = total_votes.iter().map(|d| d.candidate).collect();
+    let mut candidates: Vec<CandidateId> = total_votes.iter().map(|d| d.candidate).collect();
+    candidates.sort(); // Ensure consistent ordering
     eprintln!("  - Found {} candidates", candidates.len());
 
     eprintln!("  - Generating pairwise counts...");
@@ -423,6 +427,13 @@ pub fn generate_report(election: &ElectionPreprocessed) -> ContestReport {
 
     eprintln!("  - Building final report structure...");
 
+    // Sort vectors for consistent JSON output
+    let mut sorted_smith_set: Vec<CandidateId> = smith_set.into_iter().collect();
+    sorted_smith_set.sort();
+    
+    let mut sorted_total_votes = total_votes;
+    sorted_total_votes.sort_by_key(|v| v.candidate);
+
     ContestReport {
         info: election.info.clone(),
         ballot_count: election.ballots.ballots.len() as u32,
@@ -430,12 +441,12 @@ pub fn generate_report(election: &ElectionPreprocessed) -> ContestReport {
         winner,
         num_candidates,
         rounds,
-        total_votes,
+        total_votes: sorted_total_votes,
         pairwise_preferences,
         first_alternate,
         first_final,
         ranking_distribution: Some(ranking_distribution),
-        smith_set: smith_set.into_iter().collect(),
+        smith_set: sorted_smith_set,
         condorcet,
     }
 }

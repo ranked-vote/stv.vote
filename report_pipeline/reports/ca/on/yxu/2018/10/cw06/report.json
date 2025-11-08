@@ -56,40 +56,40 @@
   "numCandidates": 2,
   "totalVotes": [
     {
-      "candidate": 1,
-      "firstRoundVotes": 3959,
+      "candidate": 0,
+      "firstRoundVotes": 1738,
       "transferVotes": 0,
       "roundEliminated": null
     },
     {
-      "candidate": 0,
-      "firstRoundVotes": 1738,
+      "candidate": 1,
+      "firstRoundVotes": 3959,
       "transferVotes": 0,
       "roundEliminated": null
     }
   ],
   "pairwisePreferences": {
     "rows": [
-      1,
-      0
+      0,
+      1
     ],
     "cols": [
-      1,
-      0
+      0,
+      1
     ],
     "entries": [
       [
         null,
         {
-          "frac": 0.69492716,
-          "numerator": 3959,
+          "frac": 0.30507284,
+          "numerator": 1738,
           "denominator": 5697
         }
       ],
       [
         {
-          "frac": 0.30507284,
-          "numerator": 1738,
+          "frac": 0.69492716,
+          "numerator": 3959,
           "denominator": 5697
         },
         null
@@ -98,39 +98,39 @@
   },
   "firstAlternate": {
     "rows": [
-      1,
-      0
+      0,
+      1
     ],
     "cols": [
-      1,
       0,
+      1,
       "X"
     ],
     "entries": [
       [
         null,
         {
-          "frac": 0.24602172,
-          "numerator": 974,
-          "denominator": 3959
-        },
-        {
-          "frac": 0.75397825,
-          "numerator": 2985,
-          "denominator": 3959
-        }
-      ],
-      [
-        {
           "frac": 0.35730726,
           "numerator": 621,
           "denominator": 1738
         },
-        null,
         {
           "frac": 0.64269274,
           "numerator": 1117,
           "denominator": 1738
+        }
+      ],
+      [
+        {
+          "frac": 0.24602172,
+          "numerator": 974,
+          "denominator": 3959
+        },
+        null,
+        {
+          "frac": 0.75397825,
+          "numerator": 2985,
+          "denominator": 3959
         }
       ]
     ]
@@ -138,8 +138,8 @@
   "firstFinal": {
     "rows": [],
     "cols": [
-      1,
       0,
+      1,
       "X"
     ],
     "entries": []
@@ -161,8 +161,8 @@
     },
     "totalBallots": 5697,
     "candidateTotals": {
-      "1": 3959,
-      "0": 1738
+      "0": 1738,
+      "1": 3959
     }
   },
   "smithSet": [

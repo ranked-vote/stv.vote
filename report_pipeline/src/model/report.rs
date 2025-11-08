@@ -1,7 +1,7 @@
 use crate::model::election::{Candidate, CandidateId, ElectionInfo};
 use crate::tabulator::{Allocatee, TabulatorRound};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -71,13 +71,13 @@ pub struct CandidatePairTable {
 #[serde(rename_all = "camelCase")]
 pub struct RankingDistribution {
     #[serde(default)]
-    pub overall_distribution: HashMap<u32, u32>,
+    pub overall_distribution: BTreeMap<u32, u32>,
     #[serde(default)]
-    pub candidate_distributions: HashMap<CandidateId, HashMap<u32, u32>>,
+    pub candidate_distributions: BTreeMap<CandidateId, BTreeMap<u32, u32>>,
     #[serde(default)]
     pub total_ballots: u32,
     #[serde(default)]
-    pub candidate_totals: HashMap<CandidateId, u32>,
+    pub candidate_totals: BTreeMap<CandidateId, u32>,
 }
 
 #[derive(Serialize, Deserialize)]
