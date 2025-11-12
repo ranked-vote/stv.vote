@@ -37,20 +37,16 @@ jobs:
         env:
           RANKED_VOTE_REPORTS: ${{ github.workspace }}/report_pipeline/reports
         run: |
-          # Validate that all reports have corresponding card images
-          echo "Validating report card images..."
-          npm run validate-cards
-          # Run tests (includes election winner validation)
+          # Run tests (includes election winner validation and card image validation)
           echo "Running tests..."
           npm test
-          # Build and export the site
+          # Build the site
           npm run build
-          npm run export
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: __sapper__/export
+          path: build
 
   deploy:
     needs: build
