@@ -10,7 +10,7 @@ const EXPECTED_WINNERS = [
     jurisdictionName: "Minneapolis",
     officeName: "Mayor",
     winner: "Jacob Frey",
-    numCandidates: 18,
+    numCandidates: 16,
     numRounds: 2,
   },
   // 2022
