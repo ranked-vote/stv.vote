@@ -240,6 +240,10 @@
 </script>
 
 <style>
+  svg {
+    color-scheme: light;
+  }
+
   .voteBlock {
     fill: #aa0d0d;
   }
@@ -262,6 +266,35 @@
 
   .percentageText.exhausted {
     fill: #555;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .voteBlock.exhausted {
+      fill: #666;
+      stroke: #999;
+      stroke-width: 1;
+    }
+
+    .percentageText.exhausted {
+      fill: white;
+    }
+
+    /* Ensure red stays red in dark mode */
+    .voteBlock:not(.exhausted) {
+      fill: #aa0d0d;
+    }
+
+    /* Make transfer paths more visible in dark mode */
+    .transfer {
+      fill: #999;
+      opacity: 0.4;
+      mix-blend-mode: normal;
+    }
+
+    /* Make all text in SVG light colored */
+    text {
+      fill: #e3e3e3;
+    }
   }
 </style>
 

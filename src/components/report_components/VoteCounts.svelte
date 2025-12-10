@@ -29,6 +29,10 @@
 </script>
 
 <style>
+  svg {
+    color-scheme: light;
+  }
+
   .firstRound {
     fill: #aa0d0d;
   }
@@ -39,6 +43,13 @@
 
   .eliminated {
     opacity: 30%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    /* Make all text in SVG light colored */
+    text {
+      fill: #e3e3e3;
+    }
   }
 </style>
 

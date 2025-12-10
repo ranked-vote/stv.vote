@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { IRankingDistribution, ICandidate, CandidateId } from "../../report_types";
+  import { onMount } from "svelte";
   import tooltip from "../../tooltip";
 
   export let candidates: ICandidate[];
@@ -108,12 +109,35 @@
     return max || 100; // Default to 100 if no data
   })();
 
-  // Color function matching CandidatePairTable style (light mode)
+  // Detect dark mode reactively - initialize immediately
+  let isDarkMode = false;
+  if (typeof window !== 'undefined') {
+    isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  onMount(() => {
+    if (typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      
+      const updateDarkMode = (e: MediaQueryListEvent) => {
+        isDarkMode = e.matches;
+      };
+      
+      mediaQuery.addEventListener('change', updateDarkMode);
+      return () => mediaQuery.removeEventListener('change', updateDarkMode);
+    }
+  });
+
+  // Color function - reactive to isDarkMode changes
   function percentageToColor(percentage: number): string {
     const normalized = percentage / maxPercentage;
     const h = 0; // Red hue
     const s = 50 + (normalized * 45); // 50% to 95% saturation
-    const l = 97 - (normalized * 22); // 97% to 75% lightness
+    // Invert lightness for dark mode: lower values = darker, higher values = lighter
+    // Access isDarkMode directly - Svelte will track it when used in template
+    const l = isDarkMode
+      ? 25 + (normalized * 25)  // Dark mode: 25% (dark) to 50% (lighter)
+      : 97 - (normalized * 22); // Light mode: 97% (light) to 75% (darker)
     return `hsl(${h}, ${s}%, ${l}%)`;
   }
 
@@ -149,14 +173,24 @@
           <div class="voter-count">({row.totalVoters.toLocaleString()} voters)</div>
         </td>
         {#each Array.from({length: maxRanks}, (_, i) => i + 1) as numRanks}
+          {@const dist = row.distributions[numRanks]}
+          {@const bgColor = dist ? (() => {
+            const normalized = dist.percentage / maxPercentage;
+            const h = 0;
+            const s = 50 + (normalized * 45);
+            const l = isDarkMode
+              ? 25 + (normalized * 25)
+              : 97 - (normalized * 22);
+            return `hsl(${h}, ${s}%, ${l}%)`;
+          })() : null}
           <td
             class="entry"
-            use:tooltip={row.distributions[numRanks] ? generateMatrixCellTooltip(row, numRanks) : null}
-            style={row.distributions[numRanks]
-              ? `--percentage-normalized: ${row.distributions[numRanks].percentage / maxPercentage}; background: ${percentageToColor(row.distributions[numRanks].percentage)}`
+            use:tooltip={dist ? generateMatrixCellTooltip(row, numRanks) : null}
+            style={dist
+              ? `--percentage-normalized: ${dist.percentage / maxPercentage}; background: ${bgColor}`
               : ''}>
-            {#if row.distributions[numRanks]}
-              {row.distributions[numRanks].percentage.toFixed(1)}%
+            {#if dist}
+              {dist.percentage.toFixed(1)}%
             {:else}
               —
             {/if}
@@ -239,6 +273,31 @@
 
   .overall-separator td {
     border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .entry {
+      color: #e3e3e3;
+    }
+
+    .rowLabel,
+    .colLabel div,
+    .colsLabel,
+    .rowsLabel div {
+      color: #e3e3e3;
+    }
+
+    .voter-count {
+      color: #999;
+    }
+
+    .overall-separator {
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .overall-separator td {
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
   }
 </style>
 

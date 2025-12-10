@@ -5,7 +5,7 @@
     Allocatee,
   } from "../../report_types";
   import type { CandidateContext } from "../candidates";
-  import { getContext } from "svelte";
+  import { getContext, onMount } from "svelte";
   import tooltip from "../../tooltip";
 
   export let data: ICandidatePairTable;
@@ -23,11 +23,35 @@
     ...data.entries.map((row) => Math.max(...row.map((d) => (d ? d.frac : 0))))
   );
 
+  // Detect dark mode reactively - initialize immediately
+  let isDarkMode = false;
+  if (typeof window !== 'undefined') {
+    isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  onMount(() => {
+    if (typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      
+      const updateDarkMode = (e: MediaQueryListEvent) => {
+        isDarkMode = e.matches;
+      };
+      
+      mediaQuery.addEventListener('change', updateDarkMode);
+      return () => mediaQuery.removeEventListener('change', updateDarkMode);
+    }
+  });
+
+  // Color function - reactive to isDarkMode changes
   function fracToColor(frac: number): string {
     frac = frac / maxFrac;
     let h = smooth(0, 0, frac);
     let s = smooth(50, 95, frac);
-    let l = smooth(97, 75, frac);
+    // Invert lightness for dark mode: lower values = darker, higher values = lighter
+    // Access isDarkMode directly - Svelte will track it when used in template
+    let l = isDarkMode 
+      ? smooth(25, 50, frac)  // Dark mode: 25% (dark) to 50% (lighter)
+      : smooth(97, 75, frac);  // Light mode: 97% (light) to 75% (darker)
 
     return `hsl(${h} ${s}% ${l}%)`;
   }
@@ -80,6 +104,19 @@
     transform: rotate(180deg);
     writing-mode: vertical-lr;
   }
+
+  @media (prefers-color-scheme: dark) {
+    .entry {
+      color: #e3e3e3;
+    }
+
+    .rowLabel,
+    .colLabel div,
+    .colsLabel,
+    .rowsLabel div {
+      color: #e3e3e3;
+    }
+  }
 </style>
 
 <table>
@@ -101,10 +138,19 @@
       <tr>
         <td class="rowLabel">{getCandidate(row).name}</td>
         {#each data.entries[i] as entry, j}
+          {@const normalizedFrac = entry ? entry.frac / maxFrac : 0}
+          {@const bgColor = entry ? (() => {
+            const h = smooth(0, 0, normalizedFrac);
+            const s = smooth(50, 95, normalizedFrac);
+            const l = isDarkMode 
+              ? smooth(25, 50, normalizedFrac)
+              : smooth(97, 75, normalizedFrac);
+            return `hsl(${h} ${s}% ${l}%)`;
+          })() : null}
           <td
             use:tooltip={(generateTooltip && entry) ? generateTooltip(row, data.cols[j], entry) : null}
             class="entry"
-            style={entry ? `background: ${fracToColor(entry.frac)}` : null}>
+            style={bgColor ? `background: ${bgColor}` : null}>
             {#if entry}{Math.round(entry.frac * 1000) / 10}%{/if}
           </td>
         {/each}

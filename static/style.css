@@ -208,3 +208,74 @@ hr {
   font-style: italic;
   margin-top: 2px;
 }
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: black;
+    color: #e3e3e3;
+  }
+
+  .description {
+    color: #e3e3e3;
+  }
+
+  h2 {
+    color: #b8a5a5;
+  }
+
+  h3 {
+    color: #b8a5a5;
+  }
+
+  h3 a {
+    color: #e3e3e3;
+  }
+
+  .meta {
+    color: #b8a5a5;
+  }
+
+  .race a {
+    color: #b8a5a5;
+  }
+
+  .race a:hover {
+    background: #2d2d2f;
+  }
+
+  .race a .title strong {
+    color: #e3e3e3;
+  }
+
+  hr {
+    border-bottom-color: #444;
+  }
+
+  .race.non-condorcet {
+    background-color: #2d1f1f;
+    border-left-color: #aa0d0d;
+  }
+
+  .condorcet-info {
+    color: #999;
+  }
+
+  /* Make links brighter red in dark mode */
+  a {
+    color: #FF0000;
+  }
+
+  h3 strong {
+    color: #FF0000;
+  }
+
+  /* Make visited links lighter in dark mode */
+  a:visited {
+    color: #d08080;
+  }
+
+  h3 a:visited {
+    color: #b8a5a5;
+  }
+}

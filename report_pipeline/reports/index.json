@@ -1233,7 +1233,7 @@
           "numCandidates": 5,
           "numRounds": 3,
           "condorcetWinner": null,
-          "hasNonCondorcetWinner": false,
+          "hasNonCondorcetWinner": true,
           "hasWriteInByName": true
         }
       ]
