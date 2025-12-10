@@ -5,6 +5,17 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	server: {
 		port: 3000
+	},
+	build: {
+		rollupOptions: {
+			onwarn(warning, warn) {
+				// Suppress the @__PURE__ annotation warning from Rollup
+				if (warning.message.includes('@__PURE__')) {
+					return;
+				}
+				warn(warning);
+			}
+		}
 	}
 });
 

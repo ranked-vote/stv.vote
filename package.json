@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "RANKED_VOTE_REPORTS=report_pipeline/reports vite dev",
+    "prebuild": "svelte-kit sync",
     "build": "RANKED_VOTE_REPORTS=report_pipeline/reports vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
