@@ -1974,6 +1974,69 @@
       ]
     },
     {
+      "path": "us/ca/alameda/2012/11",
+      "jurisdictionName": "Alameda County",
+      "electionName": "November 6, 2012 General Election",
+      "date": "2012-11-06",
+      "contests": [
+        {
+          "office": "oakland-council-at-large",
+          "officeName": "City Council, At-Large - Oakland",
+          "name": "City Council, At-Large - Oakland",
+          "winner": "Rebecca Kaplan",
+          "numCandidates": 5,
+          "numRounds": 2,
+          "condorcetWinner": "Rebecca Kaplan",
+          "hasNonCondorcetWinner": false,
+          "hasWriteInByName": true
+        },
+        {
+          "office": "oakland-council-d1",
+          "officeName": "City Council, District 1 - Oakland",
+          "name": "City Council, District 1 - Oakland",
+          "winner": "Dan Kalb",
+          "numCandidates": 7,
+          "numRounds": 5,
+          "condorcetWinner": "Dan Kalb",
+          "hasNonCondorcetWinner": false,
+          "hasWriteInByName": true
+        },
+        {
+          "office": "oakland-council-d3",
+          "officeName": "City Council, District 3 - Oakland",
+          "name": "City Council, District 3 - Oakland",
+          "winner": "Lynette Gibson-Mcelhaney",
+          "numCandidates": 6,
+          "numRounds": 6,
+          "condorcetWinner": "Lynette Gibson-Mcelhaney",
+          "hasNonCondorcetWinner": false,
+          "hasWriteInByName": true
+        },
+        {
+          "office": "oakland-council-d5",
+          "officeName": "City Council, District 5 - Oakland",
+          "name": "City Council, District 5 - Oakland",
+          "winner": "Noel Gallo",
+          "numCandidates": 4,
+          "numRounds": 2,
+          "condorcetWinner": "Noel Gallo",
+          "hasNonCondorcetWinner": false,
+          "hasWriteInByName": true
+        },
+        {
+          "office": "oakland-school-director-d3",
+          "officeName": "School Director, District 3 - Oakland",
+          "name": "School Director, District 3 - Oakland",
+          "winner": "Jumoke Hinton Hodge",
+          "numCandidates": 3,
+          "numRounds": 2,
+          "condorcetWinner": "Jumoke Hinton Hodge",
+          "hasNonCondorcetWinner": false,
+          "hasWriteInByName": true
+        }
+      ]
+    },
+    {
       "path": "us/ca/sfo/2011/11",
       "jurisdictionName": "San Francisco",
       "electionName": "Consolidated Municipal Election",
@@ -2063,6 +2126,36 @@
           "condorcetWinner": null,
           "hasNonCondorcetWinner": false,
           "hasWriteInByName": false
+        }
+      ]
+    },
+    {
+      "path": "us/ca/alameda/2010/11",
+      "jurisdictionName": "Alameda County",
+      "electionName": "November 2, 2010 General Election",
+      "date": "2010-11-02",
+      "contests": [
+        {
+          "office": "oakland-council-d4",
+          "officeName": "City Council, District 4 - Oakland",
+          "name": "City Council, District 4 - Oakland",
+          "winner": "Libby Schaaf",
+          "numCandidates": 7,
+          "numRounds": 5,
+          "condorcetWinner": "Libby Schaaf",
+          "hasNonCondorcetWinner": false,
+          "hasWriteInByName": true
+        },
+        {
+          "office": "oakland-mayor",
+          "officeName": "Mayor - Oakland",
+          "name": "Mayor - Oakland",
+          "winner": "Jean Quan",
+          "numCandidates": 10,
+          "numRounds": 3,
+          "condorcetWinner": "Jean Quan",
+          "hasNonCondorcetWinner": false,
+          "hasWriteInByName": true
         }
       ]
     },

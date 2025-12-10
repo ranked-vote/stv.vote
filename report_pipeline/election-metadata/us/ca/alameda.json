@@ -101,6 +101,68 @@
     }
   },
   "elections": {
+    "2010/11": {
+      "name": "November 2, 2010 General Election",
+      "date": "2010-11-02",
+      "dataFormat": "preflib",
+      "tabulationOptions": null,
+      "normalization": "simple",
+      "contests": [
+        {
+          "office": "oakland-mayor",
+          "loaderParams": {
+            "file": "oakland/mayor.toi"
+          }
+        },
+        {
+          "office": "oakland-council-d4",
+          "loaderParams": {
+            "file": "oakland/council-d4.toi"
+          }
+        }
+      ],
+      "files": {}
+    },
+    "2012/11": {
+      "name": "November 6, 2012 General Election",
+      "date": "2012-11-06",
+      "dataFormat": "preflib",
+      "tabulationOptions": null,
+      "normalization": "simple",
+      "contests": [
+        {
+          "office": "oakland-council-at-large",
+          "loaderParams": {
+            "file": "oakland/council-at-large.toi"
+          }
+        },
+        {
+          "office": "oakland-council-d1",
+          "loaderParams": {
+            "file": "oakland/council-d1.toi"
+          }
+        },
+        {
+          "office": "oakland-council-d3",
+          "loaderParams": {
+            "file": "oakland/council-d3.toi"
+          }
+        },
+        {
+          "office": "oakland-council-d5",
+          "loaderParams": {
+            "file": "oakland/council-d5.toi"
+          }
+        },
+        {
+          "office": "oakland-school-director-d3",
+          "loaderParams": {
+            "file": "oakland/school-director-d3.toi"
+          }
+        }
+      ],
+      "files": {}
+    },
     "2022/11": {
       "name": "November 8, 2022 General Election",
       "date": "2022-11-08",

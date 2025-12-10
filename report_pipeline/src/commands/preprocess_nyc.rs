@@ -27,10 +27,13 @@ pub fn preprocess_nyc(metadata_dir: &str, raw_data_dir: &str, report_dir: &str) 
         if election_metadata.data_format != "us_ny_nyc" {
             continue;
         }
-        
+
         // Skip 2021 election, only process 2025
         if election_path != "2025/07" {
-            eprintln!("⏭️  Skipping election: {} (only processing 2025/07)", election_path);
+            eprintln!(
+                "⏭️  Skipping election: {} (only processing 2025/07)",
+                election_path
+            );
             continue;
         }
 
@@ -70,22 +73,24 @@ pub fn preprocess_nyc(metadata_dir: &str, raw_data_dir: &str, report_dir: &str) 
         let ballot_db = read_all_nyc_data(&raw_election_path, candidates_file, cvr_pattern);
 
         // Generate reports directly for ALL races at once
-        eprintln!("📊 Generating reports for all {} races...", ballot_db.races.len());
+        eprintln!(
+            "📊 Generating reports for all {} races...",
+            ballot_db.races.len()
+        );
         for (race_key, _race_metadata) in &ballot_db.races {
             // Find the corresponding contest in metadata
-            let contest = election_metadata.contests.iter()
-                .find(|c| {
-                    if let Some(params) = &c.loader_params {
-                        let contest_race_key = format!(
-                            "{}|{}",
-                            params.get("officeName").map_or("", |v| v),
-                            params.get("jurisdictionName").map_or("", |v| v)
-                        );
-                        contest_race_key == *race_key
-                    } else {
-                        false
-                    }
-                });
+            let contest = election_metadata.contests.iter().find(|c| {
+                if let Some(params) = &c.loader_params {
+                    let contest_race_key = format!(
+                        "{}|{}",
+                        params.get("officeName").map_or("", |v| v),
+                        params.get("jurisdictionName").map_or("", |v| v)
+                    );
+                    contest_race_key == *race_key
+                } else {
+                    false
+                }
+            });
 
             if let Some(contest) = contest {
                 let office = nyc_jurisdiction
@@ -97,17 +102,17 @@ pub fn preprocess_nyc(metadata_dir: &str, raw_data_dir: &str, report_dir: &str) 
                     eprintln!("  📊 {} -> {} ballots", office.name, election.ballots.len());
 
                     // Normalize the election
-                    let normalized = normalize_election(
-                        &election_metadata.normalization,
-                        election,
-                    );
+                    let normalized = normalize_election(&election_metadata.normalization, election);
 
                     // Create ElectionPreprocessed for report generation
                     let election_info = ElectionInfo {
                         name: office.name.clone(),
                         date: election_metadata.date.clone(),
                         data_format: election_metadata.data_format.clone(),
-                        tabulation_options: election_metadata.tabulation_options.clone().unwrap_or_default(),
+                        tabulation_options: election_metadata
+                            .tabulation_options
+                            .clone()
+                            .unwrap_or_default(),
                         jurisdiction_path: nyc_jurisdiction.path.clone(),
                         election_path: election_path.clone(),
                         office: contest.office.clone(),
