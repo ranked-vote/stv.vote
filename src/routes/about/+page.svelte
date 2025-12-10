@@ -35,6 +35,11 @@
 </p>
 
 <p>
+  To view all elections in our database, including those excluded from the featured list,
+  see the <a href="/all">all elections page</a>.
+</p>
+
+<p>
   ranked.vote was created by
   <a href="https://paulbutler.org">Paul Butler</a> and
   <a href="https://felixsargent.com">Felix Sargent</a>.

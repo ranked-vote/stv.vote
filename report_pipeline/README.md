@@ -1,65 +1,60 @@
-# ranked.vote
+# ranked.vote Report Pipeline
 
-A system for processing and analyzing ranked-choice voting (RCV) election data. This repository contains:
-
-- Data processing pipeline for converting raw ballot data into standardized formats
-- Report generation for detailed election analysis
-- Web interface for viewing election results and analysis
+A Rust-based system for processing and analyzing ranked-choice voting (RCV) election data. This pipeline converts raw ballot data from various formats into standardized reports.
 
 ## Project Structure
 
-- `election-metadata/` - Election configuration files (git submodule)
-- `reports/` - Generated election reports (git submodule)
-- `raw-data/` - Raw ballot data (downloaded during setup)
-- `preprocessed/` - Processed ballot data (generated)
+- `election-metadata/` - Election configuration files (committed to git)
+- `reports/` - Generated election reports (committed to git)
+- `archives/` - Compressed raw ballot data (committed to git via Git LFS)
+- `raw-data/` - Uncompressed working directory (gitignored, extracted from archives)
+- `preprocessed/` - Processed ballot data (generated, gitignored)
 
 ## Setup
 
 1. Install dependencies:
    - Rust (latest stable)
-   - Node.js (v10 or later)
-   - AWS CLI (configured with appropriate credentials)
+   - Git LFS (for downloading compressed archives)
 
-2. Clone this repository with submodules:
-
-```bash
-git clone --recursive git@github.com:ranked-vote/ranked-vote.git
-cd ranked-vote
-```
-
-Or if you've already cloned the repository:
+2. Clone the repository:
 
 ```bash
-git submodule init
-git submodule update
+git clone https://github.com/ranked-vote/ranked.vote.git
+cd ranked.vote
 ```
 
-3. Download data:
+3. Extract election data from archives:
 
 ```bash
-./mount.sh
+# From project root:
+bun run report:extract
+
+# Or from report_pipeline directory:
+cd report_pipeline
+./extract-from-archives.sh
 ```
 
-This will:
-
-- Initialize and update the submodules (`election-metadata` and `reports`)
-- Download raw ballot data from S3
+This extracts compressed archives from `archives/` (managed by Git LFS) into the `raw-data/` working directory.
 
 ## Usage
 
 ### Processing Election Data
 
-1. Download the raw ballot data from s3
+1. Extract raw data from archives (if not already done):
 
 ```bash
-./mount.sh
+# From project root:
+bun run report:extract
+
+# Or from report_pipeline directory:
+./extract-from-archives.sh
 ```
 
 2. Sync raw data with metadata:
 
 ```bash
 # From project root (recommended):
-npm run report:sync
+bun run report:sync
 
 # Or from report_pipeline directory:
 ./sync.sh
@@ -69,13 +64,13 @@ npm run report:sync
 
 ```bash
 # From project root (recommended):
-npm run report
+bun run report
 
 # Or from report_pipeline directory:
 ./report.sh
 ```
 
-Note: When run from the project root with `npm run report`, card images are automatically generated after reports are created. The script handles starting and stopping the dev server as needed.
+Note: When run from the project root with `bun run report`, card images are automatically generated after reports are created.
 
 ## Adding Election Data
 
@@ -88,7 +83,7 @@ Create or modify the jurisdiction metadata file in `election-metadata/` followin
 
 The metadata file must specify:
 
-- Data format (supported formats: `nist_sp_1500`, `us_me`, `us_vt_btv`, `dominion_rcr`, `us_ny_nyc`, `simple_json`)
+- Data format (see supported formats below)
 - Election date
 - Offices and contests
 - Loader parameters specific to the format
@@ -134,34 +129,43 @@ raw-data/
    - Preprocessed data: `preprocessed/{jurisdiction_path}/normalized.json.gz`
    - Reports: `reports/{jurisdiction_path}/report.json`
 
-### 4. Submit Changes
+### 4. Compress and Commit Changes
 
-1. Commit your changes in both submodules:
+1. Compress raw data to archives:
 
    ```bash
-   cd election-metadata
-   git add .
-   git commit -m "Add {jurisdiction} {date} election"
-
-   cd ../reports
-   git add .
-   git commit -m "Add {jurisdiction} {date} reports"
+   ./compress-to-archives.sh
    ```
 
-2. Push to your fork and open pull requests for both repositories:
-   - ranked-vote/election-metadata
-   - ranked-vote/reports
+   This creates compressed `.tar.xz` files in `archives/` from `raw-data/`.
+
+2. Commit changes:
+
+   ```bash
+   git add election-metadata/
+   git add reports/
+   git add archives/
+   git commit -m "Add {jurisdiction} {date} election"
+   git push
+   ```
+
+   Note: Archives are managed by Git LFS and will be automatically handled when you push.
 
 ### Supported Data Formats
 
-For format-specific requirements and examples, see the documentation for each supported format:
+The pipeline supports the following data formats:
 
-- `nist_sp_1500`: San Francisco format following NIST SP 1500-103 standard
+- `us_ca_sfo`: San Francisco format (legacy)
+- `nist_sp_1500`: NIST SP 1500-103 standard format (used by San Francisco and others)
 - `us_me`: Maine state format (Excel-based)
 - `us_vt_btv`: Burlington, VT format
+- `us_mn_mpls`: Minneapolis format
 - `dominion_rcr`: Dominion RCV format
-- `us_ny_nyc`: NYC Board of Elections format
+- `us_ny_nyc`: NYC Board of Elections format (Excel-based)
 - `simple_json`: Simple JSON format for testing and small elections
+- `preflib`: PrefLib ordinal preference format (TOI/SOI)
+
+For format-specific requirements and examples, see the source code in `src/formats/`.
 
 ### NYC Data Ingestion Process
 
@@ -191,7 +195,7 @@ For NYC elections, follow this specific process:
      - Election date and name
      - Contest definitions for all offices (Mayor, Comptroller, Public Advocate, Borough Presidents, Council Members)
      - Loader parameters specifying the candidate file and CVR pattern
-     - Empty files object initially
+     - File hashes (see next step)
 
 5. **Generate File Hashes**:
 
@@ -203,38 +207,67 @@ For NYC elections, follow this specific process:
    done
    ```
 
-6. **Update Files Section**:
-   - Extract SHA256 hashes from the generated hash files
-   - Update the `files` section in `election-metadata/us/ny/nyc.json` with filename-to-hash mappings
+   Extract SHA256 hashes and update the `files` section in `election-metadata/us/ny/nyc.json` with filename-to-hash mappings.
 
-7. **Process Data**:
+6. **Process Data**:
+
    ```bash
    # From project root (recommended):
-   npm run report:sync    # Verify metadata and file hashes
-   npm run report         # Generate reports and card images
-   
+   bun run report:sync    # Verify metadata and file hashes
+   bun run report         # Generate reports and card images
+
    # Or from report_pipeline directory:
    ./sync.sh    # Verify metadata and file hashes
    ./report.sh  # Generate reports and card images
+   ```
+
+7. **Compress and Commit**:
+   ```bash
+   ./compress-to-archives.sh
+   git add archives/us/ny/nyc/2023/06/
+   git add reports/us/ny/nyc/2023/06/
+   git commit -m "Add NYC June 2023 election"
+   git push
    ```
 
 The NYC format uses Excel workbooks with specific naming patterns that the loader recognizes automatically based on the `cvrPattern` specified in the metadata.
 
 ## Data Flow
 
-1. Raw ballot data (various formats) → `raw-data/`
-2. Processing pipeline converts to standardized format → `preprocessed/`
-3. Report generation creates detailed analysis → `reports/`
-4. Web interface displays results
+1. Compressed archives (Git LFS) → `archives/` (committed to git)
+2. Extract archives → `raw-data/` (working directory, gitignored)
+3. Processing pipeline converts to standardized format → `preprocessed/` (generated)
+4. Report generation creates detailed analysis → `reports/` (committed to git)
+5. Web interface displays results
 
-## Supported Election Formats
+## Managing Archives
 
-- San Francisco (NIST SP 1500)
-- Maine
-- Burlington, VT
-- Dominion RCR
-- NYC
-- Simple JSON
+### Extracting Data
+
+To extract compressed archives into the working directory:
+
+```bash
+./extract-from-archives.sh
+```
+
+This reads `.tar.xz` files from `archives/` and extracts them to `raw-data/`.
+
+### Compressing Data
+
+To compress raw data into archives for git:
+
+```bash
+./compress-to-archives.sh
+```
+
+This creates compressed `.tar.xz` files in `archives/` from `raw-data/`. The script:
+
+- Only archives files referenced in election metadata
+- Uses parallel compression for performance
+- Skips files that haven't changed
+- Excludes PDFs and other unnecessary files
+
+Archives are managed by Git LFS and should be committed to the repository.
 
 ## License
 
@@ -276,4 +309,4 @@ This is an open source project. For more information about contributing, please 
 
 ## Author
 
-Created and maintained by [Paul Butler](https://paulbutler.org).
+Created and maintained by [Paul Butler](https://paulbutler.org) and [Felix Sargent](https://felixsargent.com).
