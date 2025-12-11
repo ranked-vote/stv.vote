@@ -65,7 +65,7 @@
 
 <p>
   Contributions are welcome! The project is open source and available on
-  <a href="https://github.com/ranked-vote/ranked.vote">GitHub</a>. Please feel free to
+  <a href="https://github.com/ranked-vote/rcv.report">GitHub</a>. Please feel free to
   open issues, submit pull requests, or reach out with questions.
 </p>
 
@@ -73,7 +73,7 @@
 
 <p>
   This website and the data pipeline behind it (including the tabulator) are
-  <a href="https://github.com/ranked-vote/ranked.vote">open source</a> and liberally licensed. Website content and generated reports may
+  <a href="https://github.com/ranked-vote/rcv.report">open source</a> and liberally licensed. Website content and generated reports may
   be freely distributed with attribution under the <a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a> license.
 </p>
 
