@@ -128,16 +128,18 @@
     }
   });
 
+  // Primary blue from style.css: #0d4aaa = hsl(216, 85%, 36%)
+  const PRIMARY_HUE = 216;
+
   // Color function - reactive to isDarkMode changes
   function percentageToColor(percentage: number): string {
     const normalized = percentage / maxPercentage;
-    const h = 0; // Red hue
-    const s = 50 + (normalized * 45); // 50% to 95% saturation
-    // Invert lightness for dark mode: lower values = darker, higher values = lighter
-    // Access isDarkMode directly - Svelte will track it when used in template
+    const h = PRIMARY_HUE; // Blue hue matching site theme
+    const s = 30 + (normalized * 55); // 30% to 85% saturation
+    // Lightness: light background fading to deeper blue
     const l = isDarkMode
-      ? 25 + (normalized * 25)  // Dark mode: 25% (dark) to 50% (lighter)
-      : 97 - (normalized * 22); // Light mode: 97% (light) to 75% (darker)
+      ? 20 + (normalized * 25)  // Dark mode: very dark to medium
+      : 97 - (normalized * 42); // Light mode: near-white to medium blue
     return `hsl(${h}, ${s}%, ${l}%)`;
   }
 
@@ -176,11 +178,11 @@
           {@const dist = row.distributions[numRanks]}
           {@const bgColor = dist ? (() => {
             const normalized = dist.percentage / maxPercentage;
-            const h = 0;
-            const s = 50 + (normalized * 45);
+            const h = PRIMARY_HUE;
+            const s = 30 + (normalized * 55);
             const l = isDarkMode
-              ? 25 + (normalized * 25)
-              : 97 - (normalized * 22);
+              ? 20 + (normalized * 25)
+              : 97 - (normalized * 42);
             return `hsl(${h}, ${s}%, ${l}%)`;
           })() : null}
           <td
