@@ -50,27 +50,23 @@
   }
 
   .firstRound {
-    fill: #aa0d0d;
+    fill: #0d4aaa;
   }
 
-  .firstRound.elected {
-    fill: #0a7c0a;
+  .firstRound.eliminated {
+    fill: #a0afc5;
   }
 
   .transfer {
-    fill: #e7ada0;
+    fill: #6b9ae8;
   }
 
-  .transfer.elected {
-    fill: #7dd87d;
-  }
-
-  .eliminated {
-    opacity: 30%;
+  .transfer.eliminated {
+    fill: #c5cdd8;
   }
 
   .quotaLine {
-    stroke: #0a7c0a;
+    stroke: #0d4aaa;
     stroke-width: 1.5;
     stroke-dasharray: 4 2;
     opacity: 0.7;
@@ -78,11 +74,15 @@
 
   .quotaLabel {
     font-size: 9px;
-    fill: #0a7c0a;
+    fill: #0d4aaa;
     font-weight: 600;
   }
 
   .electedText {
+    fill: #666;
+  }
+
+  .electedText.insideBar {
     fill: white;
     font-weight: 600;
     text-shadow: 0 0 3px rgba(0,0,0,0.5);
@@ -99,6 +99,10 @@
     }
 
     .electedText {
+      fill: #aaa;
+    }
+
+    .electedText.insideBar {
       fill: white;
     }
 
@@ -107,19 +111,27 @@
     }
 
     .quotaLine {
-      stroke: #0c9c0c;
+      stroke: #4a8fff;
     }
 
     .quotaLabel {
-      fill: #0c9c0c;
+      fill: #4a8fff;
     }
 
-    .firstRound.elected {
-      fill: #0c9c0c;
+    .firstRound {
+      fill: #4a8fff;
     }
 
-    .transfer.elected {
-      fill: #5ec85e;
+    .firstRound.eliminated {
+      fill: #5a6070;
+    }
+
+    .transfer {
+      fill: #7ab0ff;
+    }
+
+    .transfer.eliminated {
+      fill: #6a7080;
     }
   }
 </style>
@@ -148,7 +160,6 @@
       {@const isElected = votes.roundElected !== undefined}
       {@const isEliminated = votes.roundEliminated !== undefined}
       <g
-        class={isEliminated && !isElected ? 'eliminated' : ''}
         transform={`translate(0 ${outerHeight * (i + 0.5)})`}>
         <text font-size="12" text-anchor="end" dominant-baseline="middle">
           {getCandidate(votes.candidate).name}
@@ -156,7 +167,7 @@
         <g transform={`translate(5 ${-innerHeight / 2 - 1})`}>
           <rect
             class="firstRound"
-            class:elected={isElected}
+            class:eliminated={isEliminated && !isElected}
             height={innerHeight}
             width={scale * votes.firstRoundVotes}
             use:tooltip={`<strong>${getCandidate(votes.candidate).name}</strong>
@@ -164,7 +175,7 @@
             in the first round.`} />
           <rect
             class="transfer"
-            class:elected={isElected}
+            class:eliminated={isEliminated && !isElected}
             x={scale * votes.firstRoundVotes}
             height={innerHeight}
             width={scale * votes.transferVotes}
@@ -175,8 +186,10 @@
         {#if isElected}
           {@const totalVotes = votes.firstRoundVotes + votes.transferVotes}
           {@const reachedQuota = quota && totalVotes >= quota}
+          {@const hasWideBar = totalVotes >= maxVotes * 0.8}
           <text
             class="electedText"
+            class:insideBar={hasWideBar}
             font-size="11"
             dominant-baseline="middle"
             text-anchor="end"

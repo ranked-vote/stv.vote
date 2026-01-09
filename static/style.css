@@ -145,6 +145,7 @@ h3 strong {
 
 .electionSection {
   flex: 1;
+  min-width: 0; /* Allow flex item to shrink below content size */
 }
 
 .race a {
@@ -223,7 +224,6 @@ hr {
   font-style: italic;
   margin-top: 2px;
 }
-
 
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
