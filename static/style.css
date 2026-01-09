@@ -2,7 +2,7 @@
 body {
   margin: 0;
   padding: 0;
-  border-top: 5px solid #aa0d0d;
+  border-top: 5px solid #0d4aaa;
   font-family: "Source Sans Pro", sans-serif;
   color: #555;
   font-size: 11pt;
@@ -91,21 +91,21 @@ p {
 }
 
 a {
-  color: #aa0d0d;
+  color: #0d4aaa;
   text-decoration: none;
 }
 
 h2 {
   margin: 0;
   font-size: 16pt;
-  color: #937a7a;
+  color: #7a8593;
 }
 
 h3 {
   margin: 0;
   font-size: 16pt;
   font-weight: normal;
-  color: #937a7a;
+  color: #7a8593;
 }
 
 h3 a {
@@ -114,11 +114,11 @@ h3 a {
 }
 
 h3 strong {
-  color: #aa0d0d;
+  color: #0d4aaa;
 }
 
 .meta {
-  color: #937a7a;
+  color: #7a8593;
 }
 
 .yearSection {
@@ -150,7 +150,7 @@ h3 strong {
 .race a {
   display: flex;
   align-items: center;
-  color: #937a7a;
+  color: #7a8593;
   padding: 5px;
   margin: 0 -5px;
   text-decoration: none;
@@ -185,29 +185,29 @@ hr {
 
 /* Interesting Election Highlighting (non-Condorcet winner or exhausted > winner) */
 .race.interesting {
-  border-left: 4px solid #aa0d0d;
-  background-color: #fdf2f2;
+  border-left: 4px solid #0d4aaa;
+  background-color: #f2f5fd;
   margin-left: -5px;
   padding-left: 5px;
 }
 
 /* Subtle highlight for elections where winner didn't lead in round 1 */
 .race.winner-not-first {
-  border-left: 2px solid #dd8888;
-  background-color: #fef8f8;
+  border-left: 2px solid #88a0dd;
+  background-color: #f8faff;
   margin-left: -5px;
   padding-left: 5px;
 }
 
 /* If both interesting and winner-not-first, use interesting styling */
 .race.interesting.winner-not-first {
-  border-left: 4px solid #aa0d0d;
-  background-color: #fdf2f2;
+  border-left: 4px solid #0d4aaa;
+  background-color: #f2f5fd;
 }
 
 .interesting-badge {
   display: inline-block;
-  background-color: #aa0d0d;
+  background-color: #0d4aaa;
   color: white;
   font-size: 0.8em;
   padding: 2px 6px;
@@ -237,11 +237,11 @@ hr {
   }
 
   h2 {
-    color: #b8a5a5;
+    color: #a5adb8;
   }
 
   h3 {
-    color: #b8a5a5;
+    color: #a5adb8;
   }
 
   h3 a {
@@ -249,11 +249,11 @@ hr {
   }
 
   .meta {
-    color: #b8a5a5;
+    color: #a5adb8;
   }
 
   .race a {
-    color: #b8a5a5;
+    color: #a5adb8;
   }
 
   .race a:hover {
@@ -269,39 +269,39 @@ hr {
   }
 
   .race.interesting {
-    background-color: #2d1f1f;
-    border-left-color: #aa0d0d;
+    background-color: #1f1f2d;
+    border-left-color: #0d4aaa;
   }
 
   .race.winner-not-first {
-    background-color: #2d2525;
-    border-left-color: #cc6666;
+    background-color: #25252d;
+    border-left-color: #6688cc;
   }
 
   .race.interesting.winner-not-first {
-    background-color: #2d1f1f;
-    border-left-color: #aa0d0d;
+    background-color: #1f1f2d;
+    border-left-color: #0d4aaa;
   }
 
   .condorcet-info {
     color: #999;
   }
 
-  /* Make links brighter red in dark mode */
+  /* Make links brighter blue in dark mode */
   a {
-    color: #ff0000;
+    color: #4a8fff;
   }
 
   h3 strong {
-    color: #ff0000;
+    color: #4a8fff;
   }
 
-  /* Make visited links lighter in dark mode */
+  /* Make visited links muted blue in dark mode */
   a:visited {
-    color: #d08080;
+    color: #8080d0;
   }
 
   h3 a:visited {
-    color: #b8a5a5;
+    color: #a5adb8;
   }
 }

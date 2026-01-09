@@ -1,5 +1,5 @@
 import { json, error } from '@sveltejs/kit';
-import { getReport } from '../../../../reports.js';
+import { getReport } from '$lib/server/reports';
 import type { RequestHandler } from './$types';
 
 export const prerender = true;
@@ -8,7 +8,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	const { path } = params;
 
 	try {
-		const report = await getReport(path);
+		const report = getReport(path);
 
 		if (!report || !report.info) {
 			throw error(404, 'Report not found');

@@ -3,10 +3,10 @@
     ICandidatePairTable,
     ICandidatePairEntry,
     Allocatee,
-  } from "../../report_types";
+  } from "$lib/report_types";
   import type { CandidateContext } from "../candidates";
   import { getContext, onMount } from "svelte";
-  import tooltip from "../../tooltip";
+  import tooltip from "$lib/tooltip";
 
   export let data: ICandidatePairTable;
   export let rowLabel: string;

@@ -1,4 +1,4 @@
-name: Deploy ranked.vote to GitHub Pages
+name: Deploy stv.vote to GitHub Pages
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pages-rcv-report
+  group: pages-stv-report
   cancel-in-progress: true
 
 jobs:
@@ -29,11 +29,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Validate reports and build
-        env:
-          RANKED_VOTE_REPORTS: ${{ github.workspace }}/report_pipeline/reports
+      - name: Validate and build
         run: |
-          # Run tests (includes election winner validation and card image validation)
+          # Run tests
           echo "Running tests..."
           bun test
           # Build the site

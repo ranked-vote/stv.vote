@@ -1,30 +1,30 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import { readFileSync } from 'fs';
+import Database from 'better-sqlite3';
 import { resolve } from 'path';
-
-const RANKED_VOTE_REPORTS = process.env.RANKED_VOTE_REPORTS
-	? resolve(process.env.RANKED_VOTE_REPORTS)
-	: resolve('./report_pipeline/reports');
 
 function getPrerenderEntries() {
 	try {
-		const indexRaw = readFileSync(`${RANKED_VOTE_REPORTS}/index.json`, 'utf8');
-		const index = JSON.parse(indexRaw);
+		const dbPath = resolve(process.cwd(), 'data.sqlite3');
+		const db = new Database(dbPath, { readonly: true });
+		
+		const rows = db.prepare(`
+			SELECT path, office FROM reports WHERE hidden != 1
+		`).all();
+		
+		db.close();
+		
 		const entries = [];
-
-		// Generate entries for all report and card routes
-		for (const election of index.elections || []) {
-			for (const contest of election.contests || []) {
-				const path = `${election.path}/${contest.office}`;
-				entries.push(`/report/${path}`);
-				entries.push(`/card/${path}`);
-			}
+		for (const row of rows) {
+			const fullPath = `${row.path}/${row.office}`;
+			entries.push(`/report/${fullPath}`);
+			entries.push(`/card/${fullPath}`);
+			entries.push(`/api/${fullPath}/report.json`);
 		}
-
+		
 		return entries;
 	} catch (err) {
-		console.warn('Could not load reports index for prerender entries:', err);
+		console.warn('Could not load reports from database for prerender entries:', err.message);
 		return [];
 	}
 }
@@ -51,10 +51,10 @@ const config = {
 				}
 				// For other routes, throw to fail the build
 				throw new Error(`Prerender error for ${path}: ${message}`);
-			}
+			},
+			handleUnseenRoutes: 'ignore'
 		}
 	}
 };
 
 export default config;
-

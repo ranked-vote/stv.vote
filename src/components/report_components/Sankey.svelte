@@ -3,15 +3,52 @@
     ITabulatorRound,
     Allocatee,
     CandidateId,
-  } from "../../report_types";
+    ICandidateVotes,
+  } from "$lib/report_types";
   import type { CandidateContext } from "../candidates";
   import { EXHAUSTED } from "../candidates";
   import { getContext } from "svelte";
-  import tooltip from "../../tooltip";
+  import tooltip from "$lib/tooltip";
 
   export let rounds: ITabulatorRound[];
+  export let totalVotes: ICandidateVotes[] = [];
+  export let seats: number = 1;
+  export let quota: number | undefined = undefined;
 
   const { getCandidate } = getContext("candidates") as CandidateContext;
+
+  // Build maps of candidate -> round elected/eliminated
+  const electedInRound = new Map<CandidateId, number>();
+  const eliminatedInRound = new Map<CandidateId, number>();
+  
+  for (const cv of totalVotes) {
+    if (cv.roundElected !== undefined) {
+      electedInRound.set(cv.candidate, cv.roundElected);
+    }
+    if (cv.roundEliminated !== undefined) {
+      eliminatedInRound.set(cv.candidate, cv.roundEliminated);
+    }
+  }
+
+  // Also check rounds for electedThisRound/eliminatedThisRound fields
+  rounds.forEach((round, i) => {
+    if (round.electedThisRound) {
+      for (const cid of round.electedThisRound) {
+        if (!electedInRound.has(cid)) {
+          electedInRound.set(cid, i + 1);
+        }
+      }
+    }
+    if (round.eliminatedThisRound) {
+      for (const cid of round.eliminatedThisRound) {
+        if (!eliminatedInRound.has(cid)) {
+          eliminatedInRound.set(cid, i + 1);
+        }
+      }
+    }
+  });
+
+  const isSTV = seats > 1;
 
   type NodeKey = `${number}:${string}`;
 
@@ -59,6 +96,19 @@
       return this.allocatee === EXHAUSTED;
     }
 
+    isElected(): boolean {
+      if (this.allocatee === EXHAUSTED) return false;
+      const electedRound = electedInRound.get(this.allocatee as CandidateId);
+      return electedRound !== undefined && electedRound <= this.round;
+    }
+
+    isEliminated(): boolean {
+      if (this.allocatee === EXHAUSTED) return false;
+      const eliminatedRound = eliminatedInRound.get(this.allocatee as CandidateId);
+      // Show as eliminated in the round they were eliminated (their last appearance)
+      return eliminatedRound !== undefined && eliminatedRound === this.round;
+    }
+
     label(): string {
       return getCandidate(this.allocatee).name;
     }
@@ -71,11 +121,25 @@
     tooltip(): string {
       const percentage = this.percentage();
       const percentageText = percentage ? ` (${percentage}%)` : '';
+      const electedRound = this.allocatee !== EXHAUSTED ? electedInRound.get(this.allocatee as CandidateId) : undefined;
 
       if (this.isExhausted()) {
         return `
         <strong>${this.votes.toLocaleString()}</strong> votes${percentageText}
         were exhausted
+        in round <strong>${this.round}</strong>`;
+      } else if (electedRound !== undefined && electedRound === this.round) {
+        // Check if they actually reached quota or were elected by default
+        const reachedQuota = quota && this.votes >= quota;
+        const electionMethod = reachedQuota ? '' : ' (remaining seats filled)';
+        return `
+        <strong>${getCandidate(this.allocatee).name}</strong> was <span style="color: #0a7c0a; font-weight: bold;">ELECTED</span>${electionMethod}
+        with <strong>${this.votes.toLocaleString()}</strong> votes${percentageText}
+        in round <strong>${this.round}</strong>`;
+      } else if (this.isElected()) {
+        return `
+        <strong>${getCandidate(this.allocatee).name}</strong> (elected) held
+        <strong>${this.votes.toLocaleString()}</strong> votes${percentageText}
         in round <strong>${this.round}</strong>`;
       } else {
         return `
@@ -99,7 +163,8 @@
       private width: number,
       private r1y: number,
       private r2y: number,
-      private sourceVotes?: number
+      private sourceVotes?: number,
+      private transferType?: string
     ) {}
 
     sourceKey(): NodeKey {
@@ -108,6 +173,10 @@
 
     targetKey(): NodeKey {
       return nodeKey(this.toRoundIndex, this.toCandidate);
+    }
+
+    isSurplusTransfer(): boolean {
+      return this.transferType === 'surplus';
     }
 
     toPath(): string {
@@ -135,6 +204,7 @@
       const percentage = this.sourceVotes ?
         Math.round((this.votes / this.sourceVotes) * 1000) / 10 : null;
       const percentageText = percentage ? ` (${percentage}%)` : '';
+      const transferTypeText = this.isSurplusTransfer() ? ' (surplus)' : '';
 
       if (this.fromCandidate === EXHAUSTED) {
         return `<strong>${this.votes.toLocaleString()}</strong> exhausted votes
@@ -142,7 +212,7 @@
       } else if (this.toCandidate === EXHAUSTED) {
         return `<strong>${this.votes.toLocaleString()}</strong> votes
         for <strong>${getCandidate(this.fromCandidate).name}</strong>
-        became exhausted in round <strong>${this.round}</strong>`;
+        became exhausted in round <strong>${this.round}</strong>${transferTypeText}`;
       } else if (this.fromCandidate === this.toCandidate) {
         return `<strong>${this.votes.toLocaleString()}</strong> votes
         for <strong>${getCandidate(this.toCandidate).name}</strong>
@@ -150,7 +220,7 @@
       } else {
         return `<strong>${this.votes.toLocaleString()}</strong> votes${percentageText}
         for <strong>${getCandidate(this.fromCandidate).name}</strong>
-        were transferred to <strong>${
+        were transferred${transferTypeText} to <strong>${
           getCandidate(this.toCandidate).name
         }</strong>
         in round <strong>${this.round}</strong>`;
@@ -170,6 +240,7 @@
   type TransferMeta = {
     sourceKey: NodeKey;
     targetKey: NodeKey;
+    isSurplus: boolean;
   };
 
   let transferMetas: TransferMeta[] = [];
@@ -228,7 +299,8 @@
             last.width,
             (i - 1) * roundHeight + voteBlockHeight,
             i * roundHeight,
-            last.votes
+            last.votes,
+            undefined
           )
         );
 
@@ -273,7 +345,8 @@
           width,
           (i - 1) * roundHeight + voteBlockHeight,
           i * roundHeight,
-          last.votes
+          last.votes,
+          transfer.type
         )
       );
 
@@ -289,6 +362,7 @@
     transferMetas = transfers.map((t) => ({
       sourceKey: t.sourceKey(),
       targetKey: t.targetKey(),
+      isSurplus: t.isSurplusTransfer(),
     }));
 
     incoming = new Map();
@@ -399,13 +473,24 @@
     color-scheme: light;
   }
 
+  /* Default: Blue for active/continuing candidates */
   .voteBlock {
-    fill: #aa0d0d;
+    fill: #2563eb;
     cursor: pointer;
   }
 
   .voteBlock.exhausted {
     fill: #ccc;
+  }
+
+  /* Green for elected candidates */
+  .voteBlock.elected {
+    fill: #0a7c0a;
+  }
+
+  /* Red for eliminated candidates (in their final round) */
+  .voteBlock.eliminated {
+    fill: #dc2626;
   }
 
   .voteBlock.highlight {
@@ -422,6 +507,11 @@
     opacity: 0.2;
     mix-blend-mode: exclusion;
     cursor: pointer;
+  }
+
+  .transfer.surplus {
+    fill: #0a7c0a;
+    opacity: 0.3;
   }
 
   .transfer.highlight {
@@ -444,10 +534,22 @@
   }
 
   @media (prefers-color-scheme: dark) {
+    .voteBlock {
+      fill: #3b82f6;
+    }
+
     .voteBlock.exhausted {
       fill: #666;
       stroke: #999;
       stroke-width: 1;
+    }
+
+    .voteBlock.elected {
+      fill: #0c9c0c;
+    }
+
+    .voteBlock.eliminated {
+      fill: #ef4444;
     }
 
     .voteBlock.highlight {
@@ -458,16 +560,16 @@
       fill: white;
     }
 
-    /* Ensure red stays red in dark mode */
-    .voteBlock:not(.exhausted) {
-      fill: #aa0d0d;
-    }
-
     /* Make transfer paths more visible in dark mode */
     .transfer {
       fill: #999;
       opacity: 0.4;
       mix-blend-mode: normal;
+    }
+
+    .transfer.surplus {
+      fill: #0c9c0c;
+      opacity: 0.5;
     }
 
     .transfer.highlight {
@@ -503,6 +605,8 @@
           use:tooltip={voteBlock.tooltip()}
           class="voteBlock"
           class:exhausted={voteBlock.isExhausted()}
+          class:elected={voteBlock.isElected()}
+          class:eliminated={voteBlock.isEliminated()}
           class:highlight={activeNodeKeys.has(voteBlock.nodeKey())}
           class:dimmed={hover !== null && !activeNodeKeys.has(voteBlock.nodeKey())}
           y={voteBlock.y}
@@ -528,6 +632,7 @@
       <path
         use:tooltip={transfer.tooltip()}
         class="transfer"
+        class:surplus={transfer.isSurplusTransfer()}
         class:highlight={activeLinkIndexes.has(i)}
         class:dimmed={hover !== null && !activeLinkIndexes.has(i)}
         d={transfer.toPath()}

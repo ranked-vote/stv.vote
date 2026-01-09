@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { IRankingDistribution, ICandidate, CandidateId } from "../../report_types";
+  import type { IRankingDistribution, ICandidate, CandidateId } from "$lib/report_types";
   import { onMount } from "svelte";
-  import tooltip from "../../tooltip";
+  import tooltip from "$lib/tooltip";
 
   export let candidates: ICandidate[];
   export let rankingDistribution: IRankingDistribution;

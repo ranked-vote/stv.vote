@@ -31,9 +31,6 @@ jobs:
         run: bun run check
 
       - name: Test and build
-        env:
-          RANKED_VOTE_REPORTS: ${{ github.workspace }}/report_pipeline/reports
         run: |
           bun test
           bun run build
-

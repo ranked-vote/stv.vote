@@ -1,90 +1,45 @@
-# ranked.vote
+# stv.vote
 
-A static site and data pipeline for publishing ranked-choice voting (RCV) election reports.
+A static site for publishing Single Transferable Vote (STV) election reports.
 
 - Web UI: SvelteKit (Svelte 5) app in `src/` that renders published reports
-- Data pipeline: Rust project in `report_pipeline/` that normalizes raw data and generates `report.json`
+- Data: SQLite database (`data.sqlite3`) stores election data
 
 ## Prerequisites
 
-- Bun (latest version)
-- Rust (stable) if you need to regenerate reports
-- **Git LFS** for downloading election data archives
+- [Bun](https://bun.sh/) (latest version)
+- [mise](https://mise.jdx.dev/) for environment management (optional)
 
-## First-Time Setup
-
-### 1. Install Git LFS
-
-**macOS:**
-```bash
-brew install git-lfs
-git lfs install
-```
-
-**Linux:**
-```bash
-sudo apt-get install git-lfs
-git lfs install
-```
-
-See [GIT-LFS-SETUP.md](GIT-LFS-SETUP.md) for detailed instructions.
-
-### 2. Clone and Extract Data
-
-```bash
-# Clone repository (Git LFS will automatically download archives)
-git clone https://github.com/ranked-vote/ranked.vote.git
-cd ranked.vote
-
-# Extract election data archives to working directory
-bun run report:extract
-
-# This creates raw-data/ from the compressed archives/
-# Time: ~5-10 minutes for 12 GB of data
-```
-
-### 3. Install and Run
+## Quick Start
 
 ```bash
 # Install dependencies
 bun install
 
+# Initialize the database (creates empty tables)
+bun run init-db
+
 # Start dev server
 bun run dev
 
-# Open http://localhost:3000
-```
-
-The app reads report data from `report_pipeline/reports` via the `RANKED_VOTE_REPORTS` environment variable (set automatically in the dev script).
-
-## Quick Start (without election data)
-
-If you only want to view existing reports without raw data:
-
-```bash
-bun install
-bun run dev
-# open http://localhost:3000
+# Open http://localhost:5173
 ```
 
 ## Scripts
 
 ### Web Development
-- `bun run dev`: start SvelteKit dev server (with `RANKED_VOTE_REPORTS` set automatically)
+- `bun run dev`: start SvelteKit dev server
 - `bun run build`: build static site to `build/` directory
 - `bun run preview`: preview the built site locally
 - `bun run check`: run Svelte type checking
 
-### Report Generation
-- `bun run report`: generate reports (automatically generates card images after reports are created)
-- `bun run report:sync`: sync election metadata with raw data files
-- `bun run report:extract`: extract election data from archives to raw-data directory
+### Database
+- `bun run init-db`: initialize empty SQLite database with schema
 
 ### Card Image Generation
 - `bun run generate-images`: generate share images (automatically starts/stops dev server if needed)
   - Processes images in parallel (default: 5 concurrent, set `CONCURRENCY` env var to adjust)
-  - Skips unchanged images (only regenerates if report.json is newer than PNG)
-- Card image validation is included in the test suite (`bun test`)
+  - Skips unchanged images
 
 ## Build
 
@@ -94,138 +49,61 @@ bun run build
 # output: build/
 ```
 
-The build script automatically sets `RANKED_VOTE_REPORTS` to `report_pipeline/reports`.
+## Database Schema
 
-## Deployment
+The `data.sqlite3` database contains these tables:
 
-Deploys are handled by GitHub Pages via `.github/workflows/deploy-rcv-report.yml`:
+- **reports**: Election contest metadata (jurisdiction, date, office, winner, etc.)
+- **candidates**: Candidates for each contest with vote totals
+- **rounds**: Tabulation rounds for each contest
+- **allocations**: Vote allocations within each round
+- **transfers**: Vote transfers between eliminated candidates
 
-- On push to `main`/`master`, CI installs dependencies, builds, and publishes `build/` to Pages
-- CI sets `RANKED_VOTE_REPORTS` to `${{ github.workspace }}/report_pipeline/reports`
+## Adding Election Data
 
-## Working with Election Data
+You can add election data using SQL or by creating a load script similar to `scripts/load-report.js` in the approval-vote project:
 
-### Data Directory Structure
+```javascript
+import { Database } from "bun:sqlite";
 
+const db = new Database("data.sqlite3");
+
+// Insert a report
+const result = db.prepare(`
+  INSERT INTO reports (name, date, jurisdictionPath, electionPath, office, ...)
+  VALUES (?, ?, ?, ?, ?, ...)
+`).run(...values);
+
+const reportId = result.lastInsertRowid;
+
+// Insert candidates
+db.prepare(`
+  INSERT INTO candidates (report_id, candidate_index, name, firstRoundVotes, ...)
+  VALUES (?, ?, ?, ?, ...)
+`).run(reportId, ...candidateValues);
+
+// Insert rounds, allocations, transfers...
 ```
-report_pipeline/
-├── archives/          # Compressed data (committed to git via LFS)
-│   └── us/ca/alameda/2024/11/
-│       └── nov-05-general.tar.xz
-├── raw-data/          # Uncompressed working data (gitignored)
-│   └── us/ca/alameda/2024/11/
-│       └── nov-05-general/
-│           ├── CvrExport_*.json
-│           └── *Manifest.json
-└── reports/           # Generated reports (committed to git)
-```
-
-### Adding New Election Data
-
-1. **Add data to `raw-data/`**
-   ```bash
-   cd report_pipeline
-   mkdir -p raw-data/us/ca/alameda/2025/06
-   cp -r /path/to/new-data raw-data/us/ca/alameda/2025/06/
-   ```
-
-2. **Generate reports with Rust pipeline**
-   ```bash
-   # From project root (recommended):
-   bun run report
-
-   # Or from report_pipeline directory:
-   cd report_pipeline
-   ./report.sh  # See report_pipeline/README.md for details
-   ```
-
-   Note: `bun run report` automatically generates card images after reports are created.
-
-3. **Compress for git**
-   ```bash
-   ./compress-to-archives.sh
-   # Creates archives/ from raw-data/ (~33:1 compression)
-   ```
-
-4. **Commit archives and generated files (not raw-data)**
-   ```bash
-   cd ..
-   git add report_pipeline/archives/us/ca/alameda/2025/06/
-   git add report_pipeline/reports/us/ca/alameda/2025/06/
-   git add static/share/us/ca/alameda/2025/06/
-   git commit -m "Add Alameda June 2025 election"
-   git push
-   ```
-
-See [DATA-WORKFLOW.md](report_pipeline/DATA-WORKFLOW.md) for complete documentation.
 
 ## Project Structure
 
 - `src/`: SvelteKit app (Svelte 5 components, routes, API endpoints)
+  - `src/lib/`: Shared library code
+    - `src/lib/server/`: Server-only code (database access)
+    - `src/lib/report_types.ts`: TypeScript type definitions
+  - `src/routes/`: SvelteKit routes
+  - `src/components/`: Svelte components
 - `static/`: static assets copied to build
-  - `static/share/`: Generated card images for social media sharing (committed)
-- `report_pipeline/`: Rust data processing and report generation
-  - `archives/`: Compressed election data (git LFS, committed)
-  - `raw-data/`: Uncompressed working data (gitignored)
-  - `reports/`: Generated JSON reports (committed)
+  - `static/share/`: Generated card images for social media sharing
+- `scripts/`: Utility scripts
+- `data.sqlite3`: SQLite database with election data
 - `build/`: static site build output (gitignored)
-- `.svelte-kit/`: SvelteKit build cache (gitignored)
 
-## Documentation
+## Deployment
 
-- [GIT-LFS-SETUP.md](GIT-LFS-SETUP.md) - Complete Git LFS setup and troubleshooting
-- [DATA-WORKFLOW.md](report_pipeline/DATA-WORKFLOW.md) - Data management workflow
-- [report_pipeline/README.md](report_pipeline/README.md) - Rust pipeline details
+Deploys are handled by GitHub Pages via `.github/workflows/deploy.yml`:
 
-## Common Tasks
-
-```bash
-# First time: Extract election data
-bun run report:extract
-
-# View reports in browser
-bun install && bun run dev
-
-# Generate reports and card images
-bun run report
-
-# Generate/update share images
-bun run generate-images
-
-# Run tests (includes card image validation)
-bun test
-
-# Add new election data
-cd report_pipeline
-cp -r /source raw-data/us/ca/alameda/2025/06/
-bun run report:sync  # Sync metadata
-bun run report       # Generate reports and images
-./compress-to-archives.sh
-git add archives/ reports/ static/share/
-
-# Update election data
-# Edit files in raw-data/
-cd report_pipeline
-bun run report:sync  # Sync metadata
-bun run report       # Regenerate reports and images
-bun run generate-images  # Regenerate share images
-./compress-to-archives.sh  # Detects changes and recompresses
-git add archives/ reports/ static/share/
-```
-
-## Troubleshooting
-
-**"Pointer file" errors:**
-- You need Git LFS installed: `brew install git-lfs && git lfs install`
-- Pull LFS files: `git lfs pull`
-
-**"No such file" in raw-data/:**
-- Extract archives: `bun run report:extract`
-
-**Slow clone:**
-- Archives are large (~360 MB). Be patient or use: `GIT_LFS_SKIP_SMUDGE=1 git clone ...`
-
-See [GIT-LFS-SETUP.md](GIT-LFS-SETUP.md) for more help.
+- On push to `main`/`master`, CI installs dependencies, builds, and publishes `build/` to Pages
 
 ## License
 

@@ -6,31 +6,31 @@
 </script>
 
 <svelte:head>
-	<title>ranked.vote: detailed reports on ranked-choice elections.</title>
+	<title>stv.vote: detailed reports on STV elections.</title>
 </svelte:head>
 
 <div class="wide container">
 <div class="row">
   <div class="leftCol">
     <div class="description">
-      <h1>ranked.vote</h1>:
-      detailed reports on ranked-choice elections.
+      <h1>stv.vote</h1>:
+      detailed reports on Single Transferable Vote elections.
     </div>
     <p>
-      Ranked-choice elections produce more data on voter preferences than
-      pick-one elections. <strong>ranked.vote</strong> runs analysis on the
+      Single Transferable Vote elections produce more data on voter preferences than
+      pick-one elections. <strong>stv.vote</strong> runs analysis on the
       ballot-level data and publishes reports on each election.
     </p>
 
     <p>
       Elections are highlighted when they exhibit
       interesting characteristics, such as when the winner did not lead in the first round,
-      when the RCV winner differs from the Condorcet winner, there is a Condorcet cycle, 
+      when the STV winner differs from the Condorcet winner, there is a Condorcet cycle, 
       or exhausted ballots outnumber the winner's votes.
     </p>
 
     <p>
-      ranked.vote was created by
+      stv.vote was created by
       <a href="https://paulbutler.org">Paul Butler</a> and
       <a href="https://felixsargent.com">Felix Sargent</a>.
       It is non-partisan and has received no outside funding.
@@ -51,4 +51,3 @@
   </div>
 </div>
 </div>
-

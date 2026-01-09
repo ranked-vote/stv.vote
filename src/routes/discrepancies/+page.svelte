@@ -1,22 +1,22 @@
 <svelte:head>
-	<title>ranked.vote: Understanding Discrepancies</title>
+	<title>stv.vote: Understanding Discrepancies</title>
 </svelte:head>
 
 <div class="container">
 <div class="description">
-  <h1><a href="/">ranked.vote</a>: Understanding Discrepancies</h1>
+  <h1><a href="/">stv.vote</a>: Understanding Discrepancies</h1>
 </div>
 
 <p>
-  All of the analysis that goes into ranked.vote reports is based only
-  on ballot-level data. This includes the IRV tabulation, which backs
+  All of the analysis that goes into stv.vote reports is based only
+  on ballot-level data. This includes the STV tabulation, which backs
   the "Runoff Rounds" section.
 </p>
 
 <p>
   In some cases, these tabulations don't match the official tabulations.
   There are two main reasons for this. First, there are multiple ways to
-  tabluate an instant-runoff election. The main decisions are:
+  tabulate an STV election. The main decisions are:
 </p>
 
 <ul>
@@ -50,4 +50,3 @@
 </p>
 
 </div>
-

@@ -5,7 +5,7 @@
     ICandidate,
     ICandidatePairEntry,
     ICandidatePairTable,
-  } from "../report_types";
+  } from "$lib/report_types";
   import VoteCounts from "./report_components/VoteCounts.svelte";
   import Sankey from "./report_components/Sankey.svelte";
   import CandidatePairTable from "./report_components/CandidatePairTable.svelte";
@@ -19,6 +19,9 @@
   // Defensive check
   $: hasReport = report && report.info && report.candidates;
   $: hasCandidates = hasReport && report.numCandidates > 0;
+  $: isSTV = (report.seats ?? 1) > 1;
+  $: seats = report.seats ?? 1;
+  $: quota = report.quota;
 
   function getCandidate(cid: Allocatee): ICandidate {
     if (cid == "X") {
@@ -101,6 +104,9 @@
     };
   }
 
+  // Get winner names for display
+  $: winnerNames = report.winners?.map(w => getCandidate(w).name) ?? [];
+
   $: sortedPairwisePreferences = hasCandidates
     ? sortPairwiseTable(report.pairwisePreferences)
     : report.pairwisePreferences;
@@ -118,6 +124,27 @@
       background-color: black;
     }
   }
+
+  .winners-list {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+  }
+
+  .winners-list li {
+    margin: 0.2em 0;
+  }
+
+  .quota-info {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .quota-info {
+      color: #aaa;
+    }
+  }
 </style>
 
 {#if hasReport}
@@ -125,7 +152,7 @@
   <p class="description"></p>
   <div class="electionHeader">
     <h3>
-      <a href="/">ranked.vote</a>
+      <a href="/">stv.vote</a>
       //
       <strong>{report.info.jurisdictionName}</strong>
       {report.info.officeName}
@@ -145,21 +172,49 @@
       was held on
       <strong>{formatDate(report.info.date)}</strong>.
       {#if hasCandidates}
-        {#if report.winner != null}
-        <strong>{getCandidate(report.winner).name}</strong>
-        was the winner out of
+        {#if isSTV}
+          <!-- STV multi-winner description -->
+          <strong>{seats}</strong> seats were filled using Single Transferable Vote from
+          <strong>{report.numCandidates}</strong> candidates
+          {#if report.rounds && report.rounds.length > 1}
+            over <strong>{report.rounds.length}</strong> rounds.
+          {:else}
+            in a single round.
+          {/if}
         {:else}
-        The winner could not be determined out of
-        {/if}
-        <strong>{report.numCandidates}</strong>&nbsp;{#if report.numCandidates == 1}candidate {:else}candidates{/if}{#if report.rounds && report.rounds.length > 1}{" "}after
-          {" "}<strong>{report.rounds.length - 1}</strong>&nbsp;elimination {#if report.rounds.length == 2}round{:else}rounds{/if}.
-        {:else}. No elimination rounds were necessary to determine the outcome.
+          <!-- IRV single-winner description -->
+          {#if report.winner != null}
+          <strong>{getCandidate(report.winner).name}</strong>
+          was the winner out of
+          {:else}
+          The winner could not be determined out of
+          {/if}
+          <strong>{report.numCandidates}</strong>&nbsp;{#if report.numCandidates == 1}candidate {:else}candidates{/if}{#if report.rounds && report.rounds.length > 1}{" "}after
+            {" "}<strong>{report.rounds.length - 1}</strong>&nbsp;elimination {#if report.rounds.length == 2}round{:else}rounds{/if}.
+          {:else}. No elimination rounds were necessary to determine the outcome.
+          {/if}
         {/if}
       {:else}
         No candidate data available for this election.
       {/if}
     </p>
-    {#if hasCandidates}
+
+    {#if isSTV && winnerNames.length > 0}
+      <p><strong>Elected candidates:</strong></p>
+      <ol class="winners-list">
+        {#each winnerNames as name}
+          <li>{name}</li>
+        {/each}
+      </ol>
+      {#if quota}
+        <p class="quota-info">
+          Droop quota: <strong>{quota.toLocaleString()}</strong> votes
+          (calculated as ⌊{report.ballotCount.toLocaleString()} / ({seats} + 1)⌋ + 1)
+        </p>
+      {/if}
+    {/if}
+
+    {#if hasCandidates && !isSTV}
       {#if report.condorcet != null && report.winner != null}
         <p>
           {#if report.winner == report.condorcet}
@@ -172,26 +227,39 @@
         <p>
           No Condorcet winner exists; multiple candidates form a
           <a href="https://en.wikipedia.org/wiki/Condorcet_paradox">Condorcet cycle</a>:
-          {report.smithSet.map(getCandidateNameById).join(", ")}. This means that among these candidates, each one would beat some others in head-to-head matchups, but no single candidate beats all others. In this situation, the winner depends on the order of eliminations in the ranked-choice voting process, rather than a clear preference.
+          {report.smithSet.map(getCandidateNameById).join(", ")}. This means that among these candidates, each one would beat some others in head-to-head matchups, but no single candidate beats all others. In this situation, the winner depends on the order of eliminations in the STV process, rather than a clear preference.
         </p>
       {/if}
     {/if}
   </div>
   <div class="rightCol">
-    <VoteCounts candidateVotes={report.totalVotes} />
+    <VoteCounts candidateVotes={report.totalVotes} {quota} {seats} />
   </div>
 </div>
 
 {#if report.rounds.length > 1}
   <div class="row">
     <div class="leftCol">
-      <h2>Runoff Rounds</h2>
+      <h2>{isSTV ? 'STV Rounds' : 'Runoff Rounds'}</h2>
 
       <p>
         This <a href="https://en.wikipedia.org/wiki/Sankey_diagram">Sankey diagram</a> shows the votes of each remaining candidate at each round,
         as well as the breakdown of votes transferred when each candidate was
-        eliminated.
+        {#if isSTV}
+          elected (surplus transfers) or eliminated.
+        {:else}
+          eliminated.
+        {/if}
       </p>
+
+      {#if isSTV}
+        <p>
+          In STV, candidates who reach the <strong>quota</strong> ({quota?.toLocaleString()} votes)
+          are elected. Surplus votes above the quota are transferred to voters' next preferences.
+          When no candidate reaches the quota, the candidate with the fewest votes is eliminated
+          and their votes are transferred.
+        </p>
+      {/if}
 
       <p>
         Note that the tabulation (but not the winner) may differ from the official count. You
@@ -200,12 +268,13 @@
     </div>
 
     <div class="rightCol">
-      <Sankey rounds={report.rounds} />
+      <Sankey rounds={report.rounds} totalVotes={report.totalVotes} {seats} {quota} />
     </div>
   </div>
 {/if}
 
-{#if report.numCandidates > 1}
+{#if report.numCandidates > 1 && !isSTV}
+<!-- Pairwise tables are less meaningful for STV, so only show for IRV -->
 <div class="row">
   <div class="leftCol">
     <h2>Pairwise Preferences</h2>
@@ -280,7 +349,7 @@
 {/if}
 {/if}
 
-{#if hasCandidates && report.rounds && report.rounds.length > 1}
+{#if hasCandidates && report.rounds && report.rounds.length > 1 && !isSTV}
   <div class="row">
     <div class="leftCol">
       <h2>Final Vote by First Choice</h2>

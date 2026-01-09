@@ -1,19 +1,19 @@
 <svelte:head>
-	<title>About ranked.vote</title>
+	<title>About stv.vote</title>
 </svelte:head>
 
 <div class="container">
 <div class="description">
-  <h1>About <a href="/">ranked.vote</a></h1>
+  <h1>About <a href="/">stv.vote</a></h1>
 </div>
 
 <p>
-  <a href="https://en.wikipedia.org/wiki/Instant-runoff_voting">
-    Instant-runoff elections
+  <a href="https://en.wikipedia.org/wiki/Single_transferable_vote">
+    Single Transferable Vote elections
   </a>
   produce a lot of data about voter preferences. Typically, this information is
   made available by election boards in specialized file formats and requires
-  processing to interpret. The purpose of ranked.vote is to increase transparency into these
+  processing to interpret. The purpose of stv.vote is to increase transparency into these
   elections by creating detailed and intuitive reports about them.
 </p>
 
@@ -26,12 +26,12 @@
 <h2>Featured Elections</h2>
 
 <p>
-  We feature elections where the ranked-choice voting process was meaningful—specifically,
+  We feature elections where the STV process was meaningful—specifically,
   races that required three or more rounds of tabulation. Elections decided in one or two
   rounds are excluded because they represent cases where a candidate won with a clear
-  majority from the start, making the instant-runoff mechanism less relevant. By focusing
+  majority from the start, making the vote transfer mechanism less relevant. By focusing
   on elections with multiple rounds of elimination and vote transfers, we highlight cases
-  where ranked-choice voting had a substantial impact on determining the winner.
+  where STV had a substantial impact on determining the winner.
 </p>
 
 <p>
@@ -40,7 +40,7 @@
 </p>
 
 <p>
-  ranked.vote was created by
+  stv.vote was created by
   <a href="https://paulbutler.org">Paul Butler</a> and
   <a href="https://felixsargent.com">Felix Sargent</a>.
   It is non-partisan and has received no outside funding.
@@ -65,7 +65,7 @@
 
 <p>
   Contributions are welcome! The project is open source and available on
-  <a href="https://github.com/ranked-vote/rcv.report">GitHub</a>. Please feel free to
+  <a href="https://github.com/stv-vote/stv.vote">GitHub</a>. Please feel free to
   open issues, submit pull requests, or reach out with questions.
 </p>
 
@@ -73,7 +73,7 @@
 
 <p>
   This website and the data pipeline behind it (including the tabulator) are
-  <a href="https://github.com/ranked-vote/rcv.report">open source</a> and liberally licensed. Website content and generated reports may
+  <a href="https://github.com/stv-vote/stv.vote">open source</a> and liberally licensed. Website content and generated reports may
   be freely distributed with attribution under the <a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a> license.
 </p>
 
@@ -83,4 +83,3 @@
   The font is <a href="https://github.com/adobe-fonts/source-sans-pro">Source Sans Pro</a>.
 </p>
 </div>
-

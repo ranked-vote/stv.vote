@@ -3,14 +3,18 @@
     ICandidateVotes,
     CandidateId,
     ICandidate,
-  } from "../../report_types";
+  } from "$lib/report_types";
   import type { CandidateContext } from "../candidates";
   import { getContext } from "svelte";
-  import tooltip from "../../tooltip";
+  import tooltip from "$lib/tooltip";
 
   export let candidateVotes: ICandidateVotes[];
+  export let quota: number | undefined = undefined;
+  export let seats: number = 1;
 
   const { getCandidate } = getContext("candidates") as CandidateContext;
+
+  const isSTV = seats > 1;
 
   const outerHeight = 24;
   const innerHeight = 14;
@@ -18,12 +22,24 @@
   const width = 600;
 
   // Sort by total votes (firstRoundVotes + transferVotes) in descending order
-  $: sortedCandidateVotes = [...candidateVotes].sort((a, b) =>
-    (b.firstRoundVotes + b.transferVotes) - (a.firstRoundVotes + a.transferVotes)
-  );
+  // But put elected candidates first, sorted by round elected
+  $: sortedCandidateVotes = [...candidateVotes].sort((a, b) => {
+    // Elected candidates first
+    const aElected = a.roundElected !== undefined;
+    const bElected = b.roundElected !== undefined;
+    if (aElected && !bElected) return -1;
+    if (!aElected && bElected) return 1;
+    if (aElected && bElected) {
+      // Sort by round elected
+      return (a.roundElected ?? 0) - (b.roundElected ?? 0);
+    }
+    // Then by total votes
+    return (b.firstRoundVotes + b.transferVotes) - (a.firstRoundVotes + a.transferVotes);
+  });
 
   $: maxVotes = Math.max(...sortedCandidateVotes.map((d) => d.firstRoundVotes + d.transferVotes));
   $: scale = (width - labelSpace - 15) / maxVotes;
+  $: quotaX = quota ? quota * scale : null;
 
   $: height = outerHeight * sortedCandidateVotes.length;
 </script>
@@ -37,12 +53,38 @@
     fill: #aa0d0d;
   }
 
+  .firstRound.elected {
+    fill: #0a7c0a;
+  }
+
   .transfer {
     fill: #e7ada0;
   }
 
+  .transfer.elected {
+    fill: #7dd87d;
+  }
+
   .eliminated {
     opacity: 30%;
+  }
+
+  .quotaLine {
+    stroke: #0a7c0a;
+    stroke-width: 1.5;
+    stroke-dasharray: 4 2;
+    opacity: 0.7;
+  }
+
+  .quotaLabel {
+    font-size: 9px;
+    fill: #0a7c0a;
+    font-weight: 600;
+  }
+
+  .electedText {
+    fill: #0a7c0a;
+    font-weight: 600;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -50,14 +92,53 @@
     text {
       fill: #e3e3e3;
     }
+
+    .electedText {
+      fill: #7dd87d;
+    }
+
+    .quotaLine {
+      stroke: #0c9c0c;
+    }
+
+    .quotaLabel {
+      fill: #0c9c0c;
+    }
+
+    .firstRound.elected {
+      fill: #0c9c0c;
+    }
+
+    .transfer.elected {
+      fill: #5ec85e;
+    }
   }
 </style>
 
-<svg width="100%" viewBox={`0 0 ${width} ${height}`}>
-  <g transform={`translate(${labelSpace} 0)`}>
+<svg width="100%" viewBox={`0 0 ${width} ${height + 20}`}>
+  <g transform={`translate(${labelSpace} 10)`}>
+    {#if quotaX && isSTV}
+      <!-- Quota line -->
+      <line
+        class="quotaLine"
+        x1={5 + quotaX}
+        y1={-5}
+        x2={5 + quotaX}
+        y2={height - 5}
+      />
+      <text
+        class="quotaLabel"
+        x={8 + quotaX}
+        y={-2}>
+        Quota: {quota?.toLocaleString()}
+      </text>
+    {/if}
+
     {#each sortedCandidateVotes as votes, i}
+      {@const isElected = votes.roundElected !== undefined}
+      {@const isEliminated = votes.roundEliminated !== undefined}
       <g
-        class={votes.roundEliminated === null ? '' : 'eliminated'}
+        class={isEliminated && !isElected ? 'eliminated' : ''}
         transform={`translate(0 ${outerHeight * (i + 0.5)})`}>
         <text font-size="12" text-anchor="end" dominant-baseline="middle">
           {getCandidate(votes.candidate).name}
@@ -65,6 +146,7 @@
         <g transform={`translate(5 ${-innerHeight / 2 - 1})`}>
           <rect
             class="firstRound"
+            class:elected={isElected}
             height={innerHeight}
             width={scale * votes.firstRoundVotes}
             use:tooltip={`<strong>${getCandidate(votes.candidate).name}</strong>
@@ -72,6 +154,7 @@
             in the first round.`} />
           <rect
             class="transfer"
+            class:elected={isElected}
             x={scale * votes.firstRoundVotes}
             height={innerHeight}
             width={scale * votes.transferVotes}
@@ -79,13 +162,27 @@
             received <strong>${votes.transferVotes.toLocaleString()}</strong> transfer votes.`}
             />
         </g>
-        {#if votes.roundEliminated !== null}
-            <text
+        {#if isElected}
+          {@const totalVotes = votes.firstRoundVotes + votes.transferVotes}
+          {@const reachedQuota = quota && totalVotes >= quota}
+          <text
+            class="electedText"
+            font-size="12"
+            dominant-baseline="middle"
+            x={10 + scale * totalVotes}>
+            {#if reachedQuota}
+              Elected in round {votes.roundElected}
+            {:else}
+              Elected in round {votes.roundElected} (final)
+            {/if}
+          </text>
+        {:else if isEliminated}
+          <text
             font-size="12"
             dominant-baseline="middle"
             x={10 + scale * (votes.firstRoundVotes + votes.transferVotes)}>
             Eliminated in round {votes.roundEliminated}
-            </text>
+          </text>
         {/if}
       </g>
     {/each}

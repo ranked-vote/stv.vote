@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import fs from "fs/promises";
+import { existsSync } from "fs";
 import path from "path";
 import { stat } from "fs/promises";
 import { spawn, execSync } from "child_process";
@@ -183,60 +184,16 @@ async function processBatch(
 async function processReport(report, browser, retries = 1) {
   const reportPath = report.path;
   const outputPath = `static/share/${reportPath}.png`;
-  const reportJsonPath = `report_pipeline/reports/${reportPath}/report.json`;
   const outputDir = path.dirname(outputPath);
   const reportStartTime = Date.now();
 
   try {
-    // Verify report file exists and has data
+    // Check if image already exists
     try {
-      const reportContent = await fs.readFile(reportJsonPath, "utf8");
-      const reportData = JSON.parse(reportContent);
-
-      // Skip if report is empty (no ballots, candidates, or rounds)
-      if (
-        reportData.ballotCount === 0 ||
-        !reportData.candidates ||
-        reportData.candidates.length === 0 ||
-        !reportData.rounds ||
-        reportData.rounds.length === 0
-      ) {
-        return {
-          success: true,
-          skipped: true,
-          path: reportPath,
-          time: Date.now() - reportStartTime,
-          reason: "empty report",
-        };
-      }
-    } catch (error) {
-      // If file doesn't exist, skip it (shouldn't happen since we check earlier, but handle gracefully)
-      if (error.code === "ENOENT") {
-        return {
-          success: true,
-          skipped: true,
-          path: reportPath,
-          time: Date.now() - reportStartTime,
-          reason: "report file not found",
-        };
-      }
-      return {
-        success: false,
-        skipped: false,
-        path: reportPath,
-        error: `Report file error: ${error.message}`,
-        time: Date.now() - reportStartTime,
-      };
-    }
-
-    // Check if image already exists and is newer than report
-    try {
-      const [imageStat, reportStat] = await Promise.all([
-        stat(outputPath),
-        stat(reportJsonPath),
-      ]);
-
-      if (imageStat.mtimeMs >= reportStat.mtimeMs) {
+      const imageStat = await stat(outputPath);
+      // For SQLite-based reports, we can't easily compare timestamps
+      // So we regenerate if --force is set or skip if image exists
+      if (!process.env.FORCE_REGENERATE) {
         return {
           success: true,
           skipped: true,
@@ -245,7 +202,7 @@ async function processReport(report, browser, retries = 1) {
         };
       }
     } catch {
-      // File doesn't exist or can't be stat'd, proceed with generation
+      // File doesn't exist, proceed with generation
     }
 
     await fs.mkdir(outputDir, { recursive: true });
@@ -336,6 +293,45 @@ async function processReport(report, browser, retries = 1) {
   }
 }
 
+// Get reports from API
+async function getReportsFromAPI() {
+  try {
+    const response = await fetch(`http://localhost:${detectedPort}/api/reports.json`);
+    if (!response.ok) {
+      log(logLevels.ERROR, `Failed to fetch reports: ${response.status}`);
+      return [];
+    }
+    
+    const index = await response.json();
+    const reports = [];
+    
+    for (const election of index.elections || []) {
+      for (const contest of election.contests || []) {
+        reports.push({
+          path: `${election.path}/${contest.office}`,
+          election: {
+            path: election.path,
+            jurisdictionName: election.jurisdictionName,
+            electionName: election.electionName,
+          },
+          contest: {
+            office: contest.office,
+            officeName: contest.officeName,
+            numCandidates: contest.numCandidates,
+            numRounds: contest.numRounds,
+            seats: contest.seats,
+          },
+        });
+      }
+    }
+    
+    return reports;
+  } catch (error) {
+    log(logLevels.ERROR, `Error fetching reports: ${error.message}`);
+    return [];
+  }
+}
+
 async function generateShareImages() {
   const scriptStartTime = Date.now();
   log(logLevels.INFO, "Starting share image generation");
@@ -376,66 +372,36 @@ async function generateShareImages() {
     const browserInitTime = Date.now() - browserStartTime;
     log(logLevels.DEBUG, `Browser launched in ${browserInitTime}ms`);
 
-    // Read reports index
+    // Get reports from API
     const indexStartTime = Date.now();
-    const indexRaw = await fs.readFile(
-      "report_pipeline/reports/index.json",
-      "utf8",
-    );
-    const index = JSON.parse(indexRaw);
+    const allReports = await getReportsFromAPI();
     const indexLoadTime = Date.now() - indexStartTime;
-    log(logLevels.DEBUG, `Index loaded in ${indexLoadTime}ms`);
+    log(logLevels.DEBUG, `Reports loaded in ${indexLoadTime}ms`);
 
-    // Flatten all contests from all elections, filtering out empty reports and missing files
+    // Filter out empty reports (no candidates or no rounds means nothing to display)
     const reports = [];
     const skippedEmpty = [];
-    const skippedMissing = [];
-    for (const election of index.elections || []) {
-      for (const contest of election.contests || []) {
-        // Skip empty reports (no candidates, no rounds, or no ballots)
-        if (
-          contest.numCandidates === 0 ||
-          contest.numRounds === 0 ||
-          contest.winner === "No Winner"
-        ) {
-          skippedEmpty.push(`${election.path}/${contest.office}`);
-          continue;
-        }
-
-        const reportPath = `${election.path}/${contest.office}`;
-        const reportJsonPath = `report_pipeline/reports/${reportPath}/report.json`;
-
-        // Skip if report file doesn't exist
-        try {
-          await stat(reportJsonPath);
-        } catch {
-          skippedMissing.push(reportPath);
-          continue;
-        }
-
-        reports.push({
-          path: reportPath,
-          election: election,
-          contest: contest,
-        });
+    
+    for (const report of allReports) {
+      if (
+        report.contest.numCandidates === 0 ||
+        report.contest.numRounds === 0
+      ) {
+        skippedEmpty.push(report.path);
+        continue;
       }
+      reports.push(report);
     }
 
     if (skippedEmpty.length > 0) {
-      log(logLevels.INFO, `Skipped ${skippedEmpty.length} empty reports:`, {
-        reports: skippedEmpty,
-      });
-    }
-    if (skippedMissing.length > 0) {
-      log(
-        logLevels.INFO,
-        `Skipped ${skippedMissing.length} missing report files:`,
-        {
-          reports: skippedMissing,
-        },
-      );
+      log(logLevels.INFO, `Skipped ${skippedEmpty.length} empty reports`);
     }
     log(logLevels.INFO, `Found ${reports.length} reports to process`);
+
+    if (reports.length === 0) {
+      log(logLevels.WARN, "No reports found in database. Run 'bun scripts/load-cambridge.ts' first.");
+      return;
+    }
 
     // Determine concurrency
     const concurrency = parseInt(process.env.CONCURRENCY || "5", 10);
@@ -554,7 +520,6 @@ async function startDevServer() {
 
   const env = {
     ...process.env,
-    RANKED_VOTE_REPORTS: "report_pipeline/reports",
   };
 
   // Use spawn without shell to avoid security warning

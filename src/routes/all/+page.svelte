@@ -6,32 +6,32 @@
 </script>
 
 <svelte:head>
-	<title>All Elections - ranked.vote</title>
+	<title>All Elections - stv.vote</title>
 </svelte:head>
 
 <div class="wide container">
 <div class="row">
   <div class="leftCol">
     <div class="description">
-      <h1>ranked.vote</h1>:
+      <h1>stv.vote</h1>:
       all elections.
     </div>
     <p>
-      This page shows all ranked-choice elections in the database, including
+      This page shows all STV elections in the database, including
       those with 2 or fewer candidates that are filtered from the
       <a href="/">main page</a>.
     </p>
 
     <p>
       Some elections are highlighted when they exhibit
-      interesting characteristics: the RCV winner differs from the Condorcet
+      interesting characteristics: the STV winner differs from the Condorcet
       winner (the candidate who would beat all others in head-to-head matchups),
       there is a Condorcet cycle (no single candidate beats all others), or
       exhausted ballots outnumbering the winner's votes.
     </p>
 
     <p>
-      ranked.vote was created by
+      stv.vote was created by
       <a href="https://paulbutler.org">Paul Butler</a> and
       <a href="https://felixsargent.com">Felix Sargent</a>.
       It is non-partisan and has received no outside funding.
@@ -52,4 +52,3 @@
   </div>
 </div>
 </div>
-
