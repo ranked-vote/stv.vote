@@ -15,6 +15,9 @@
 
   const { getCandidate } = getContext("candidates") as CandidateContext;
 
+  // Primary blue from style.css: #0d4aaa = hsl(216, 85%, 36%)
+  const PRIMARY_HUE = 216;
+
   function smooth(low: number, high: number, frac: number): number {
     return low * (1 - frac) + high * frac;
   }
@@ -42,16 +45,16 @@
     }
   });
 
-  // Color function - reactive to isDarkMode changes
+  // Color function using primary blue - reactive to isDarkMode changes
   function fracToColor(frac: number): string {
     frac = frac / maxFrac;
-    let h = smooth(0, 0, frac);
-    let s = smooth(50, 95, frac);
-    // Invert lightness for dark mode: lower values = darker, higher values = lighter
-    // Access isDarkMode directly - Svelte will track it when used in template
+    // Use the primary blue hue, with saturation increasing with intensity
+    let h = PRIMARY_HUE;
+    let s = smooth(30, 85, frac);  // Low saturation (desaturated) to high saturation (vibrant blue)
+    // Lightness: light background fading to deeper blue
     let l = isDarkMode 
-      ? smooth(25, 50, frac)  // Dark mode: 25% (dark) to 50% (lighter)
-      : smooth(97, 75, frac);  // Light mode: 97% (light) to 75% (darker)
+      ? smooth(20, 45, frac)   // Dark mode: very dark to medium
+      : smooth(97, 55, frac);  // Light mode: near-white to medium blue
 
     return `hsl(${h} ${s}% ${l}%)`;
   }
@@ -140,11 +143,11 @@
         {#each data.entries[i] as entry, j}
           {@const normalizedFrac = entry ? entry.frac / maxFrac : 0}
           {@const bgColor = entry ? (() => {
-            const h = smooth(0, 0, normalizedFrac);
-            const s = smooth(50, 95, normalizedFrac);
+            const h = PRIMARY_HUE;
+            const s = smooth(30, 85, normalizedFrac);
             const l = isDarkMode 
-              ? smooth(25, 50, normalizedFrac)
-              : smooth(97, 75, normalizedFrac);
+              ? smooth(20, 45, normalizedFrac)
+              : smooth(97, 55, normalizedFrac);
             return `hsl(${h} ${s}% ${l}%)`;
           })() : null}
           <td

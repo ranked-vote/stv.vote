@@ -1,14 +1,17 @@
 /**
  * Load Cambridge MA election data into SQLite
- * 
+ *
  * Usage: bun scripts/load-cambridge.ts
  */
 
 import { Database } from "bun:sqlite";
-import { parseCambridgeCSV, normalizeCandidate } from "./parse-cambridge-csv.js";
+import {
+  parseCambridgeCSV,
+  normalizeCandidate,
+} from "./parse-cambridge-csv.js";
 import { tabulateSTV } from "./tabulate-stv.js";
-import { readdirSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { computePairwiseTables } from "./compute-pairwise.js";
+import { existsSync } from "node:fs";
 
 interface ElectionConfig {
   year: string;
@@ -56,42 +59,53 @@ const CAMBRIDGE_ELECTIONS: ElectionConfig[] = [
 
 function loadElection(db: Database, config: ElectionConfig) {
   console.log(`\nLoading ${config.year} ${config.officeName}...`);
-  
+
   if (!existsSync(config.csvFile)) {
     console.log(`  Skipping: ${config.csvFile} not found`);
     return;
   }
-  
+
   // Parse ballots
   const parseResult = parseCambridgeCSV(config.csvFile);
   console.log(`  Parsed ${parseResult.ballots.length} valid ballots`);
   console.log(`  Found ${parseResult.candidates.length} candidates`);
-  
+
   // Tabulate
   const stvResult = tabulateSTV(
     parseResult.ballots,
     config.seats,
-    parseResult.candidates
+    parseResult.candidates,
   );
   console.log(`  Quota: ${stvResult.quota}`);
   console.log(`  Rounds: ${stvResult.rounds.length}`);
-  console.log(`  Winners: ${stvResult.winners.map(w => stvResult.candidates[w]).join(', ')}`);
-  
+  console.log(
+    `  Winners: ${stvResult.winners.map((w) => stvResult.candidates[w]).join(", ")}`,
+  );
+
+  // Compute pairwise preference tables
+  console.log(`  Computing pairwise preferences...`);
+  const pairwiseData = computePairwiseTables(
+    parseResult.ballots,
+    stvResult.candidates,
+    stvResult.rounds,
+  );
+
   // Build paths
   const date = `${config.year}-${config.month}-${config.day}`;
   const jurisdictionPath = "us/ma/cambridge";
   const electionPath = `${config.year}/${config.month}`;
   const path = `${jurisdictionPath}/${electionPath}`;
-  
+
   // Insert report
   const insertReport = db.prepare(`
     INSERT INTO reports (
       name, date, jurisdictionPath, electionPath, office, officeName,
       jurisdictionName, electionName, ballotCount, path, seats, quota,
-      numRounds, winners, dataFormat, tabulation
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      numRounds, winners, dataFormat, tabulation,
+      pairwisePreferences, firstAlternate, firstFinal, rankingDistribution
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
-  
+
   const reportResult = insertReport.run(
     `Cambridge ${config.officeName} ${config.year}`,
     date,
@@ -108,12 +122,16 @@ function loadElection(db: Database, config: ElectionConfig) {
     stvResult.rounds.length,
     JSON.stringify(stvResult.winners),
     "cambridge-csv",
-    "stv"
+    "stv",
+    JSON.stringify(pairwiseData.pairwisePreferences),
+    JSON.stringify(pairwiseData.firstAlternate),
+    pairwiseData.firstFinal ? JSON.stringify(pairwiseData.firstFinal) : null,
+    JSON.stringify(pairwiseData.rankingDistribution),
   );
-  
+
   const reportId = reportResult.lastInsertRowid;
   console.log(`  Report ID: ${reportId}`);
-  
+
   // Insert candidates
   const insertCandidate = db.prepare(`
     INSERT INTO candidates (
@@ -121,13 +139,13 @@ function loadElection(db: Database, config: ElectionConfig) {
       transferVotes, roundEliminated, roundElected, winner
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
-  
+
   for (let i = 0; i < stvResult.candidates.length; i++) {
     const name = stvResult.candidates[i];
     const { isWriteIn } = normalizeCandidate(name);
-    const votes = stvResult.candidateVotes.find(v => v.candidate === i);
+    const votes = stvResult.candidateVotes.find((v) => v.candidate === i);
     const isWinner = stvResult.winners.includes(i) ? 1 : 0;
-    
+
     insertCandidate.run(
       reportId,
       i,
@@ -137,10 +155,10 @@ function loadElection(db: Database, config: ElectionConfig) {
       votes?.transferVotes ?? 0,
       votes?.roundEliminated ?? null,
       votes?.roundElected ?? null,
-      isWinner
+      isWinner,
     );
   }
-  
+
   // Insert rounds
   const insertRound = db.prepare(`
     INSERT INTO rounds (
@@ -148,20 +166,20 @@ function loadElection(db: Database, config: ElectionConfig) {
       electedThisRound, eliminatedThisRound
     ) VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
-  
+
   const insertAllocation = db.prepare(`
     INSERT INTO allocations (round_id, allocatee, votes)
     VALUES (?, ?, ?)
   `);
-  
+
   const insertTransfer = db.prepare(`
     INSERT INTO transfers (round_id, from_candidate, to_allocatee, count, transfer_type)
     VALUES (?, ?, ?, ?, ?)
   `);
-  
+
   for (let i = 0; i < stvResult.rounds.length; i++) {
     const round = stvResult.rounds[i];
-    
+
     const roundResult = insertRound.run(
       reportId,
       i + 1,
@@ -169,20 +187,18 @@ function loadElection(db: Database, config: ElectionConfig) {
       round.overvote,
       round.continuingBallots,
       round.electedThisRound ? JSON.stringify(round.electedThisRound) : null,
-      round.eliminatedThisRound ? JSON.stringify(round.eliminatedThisRound) : null
+      round.eliminatedThisRound
+        ? JSON.stringify(round.eliminatedThisRound)
+        : null,
     );
-    
+
     const roundId = roundResult.lastInsertRowid;
-    
+
     // Insert allocations
     for (const alloc of round.allocations) {
-      insertAllocation.run(
-        roundId,
-        String(alloc.allocatee),
-        alloc.votes
-      );
+      insertAllocation.run(roundId, String(alloc.allocatee), alloc.votes);
     }
-    
+
     // Insert transfers
     for (const transfer of round.transfers) {
       insertTransfer.run(
@@ -190,12 +206,14 @@ function loadElection(db: Database, config: ElectionConfig) {
         transfer.from,
         String(transfer.to),
         transfer.count,
-        transfer.type || 'elimination'
+        transfer.type || "elimination",
       );
     }
   }
-  
-  console.log(`  Loaded ${stvResult.rounds.length} rounds with allocations and transfers`);
+
+  console.log(
+    `  Loaded ${stvResult.rounds.length} rounds with allocations and transfers`,
+  );
 }
 
 // Main
@@ -217,5 +235,7 @@ for (const config of CAMBRIDGE_ELECTIONS) {
 console.log("\nDone! Data loaded into data.sqlite3");
 
 // Verify
-const count = db.query("SELECT COUNT(*) as count FROM reports").get() as { count: number };
+const count = db.query("SELECT COUNT(*) as count FROM reports").get() as {
+  count: number;
+};
 console.log(`Total reports in database: ${count.count}`);

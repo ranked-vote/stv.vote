@@ -23,6 +23,9 @@
   $: isSTV = (report.seats ?? 1) > 1;
   $: seats = report.seats ?? 1;
   $: quota = report.quota;
+  // Check if pairwise data exists (has actual entries, not just empty arrays)
+  $: hasPairwiseData = report.pairwisePreferences?.entries?.length > 0 &&
+    report.pairwisePreferences.entries.some(row => row.some(e => e.denominator > 0));
 
   function getCandidate(cid: Allocatee): ICandidate {
     if (cid == "X") {
@@ -274,8 +277,7 @@
   </div>
 {/if}
 
-{#if report.numCandidates > 1 && !isSTV}
-<!-- Pairwise tables are less meaningful for STV, so only show for IRV -->
+{#if report.numCandidates > 1 && hasPairwiseData}
 <div class="row">
   <div class="leftCol">
     <h2>Pairwise Preferences</h2>
@@ -286,6 +288,13 @@
       other. Ballots which rank neither candidate are not counted towards the
       percent counts.
     </p>
+    {#if isSTV}
+      <p>
+        Note: In multi-seat STV elections, pairwise preferences show overall voter
+        sentiment but don't directly determine outcomes, since votes transfer
+        through multiple elimination and surplus rounds.
+      </p>
+    {/if}
   </div>
 
   <div class="rightCol">
@@ -348,9 +357,9 @@
   </div>
 </div>
 {/if}
-{/if}
+{/if}<!-- end hasPairwiseData -->
 
-{#if hasCandidates && report.rounds && report.rounds.length > 1 && !isSTV}
+{#if hasCandidates && report.rounds && report.rounds.length > 1 && hasPairwiseData}
   <div class="row">
     <div class="leftCol">
       <h2>Final Vote by First Choice</h2>
@@ -358,6 +367,12 @@
         This table tracks which candidate ballots were ultimately allocated to,
         among ballots that ranked an eliminated candidate first.
       </p>
+      {#if isSTV}
+        <p>
+          In STV, "final" means the candidate each ballot was counted towards
+          when all seats were filled or the tabulation ended.
+        </p>
+      {/if}
     </div>
 
     <div class="rightCol">
