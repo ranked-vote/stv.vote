@@ -345,6 +345,9 @@ function loadWard(db: Database, ward: WardContest) {
       }
     }
 
+    // Calculate exhausted votes: valid_poll - sum of all active candidate votes
+    const exhaustedVotes = Math.round((ward.valid_poll - continuingBallots) * 100) / 100;
+    
     const roundResult = insertRound.run(
       reportId,
       round,
@@ -360,6 +363,11 @@ function loadWard(db: Database, ward: WardContest) {
     // Insert allocations
     for (const alloc of allocations) {
       insertAllocation.run(roundId, String(alloc.candidateIdx), alloc.votes);
+    }
+    
+    // Insert exhausted allocation (X is the special allocatee for exhausted)
+    if (exhaustedVotes > 0) {
+      insertAllocation.run(roundId, "X", exhaustedVotes);
     }
 
     // Calculate and insert transfers for rounds > 1

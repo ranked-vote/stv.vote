@@ -308,10 +308,15 @@
       let last = lastVotes.get(allocation.allocatee);
       let accountedIn = 0;
       if (last) {
-        // Carryover width should be the MINIMUM of previous and current votes
-        // (representing votes that stay with the candidate, not the full previous amount)
+        // Carryover width = votes that STAY with the candidate
         const carryoverWidth = Math.min(last.width, width);
         const carryoverVotes = Math.min(last.votes, allocation.votes);
+        
+        // Carryover: LEFT of source → RIGHT of destination
+        // This leaves RIGHT of source for outgoing transfers
+        // and LEFT of destination for incoming transfers
+        // Flow: outgoing (right) → incoming (left), naturally left-to-right
+        const destCarryoverX = offset + width - carryoverWidth;
         
         transfers.push(
           new TransferBlock(
@@ -322,7 +327,7 @@
             i - 1,
             i,
             last.xOffset,
-            allocation.allocatee === "X" ? offset + width - carryoverWidth : offset,
+            allocation.allocatee === "X" ? offset + width - carryoverWidth : destCarryoverX,
             carryoverWidth,
             (i - 1) * roundHeight + voteBlockHeight,
             i * roundHeight,
@@ -331,12 +336,11 @@
           )
         );
 
-        if (allocation.allocatee !== "X") {
-          accountedIn = carryoverWidth;
-        }
+        // Incoming transfers land on the LEFT (accountedIn = 0)
+        // Carryover connects to the RIGHT side of destination
+        // So we DON'T add carryoverWidth to accountedIn
         
-        // Mark the carryover portion as "accounted out" from the source
-        // so surplus transfers start from the RIGHT side of the bar
+        // Mark carryover as accounted so outgoing transfers start from the RIGHT
         last.accountedOut += carryoverWidth;
       }
 

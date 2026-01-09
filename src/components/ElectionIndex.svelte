@@ -1,8 +1,18 @@
 <script lang="ts">
-  import type { IElectionIndexEntry } from "$lib/report_types";
+  import type { IElectionIndexEntry, IContestIndexEntry } from "$lib/report_types";
   import tooltip from "$lib/tooltip";
 
   export let elections: IElectionIndexEntry[];
+
+  function getSurname(name: string): string {
+    const parts = name.trim().split(/\s+/);
+    return parts[parts.length - 1];
+  }
+
+  function getWinnerSurnames(contest: IContestIndexEntry): string {
+    const names = contest.winners ?? [contest.winner];
+    return names.map(getSurname).join(', ');
+  }
 
   function getTooltipText(contest: { interesting: boolean; winnerNotFirstRoundLeader: boolean; condorcetWinner?: string }): string | null {
     if (contest.interesting && contest.winnerNotFirstRoundLeader) {
@@ -128,7 +138,7 @@
             <a href="/report/{election.path}/{contest.office}">
               <div class="title">
                 <strong>{contest.officeName}</strong>
-                {contest.winner}
+                {getWinnerSurnames(contest)}
               </div>
               <div class="meta">
                 <strong>{contest.numCandidates}</strong>
