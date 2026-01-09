@@ -296,15 +296,17 @@ async function processReport(report, browser, retries = 1) {
 // Get reports from API
 async function getReportsFromAPI() {
   try {
-    const response = await fetch(`http://localhost:${detectedPort}/api/reports.json`);
+    const response = await fetch(
+      `http://localhost:${detectedPort}/api/reports.json`,
+    );
     if (!response.ok) {
       log(logLevels.ERROR, `Failed to fetch reports: ${response.status}`);
       return [];
     }
-    
+
     const index = await response.json();
     const reports = [];
-    
+
     for (const election of index.elections || []) {
       for (const contest of election.contests || []) {
         reports.push({
@@ -324,11 +326,72 @@ async function getReportsFromAPI() {
         });
       }
     }
-    
+
     return reports;
   } catch (error) {
     log(logLevels.ERROR, `Error fetching reports: ${error.message}`);
     return [];
+  }
+}
+
+// Generate homepage share image
+async function generateHomepageImage(browser) {
+  const outputPath = "static/share/homepage.png";
+  const startTime = Date.now();
+
+  try {
+    // Check if image already exists (unless forcing regeneration)
+    if (!process.env.FORCE_REGENERATE) {
+      try {
+        await stat(outputPath);
+        log(
+          logLevels.INFO,
+          "Homepage image already exists, skipping (use FORCE_REGENERATE=1 to regenerate)",
+        );
+        return { success: true, skipped: true };
+      } catch {
+        // File doesn't exist, proceed
+      }
+    }
+
+    await fs.mkdir(path.dirname(outputPath), { recursive: true });
+
+    const page = await browser.newPage();
+    try {
+      await setupPage(page);
+
+      const url = `http://localhost:${detectedPort}/card/homepage`;
+      await page.goto(url, {
+        waitUntil: "domcontentloaded",
+        timeout: 15000,
+      });
+
+      await page.waitForSelector(".card", { timeout: 10000 });
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const element = await page.$(".card");
+      if (!element) {
+        throw new Error("Card element not found");
+      }
+
+      await element.screenshot({
+        path: outputPath,
+        type: "png",
+        omitBackground: false,
+      });
+
+      await optimizePng(outputPath);
+
+      const totalTime = Date.now() - startTime;
+      log(logLevels.INFO, `✅ Homepage image generated in ${totalTime}ms`);
+
+      return { success: true, skipped: false, time: totalTime };
+    } finally {
+      await page.close();
+    }
+  } catch (error) {
+    log(logLevels.ERROR, `Failed to generate homepage image: ${error.message}`);
+    return { success: false, error: error.message };
   }
 }
 
@@ -372,6 +435,10 @@ async function generateShareImages() {
     const browserInitTime = Date.now() - browserStartTime;
     log(logLevels.DEBUG, `Browser launched in ${browserInitTime}ms`);
 
+    // Generate homepage image first
+    log(logLevels.INFO, "Generating homepage share image...");
+    await generateHomepageImage(browser);
+
     // Get reports from API
     const indexStartTime = Date.now();
     const allReports = await getReportsFromAPI();
@@ -381,7 +448,7 @@ async function generateShareImages() {
     // Filter out empty reports (no candidates or no rounds means nothing to display)
     const reports = [];
     const skippedEmpty = [];
-    
+
     for (const report of allReports) {
       if (
         report.contest.numCandidates === 0 ||
@@ -399,7 +466,10 @@ async function generateShareImages() {
     log(logLevels.INFO, `Found ${reports.length} reports to process`);
 
     if (reports.length === 0) {
-      log(logLevels.WARN, "No reports found in database. Run 'bun scripts/load-cambridge.ts' first.");
+      log(
+        logLevels.WARN,
+        "No reports found in database. Run 'bun scripts/load-cambridge.ts' first.",
+      );
       return;
     }
 
@@ -591,6 +661,8 @@ process.on("SIGTERM", () => {
 // Run the script
 (async () => {
   let serverWasRunning = false;
+  const args = process.argv.slice(2);
+  const homepageOnly = args.includes("--homepage") || args.includes("-h");
 
   try {
     // Check if server is already running
@@ -604,8 +676,34 @@ process.on("SIGTERM", () => {
       log(logLevels.INFO, "Using existing dev server");
     }
 
-    // Generate images
-    await generateShareImages();
+    if (homepageOnly) {
+      // Generate only homepage image
+      log(logLevels.INFO, "Generating homepage image only...");
+      const chromePath =
+        process.env.CHROME_PATH ||
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+
+      const browser = await puppeteer.launch({
+        headless: "new",
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu",
+        ],
+        executablePath: chromePath,
+      });
+
+      try {
+        process.env.FORCE_REGENERATE = "1"; // Always regenerate when using --homepage
+        await generateHomepageImage(browser);
+      } finally {
+        await browser.close();
+      }
+    } else {
+      // Generate all images
+      await generateShareImages();
+    }
 
     // Count generated images
     try {

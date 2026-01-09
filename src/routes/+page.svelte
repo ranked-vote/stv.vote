@@ -7,6 +7,23 @@
 
 <svelte:head>
 	<title>stv.vote: detailed reports on STV elections.</title>
+	<meta name="description" content="Single Transferable Vote elections produce more data on voter preferences than pick-one elections. stv.vote runs analysis on ballot-level data and publishes reports on each election." />
+
+	<meta property="og:title" content="stv.vote: detailed reports on STV elections" />
+	<meta property="og:description" content="Single Transferable Vote elections produce more data on voter preferences than pick-one elections. stv.vote runs analysis on ballot-level data and publishes reports on each election." />
+	<meta property="og:image" content="https://stv.vote/share/homepage.png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta property="og:image:type" content="image/png" />
+	<meta property="og:url" content="https://stv.vote/" />
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content="stv.vote" />
+
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="stv.vote: detailed reports on STV elections" />
+	<meta name="twitter:description" content="Single Transferable Vote elections produce more data on voter preferences than pick-one elections. stv.vote runs analysis on ballot-level data and publishes reports on each election." />
+	<meta name="twitter:image" content="https://stv.vote/share/homepage.png" />
+	<meta name="twitter:url" content="https://stv.vote/" />
 </svelte:head>
 
 <div class="wide container">

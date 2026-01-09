@@ -10,13 +10,15 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "generate-images": "bun scripts/generate-share-images.mjs",
     "init-db": "bun scripts/init-database.js",
     "load-scotland": "bun scripts/load-scotland.ts",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:ci": "bun test --coverage",
-    "prepare": "husky"
+    "prepare": "trunk git-hooks sync || true"
   },
   "dependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
@@ -28,15 +30,20 @@
     "tslib": "^2.8.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@tsconfig/svelte": "^5.0.6",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.0.0",
+    "eslint": "^9.39.2",
+    "eslint-plugin-svelte": "^3.14.0",
+    "globals": "^17.0.0",
     "husky": "^9.1.7",
     "puppeteer": "^24.32.1",
     "svelte": "^5.45.8",
     "svelte-check": "^4.3.4",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.52.0",
     "vite": "^7.2.7"
   }
 }

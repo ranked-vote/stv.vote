@@ -17,10 +17,22 @@ runtimes:
     - python@3.10.8
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
+  files:
+    - name: svelte
+      extensions:
+        - svelte
   enabled:
+    - eslint@9.39.2:
+        packages:
+          - eslint@9.39.2
+          - eslint-plugin-svelte@3.14.0
+          - svelte-eslint-parser@1.2.0
+          - typescript-eslint@8.52.0
+          - globals@17.0.0
+          - "@eslint/js@9.39.2"
     - oxipng@10.0.0
     - actionlint@1.7.9
-    - checkov@3.2.495
+    - checkov@3.2.497
     - clippy@1.90.0
     - git-diff-check
     - markdownlint@0.47.0
@@ -32,11 +44,25 @@ lint:
     - taplo@0.10.0
     - trufflehog@3.92.3
     - yamllint@1.37.1
+  definitions:
+    - name: eslint
+      files:
+        - javascript
+        - typescript
+        - svelte
 actions:
   disabled:
     - trunk-announce
-    - trunk-check-pre-push
     - trunk-fmt-pre-commit
   enabled:
     - git-lfs
     - trunk-upgrade-available
+    - trunk-check-pre-push
+    - run-tests-pre-push
+  definitions:
+    - id: run-tests-pre-push
+      display_name: Run Tests
+      description: Run bun tests before push
+      run: bun test
+      triggers:
+        - git_hooks: [pre-push]

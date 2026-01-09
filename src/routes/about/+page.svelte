@@ -25,11 +25,6 @@
 
 
 <p>
-  To view all elections in our database, including those excluded from the featured list,
-  see the <a href="/all">all elections page</a>.
-</p>
-
-<p>
   stv.vote was created by
   <a href="https://felixsargent.com">Felix Sargent</a>.
   It is non-partisan and has received no outside funding.
