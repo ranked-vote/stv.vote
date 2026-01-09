@@ -23,15 +23,7 @@
     </p>
 
     <p>
-      Elections are highlighted when they exhibit
-      interesting characteristics, such as when the winner did not lead in the first round,
-      when the STV winner differs from the Condorcet winner, there is a Condorcet cycle, 
-      or exhausted ballots outnumber the winner's votes.
-    </p>
-
-    <p>
       stv.vote was created by
-      <a href="https://paulbutler.org">Paul Butler</a> and
       <a href="https://felixsargent.com">Felix Sargent</a>.
       It is non-partisan and has received no outside funding.
     </p>

@@ -10,6 +10,7 @@
   import Sankey from "./report_components/Sankey.svelte";
   import CandidatePairTable from "./report_components/CandidatePairTable.svelte";
   import RankingDistribution from "./report_components/RankingDistribution.svelte";
+  import Math from "./Math.svelte";
   import { EXHAUSTED } from "./candidates";
 
   import { onMount, setContext } from "svelte";
@@ -209,7 +210,7 @@
       {#if quota}
         <p class="quota-info">
           Droop quota: <strong>{quota.toLocaleString()}</strong> votes
-          (calculated as ⌊{report.ballotCount.toLocaleString()} / ({seats} + 1)⌋ + 1)
+          <Math formula={`\\left\\lfloor \\frac{${report.ballotCount.toLocaleString()}}{${seats} + 1} \\right\\rfloor + 1`} />
         </p>
       {/if}
     {/if}

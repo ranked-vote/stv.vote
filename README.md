@@ -35,6 +35,7 @@ bun run dev
 
 ### Database
 - `bun run init-db`: initialize empty SQLite database with schema
+- `bun run load-scotland`: load Scotland 2022 council election data
 
 ### Card Image Generation
 - `bun run generate-images`: generate share images (automatically starts/stops dev server if needed)
@@ -104,6 +105,11 @@ db.prepare(`
 Deploys are handled by GitHub Pages via `.github/workflows/deploy.yml`:
 
 - On push to `main`/`master`, CI installs dependencies, builds, and publishes `build/` to Pages
+
+## Data Sources
+
+### Scotland 2022 Council Elections
+Scotland council election data (`raw-data/scotland/2022/`) is made available under the **CC-BY-SA 4.0** license. Attribution: [@gerrymulvenna](https://github.com/gerrymulvenna), containing candidate data provided by [Democracy Club](https://democracyclub.org.uk/).
 
 ## License
 

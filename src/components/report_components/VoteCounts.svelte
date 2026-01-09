@@ -18,7 +18,7 @@
 
   const outerHeight = 24;
   const innerHeight = 14;
-  const labelSpace = 130;
+  const labelSpace = 180;
   const width = 600;
 
   // Sort by total votes (firstRoundVotes + transferVotes) in descending order
@@ -83,8 +83,13 @@
   }
 
   .electedText {
-    fill: #0a7c0a;
+    fill: white;
     font-weight: 600;
+    text-shadow: 0 0 3px rgba(0,0,0,0.5);
+  }
+
+  .eliminatedText {
+    fill: #666;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -94,7 +99,11 @@
     }
 
     .electedText {
-      fill: #7dd87d;
+      fill: white;
+    }
+
+    .eliminatedText {
+      fill: #aaa;
     }
 
     .quotaLine {
@@ -128,7 +137,8 @@
       />
       <text
         class="quotaLabel"
-        x={8 + quotaX}
+        text-anchor="end"
+        x={quotaX}
         y={-2}>
         Quota: {quota?.toLocaleString()}
       </text>
@@ -167,9 +177,10 @@
           {@const reachedQuota = quota && totalVotes >= quota}
           <text
             class="electedText"
-            font-size="12"
+            font-size="11"
             dominant-baseline="middle"
-            x={10 + scale * totalVotes}>
+            text-anchor="end"
+            x={width - labelSpace - 5}>
             {#if reachedQuota}
               Elected in round {votes.roundElected}
             {:else}
@@ -178,9 +189,11 @@
           </text>
         {:else if isEliminated}
           <text
-            font-size="12"
+            class="eliminatedText"
+            font-size="11"
             dominant-baseline="middle"
-            x={10 + scale * (votes.firstRoundVotes + votes.transferVotes)}>
+            text-anchor="end"
+            x={width - labelSpace - 5}>
             Eliminated in round {votes.roundEliminated}
           </text>
         {/if}

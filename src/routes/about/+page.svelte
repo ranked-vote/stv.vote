@@ -23,16 +23,6 @@
   tabulation of the results that can be reproduced using published source code.
 </p>
 
-<h2>Featured Elections</h2>
-
-<p>
-  We feature elections where the STV process was meaningful—specifically,
-  races that required three or more rounds of tabulation. Elections decided in one or two
-  rounds are excluded because they represent cases where a candidate won with a clear
-  majority from the start, making the vote transfer mechanism less relevant. By focusing
-  on elections with multiple rounds of elimination and vote transfers, we highlight cases
-  where STV had a substantial impact on determining the winner.
-</p>
 
 <p>
   To view all elections in our database, including those excluded from the featured list,
@@ -41,7 +31,6 @@
 
 <p>
   stv.vote was created by
-  <a href="https://paulbutler.org">Paul Butler</a> and
   <a href="https://felixsargent.com">Felix Sargent</a>.
   It is non-partisan and has received no outside funding.
 </p>
@@ -65,7 +54,7 @@
 
 <p>
   Contributions are welcome! The project is open source and available on
-  <a href="https://github.com/stv-vote/stv.vote">GitHub</a>. Please feel free to
+  <a href="https://github.com/ranked-vote/stv.vote">GitHub</a>. Please feel free to
   open issues, submit pull requests, or reach out with questions.
 </p>
 
@@ -73,7 +62,7 @@
 
 <p>
   This website and the data pipeline behind it (including the tabulator) are
-  <a href="https://github.com/stv-vote/stv.vote">open source</a> and liberally licensed. Website content and generated reports may
+  <a href="https://github.com/ranked-vote/stv.vote">open source</a> and liberally licensed. Website content and generated reports may
   be freely distributed with attribution under the <a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a> license.
 </p>
 

@@ -1,6 +1,7 @@
 <script lang="ts">
   import type {
     ITabulatorRound,
+    ITabulatorAllocation,
     Allocatee,
     CandidateId,
     ICandidateVotes,
@@ -63,7 +64,27 @@
   const edgeMargin = 60;
 
   const candidateMargin = 20; // px
-  const firstRoundAllocations = rounds[0].allocations;
+
+  // Sort candidates by first-round votes (highest first, leftmost)
+  // Keep exhausted ("X") at the end
+  const firstRoundVoteOrder = new Map<Allocatee, number>();
+  rounds[0].allocations.forEach((alloc) => {
+    firstRoundVoteOrder.set(alloc.allocatee, alloc.votes);
+  });
+
+  function sortAllocations(allocations: ITabulatorAllocation[]): ITabulatorAllocation[] {
+    return [...allocations].sort((a, b) => {
+      // Exhausted always goes last
+      if (a.allocatee === EXHAUSTED) return 1;
+      if (b.allocatee === EXHAUSTED) return -1;
+      // Sort by first-round votes (descending)
+      const aVotes = firstRoundVoteOrder.get(a.allocatee) ?? 0;
+      const bVotes = firstRoundVoteOrder.get(b.allocatee) ?? 0;
+      return bVotes - aVotes;
+    });
+  }
+
+  const firstRoundAllocations = sortAllocations(rounds[0].allocations);
   const firstRoundNumCandidates = firstRoundAllocations.length - 1;
   const voteScale =
     (width - candidateMargin * firstRoundNumCandidates - edgeMargin - 10) /
@@ -263,13 +284,14 @@
   let voteBlockRows: VoteBlock[][] = rounds.map((round, i) => {
     let voteBlocks: VoteBlock[] = [];
     let curVotes: Map<Allocatee, CandidateState> = new Map();
-    let numCandidates = round.allocations.length - 1;
+    const sortedAllocations = sortAllocations(round.allocations);
+    let numCandidates = sortedAllocations.length - 1;
     let offset =
       (firstRoundNumCandidates - numCandidates) * (candidateMargin / 2);
 
     // Calculate total votes for this round
-    const totalRoundVotes = round.allocations.reduce((sum, allocation) => sum + allocation.votes, 0);
-    for (let allocation of round.allocations) {
+    const totalRoundVotes = sortedAllocations.reduce((sum, allocation) => sum + allocation.votes, 0);
+    for (let allocation of sortedAllocations) {
       let width = voteScale * allocation.votes;
       voteBlocks.push(
         new VoteBlock(
@@ -286,17 +308,22 @@
       let last = lastVotes.get(allocation.allocatee);
       let accountedIn = 0;
       if (last) {
+        // Carryover width should be the MINIMUM of previous and current votes
+        // (representing votes that stay with the candidate, not the full previous amount)
+        const carryoverWidth = Math.min(last.width, width);
+        const carryoverVotes = Math.min(last.votes, allocation.votes);
+        
         transfers.push(
           new TransferBlock(
             allocation.allocatee,
             allocation.allocatee,
-            last.votes,
+            carryoverVotes,
             i + 1,
             i - 1,
             i,
             last.xOffset,
-            allocation.allocatee === "X" ? offset + width - last.width : offset,
-            last.width,
+            allocation.allocatee === "X" ? offset + width - carryoverWidth : offset,
+            carryoverWidth,
             (i - 1) * roundHeight + voteBlockHeight,
             i * roundHeight,
             last.votes,
@@ -305,8 +332,12 @@
         );
 
         if (allocation.allocatee !== "X") {
-          accountedIn = last.width;
+          accountedIn = carryoverWidth;
         }
+        
+        // Mark the carryover portion as "accounted out" from the source
+        // so surplus transfers start from the RIGHT side of the bar
+        last.accountedOut += carryoverWidth;
       }
 
       curVotes.set(allocation.allocatee, {
