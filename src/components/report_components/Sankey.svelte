@@ -355,38 +355,43 @@
       offset += width + candidateMargin;
     }
 
-    // Compute transfers.
+    // Compute transfers from the PREVIOUS round (if any).
+    // Transfers in rounds[i-1] represent flows FROM round i-1 TO round i.
+    // (Transfers are stored in the round where the election/elimination happens,
+    // but they flow TO the next round's allocations.)
+    if (i > 0) {
+      const prevRound = rounds[i - 1];
+      for (let transfer of prevRound.transfers) {
+        let last = lastVotes.get(transfer.from);
+        let cur = curVotes.get(transfer.to);
 
-    for (let transfer of round.transfers) {
-      let last = lastVotes.get(transfer.from);
-      let cur = curVotes.get(transfer.to);
+        if (!last || !cur) {
+          continue;
+        }
 
-      if (!last || !cur) {
-        continue;
+        let width = transfer.count * voteScale;
+
+        transfers.push(
+          new TransferBlock(
+            transfer.from,
+            transfer.to,
+            transfer.count,
+            i,  // Display as "round i" (the destination round)
+            i - 1,
+            i,
+            last.xOffset + last.accountedOut,
+            cur.xOffset + cur.accountedIn,
+            width,
+            (i - 1) * roundHeight + voteBlockHeight,
+            i * roundHeight,
+            last.votes,
+            transfer.type
+          )
+        );
+
+        last.accountedOut += width;
+        cur.accountedIn += width;
       }
-
-      let width = transfer.count * voteScale;
-
-      transfers.push(
-        new TransferBlock(
-          transfer.from,
-          transfer.to,
-          transfer.count,
-          i + 1,
-          i - 1,
-          i,
-          last.xOffset + last.accountedOut,
-          cur.xOffset + cur.accountedIn,
-          width,
-          (i - 1) * roundHeight + voteBlockHeight,
-          i * roundHeight,
-          last.votes,
-          transfer.type
-        )
-      );
-
-      last.accountedOut += width;
-      cur.accountedIn += width;
     }
 
     lastVotes = curVotes;
