@@ -2,7 +2,6 @@
   import type {
     ICandidateVotes,
     CandidateId,
-    ICandidate,
   } from "$lib/report_types";
   import type { CandidateContext } from "../candidates";
   import { getContext } from "svelte";
@@ -162,7 +161,7 @@
       </text>
     {/if}
 
-    {#each sortedCandidateVotes as votes, i}
+    {#each sortedCandidateVotes as votes, i (votes.candidate)}
       {@const isElected = votes.roundElected !== undefined}
       {@const isEliminated = votes.roundEliminated !== undefined}
       {@const isWinnerCandidate = isElected || isWinner(votes.candidate)}

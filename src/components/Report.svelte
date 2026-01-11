@@ -13,7 +13,9 @@
   import MathFormula from "./Math.svelte";
   import { EXHAUSTED } from "./candidates";
 
-  import { onMount, setContext } from "svelte";
+  import { setContext } from "svelte";
+  import { SvelteMap } from "svelte/reactivity";
+  import { resolve } from "$app/paths";
 
   export let report: IContestReport;
 
@@ -77,7 +79,7 @@
   }
 
   function sortPairwiseTable(table: ICandidatePairTable): ICandidatePairTable {
-    const voteCountMap = new Map<Allocatee, number>();
+    const voteCountMap = new SvelteMap<Allocatee, number>();
     for (const allocatee of [...table.rows, ...table.cols]) {
       if (!voteCountMap.has(allocatee)) {
         voteCountMap.set(allocatee, getVoteCount(allocatee));
@@ -156,7 +158,7 @@
   <p class="description"></p>
   <div class="electionHeader">
     <h3>
-      <a href="/">stv.vote</a>
+      <a href={resolve(`/`, {})}>stv.vote</a>
       //
       <strong>{report.info.jurisdictionName}</strong>
       {report.info.officeName}
@@ -169,7 +171,7 @@
     <p>
       The
       {#if report.info.website}
-      <a href={report.info.website}>{report.info.jurisdictionName} {report.info.electionName}</a>
+      <a href={report.info.website} rel="external">{report.info.jurisdictionName} {report.info.electionName}</a>
       {:else}
       {report.info.jurisdictionName} {report.info.electionName}
       {/if}
@@ -193,8 +195,8 @@
           {:else}
           The winner could not be determined out of
           {/if}
-          <strong>{report.numCandidates}</strong>&nbsp;{#if report.numCandidates == 1}candidate {:else}candidates{/if}{#if report.rounds && report.rounds.length > 1}{" "}after
-            {" "}<strong>{report.rounds.length - 1}</strong>&nbsp;elimination {#if report.rounds.length == 2}round{:else}rounds{/if}.
+          <strong>{report.numCandidates}</strong>&nbsp;{#if report.numCandidates == 1}candidate {:else}candidates{/if}{#if report.rounds && report.rounds.length > 1} after
+            <strong>{report.rounds.length - 1}</strong>&nbsp;elimination {#if report.rounds.length == 2}round{:else}rounds{/if}.
           {:else}. No elimination rounds were necessary to determine the outcome.
           {/if}
         {/if}
@@ -206,7 +208,7 @@
     {#if isSTV && winnerNames.length > 0}
       <p><strong>Elected candidates:</strong></p>
       <ol class="winners-list">
-        {#each winnerNames as name}
+        {#each winnerNames as name, i (i)}
           <li>{name}</li>
         {/each}
       </ol>
@@ -267,7 +269,7 @@
 
       <p>
         Note that the tabulation (but not the winner) may differ from the official count. You
-        can <a href="/discrepancies">read more about why this is</a>.
+        can <a href={resolve(`/discrepancies`, {})}>read more about why this is</a>.
       </p>
     </div>
 

@@ -9,6 +9,7 @@
   import type { CandidateContext } from "../candidates";
   import { EXHAUSTED } from "../candidates";
   import { getContext } from "svelte";
+  import { SvelteMap, SvelteSet } from "svelte/reactivity";
   import tooltip from "$lib/tooltip";
 
   export let rounds: ITabulatorRound[];
@@ -19,8 +20,8 @@
   const { getCandidate } = getContext("candidates") as CandidateContext;
 
   // Build maps of candidate -> round elected/eliminated
-  const electedInRound = new Map<CandidateId, number>();
-  const eliminatedInRound = new Map<CandidateId, number>();
+  const electedInRound = new SvelteMap<CandidateId, number>();
+  const eliminatedInRound = new SvelteMap<CandidateId, number>();
   
   for (const cv of totalVotes) {
     if (cv.roundElected !== undefined) {
@@ -49,15 +50,13 @@
     }
   });
 
-  const isSTV = seats > 1;
-
   type NodeKey = `${number}:${string}`;
 
   function nodeKey(roundIndex: number, allocatee: Allocatee): NodeKey {
     return `${roundIndex}:${allocatee}`;
   }
 
-  const outerHeight = 24;
+  const _outerHeight = 24;
   const width = 600;
   const roundHeight = 90;
   const voteBlockHeight = 14;
@@ -67,7 +66,7 @@
 
   // Sort candidates by first-round votes (highest first, leftmost)
   // Keep exhausted ("X") at the end
-  const firstRoundVoteOrder = new Map<Allocatee, number>();
+  const firstRoundVoteOrder = new SvelteMap<Allocatee, number>();
   rounds[0].allocations.forEach((alloc) => {
     firstRoundVoteOrder.set(alloc.allocatee, alloc.votes);
   });
@@ -265,11 +264,11 @@
   };
 
   let transferMetas: TransferMeta[] = [];
-  let incoming: Map<NodeKey, number[]> = new Map();
-  let outgoing: Map<NodeKey, number[]> = new Map();
+  let incoming: SvelteMap<NodeKey, number[]> = new SvelteMap();
+  let outgoing: SvelteMap<NodeKey, number[]> = new SvelteMap();
 
-  let activeNodeKeys: Set<NodeKey> = new Set();
-  let activeLinkIndexes: Set<number> = new Set();
+  let activeNodeKeys: SvelteSet<NodeKey> = new SvelteSet();
+  let activeLinkIndexes: SvelteSet<number> = new SvelteSet();
 
   interface CandidateState {
     xOffset: number;
@@ -282,11 +281,11 @@
     accountedOutRight: number; // outgoing to right (elimination transfers)
   }
 
-  let lastVotes: Map<Allocatee, CandidateState> = new Map();
+  let lastVotes: SvelteMap<Allocatee, CandidateState> = new SvelteMap();
 
   let voteBlockRows: VoteBlock[][] = rounds.map((round, i) => {
     let voteBlocks: VoteBlock[] = [];
-    let curVotes: Map<Allocatee, CandidateState> = new Map();
+    let curVotes: SvelteMap<Allocatee, CandidateState> = new SvelteMap();
     const sortedAllocations = sortAllocations(round.allocations);
     let numCandidates = sortedAllocations.length - 1;
     let offset =
@@ -427,8 +426,8 @@
       isSurplus: t.isSurplusTransfer(),
     }));
 
-    incoming = new Map();
-    outgoing = new Map();
+    incoming = new SvelteMap();
+    outgoing = new SvelteMap();
     for (let i = 0; i < transferMetas.length; i++) {
       const meta = transferMetas[i];
       const inArr = incoming.get(meta.targetKey);
@@ -442,13 +441,13 @@
   }
 
   function computeActiveForLink(index: number): void {
-    activeNodeKeys = new Set();
-    activeLinkIndexes = new Set();
+    activeNodeKeys = new SvelteSet();
+    activeLinkIndexes = new SvelteSet();
 
     const meta = transferMetas[index];
     if (!meta) return;
 
-    const visitedUp = new Set<NodeKey>();
+    const visitedUp = new SvelteSet<NodeKey>();
     const upStack: NodeKey[] = [meta.sourceKey];
     while (upStack.length) {
       const key = upStack.pop();
@@ -463,7 +462,7 @@
       }
     }
 
-    const visitedDown = new Set<NodeKey>();
+    const visitedDown = new SvelteSet<NodeKey>();
     const downStack: NodeKey[] = [meta.targetKey];
     while (downStack.length) {
       const key = downStack.pop();
@@ -484,10 +483,10 @@
   }
 
   function computeActiveForNode(key: NodeKey): void {
-    activeNodeKeys = new Set();
-    activeLinkIndexes = new Set();
+    activeNodeKeys = new SvelteSet();
+    activeLinkIndexes = new SvelteSet();
 
-    const visitedUp = new Set<NodeKey>();
+    const visitedUp = new SvelteSet<NodeKey>();
     const upStack: NodeKey[] = [key];
     while (upStack.length) {
       const curKey = upStack.pop();
@@ -502,7 +501,7 @@
       }
     }
 
-    const visitedDown = new Set<NodeKey>();
+    const visitedDown = new SvelteSet<NodeKey>();
     const downStack: NodeKey[] = [key];
     while (downStack.length) {
       const curKey = downStack.pop();
@@ -520,8 +519,8 @@
 
   $: {
     if (!hover) {
-      activeNodeKeys = new Set();
-      activeLinkIndexes = new Set();
+      activeNodeKeys = new SvelteSet();
+      activeLinkIndexes = new SvelteSet();
     } else if (hover.kind === "link") {
       computeActiveForLink(hover.index);
     } else {
@@ -646,11 +645,11 @@
 </style>
 
 <svg width="100%" viewBox={`0 0 ${width} ${height}`}>
-  {#each rounds as _, i}
+  {#each rounds as _, i (i)}
     <text dominant-baseline="middle" font-size="10" y={i * roundHeight + labelSpace + voteBlockHeight / 2}>Round {i+1}</text>
   {/each}
   <g transform={`translate(${edgeMargin} ${labelSpace})`}>
-    {#each voteBlockRows[0] as voteBlock}
+    {#each voteBlockRows[0] as voteBlock (voteBlock.nodeKey())}
       <g
         transform={`translate(${voteBlock.x + voteBlock.width / 2} -10)`}
         on:pointerenter={() => (hover = { kind: "node", key: voteBlock.nodeKey() })}
@@ -661,8 +660,8 @@
       </g>
     {/each}
 
-    {#each voteBlockRows as voteBlockRow}
-      {#each voteBlockRow as voteBlock}
+    {#each voteBlockRows as voteBlockRow, rowIdx (rowIdx)}
+      {#each voteBlockRow as voteBlock (voteBlock.nodeKey())}
         <rect
           use:tooltip={voteBlock.tooltip()}
           class="voteBlock"
@@ -690,7 +689,7 @@
       {/each}
     {/each}
 
-    {#each transfers as transfer, i}
+    {#each transfers as transfer, i (i)}
       <path
         use:tooltip={transfer.tooltip()}
         class="transfer"
@@ -702,7 +701,7 @@
         on:pointerleave={() => (hover = null)} />
     {/each}
 
-    {#each voteBlockRows[voteBlockRows.length - 1] as voteBlock}
+    {#each voteBlockRows[voteBlockRows.length - 1] as voteBlock (voteBlock.nodeKey())}
       <g
         transform={`translate(${voteBlock.x + voteBlock.width / 2} ${innerHeight + 10})`}
         on:pointerenter={() => (hover = { kind: "node", key: voteBlock.nodeKey() })}
