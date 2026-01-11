@@ -275,8 +275,11 @@
     xOffset: number;
     width: number;
     votes: number;
-    accountedIn: number;
-    accountedOut: number;
+    // Track left and right sides separately to avoid crossings
+    accountedInLeft: number;   // incoming from left (elimination transfers)
+    accountedInRight: number;  // incoming from right (surplus transfers)
+    accountedOutLeft: number;  // outgoing to left (surplus transfers)
+    accountedOutRight: number; // outgoing to right (elimination transfers)
   }
 
   let lastVotes: Map<Allocatee, CandidateState> = new Map();
@@ -291,6 +294,8 @@
 
     // Calculate total votes for this round
     const totalRoundVotes = sortedAllocations.reduce((sum, allocation) => sum + allocation.votes, 0);
+    
+    // Phase 1: Initialize all vote blocks and curVotes
     for (let allocation of sortedAllocations) {
       let width = voteScale * allocation.votes;
       voteBlocks.push(
@@ -305,60 +310,22 @@
         )
       );
 
-      let last = lastVotes.get(allocation.allocatee);
-      let accountedIn = 0;
-      if (last) {
-        // Carryover width = votes that STAY with the candidate
-        const carryoverWidth = Math.min(last.width, width);
-        const carryoverVotes = Math.min(last.votes, allocation.votes);
-        
-        // Carryover: LEFT of source → RIGHT of destination
-        // This leaves RIGHT of source for outgoing transfers
-        // and LEFT of destination for incoming transfers
-        // Flow: outgoing (right) → incoming (left), naturally left-to-right
-        const destCarryoverX = offset + width - carryoverWidth;
-        
-        transfers.push(
-          new TransferBlock(
-            allocation.allocatee,
-            allocation.allocatee,
-            carryoverVotes,
-            i + 1,
-            i - 1,
-            i,
-            last.xOffset,
-            allocation.allocatee === "X" ? offset + width - carryoverWidth : destCarryoverX,
-            carryoverWidth,
-            (i - 1) * roundHeight + voteBlockHeight,
-            i * roundHeight,
-            last.votes,
-            undefined
-          )
-        );
-
-        // Incoming transfers land on the LEFT (accountedIn = 0)
-        // Carryover connects to the RIGHT side of destination
-        // So we DON'T add carryoverWidth to accountedIn
-        
-        // Mark carryover as accounted so outgoing transfers start from the RIGHT
-        last.accountedOut += carryoverWidth;
-      }
-
       curVotes.set(allocation.allocatee, {
         xOffset: offset,
         votes: allocation.votes,
         width,
-        accountedIn,
-        accountedOut: 0,
+        accountedInLeft: 0,
+        accountedInRight: 0,
+        accountedOutLeft: 0,
+        accountedOutRight: 0,
       });
 
       offset += width + candidateMargin;
     }
 
-    // Compute transfers from the PREVIOUS round (if any).
-    // Transfers in rounds[i-1] represent flows FROM round i-1 TO round i.
-    // (Transfers are stored in the round where the election/elimination happens,
-    // but they flow TO the next round's allocations.)
+    // Phase 2: Process transfers FIRST (so we know edge positions before placing carryovers)
+    // Layout: Source = [Elim out (LEFT) | Carryover (CENTER) | Surplus out (RIGHT)]
+    //         Dest   = [Surplus in (LEFT) | Carryover (CENTER) | Elim in (RIGHT)]
     if (i > 0) {
       const prevRound = rounds[i - 1];
       for (let transfer of prevRound.transfers) {
@@ -370,6 +337,24 @@
         }
 
         let width = transfer.count * voteScale;
+        const isSurplus = transfer.type === 'surplus';
+        
+        let sourceX: number;
+        let destX: number;
+        
+        if (isSurplus) {
+          // Surplus: leaves from RIGHT of source, arrives at LEFT of destination
+          sourceX = last.xOffset + last.width - last.accountedOutRight - width;
+          destX = cur.xOffset + cur.accountedInLeft;
+          last.accountedOutRight += width;
+          cur.accountedInLeft += width;
+        } else {
+          // Elimination: leaves from LEFT of source, arrives at RIGHT of destination
+          sourceX = last.xOffset + last.accountedOutLeft;
+          destX = cur.xOffset + cur.width - cur.accountedInRight - width;
+          last.accountedOutLeft += width;
+          cur.accountedInRight += width;
+        }
 
         transfers.push(
           new TransferBlock(
@@ -379,8 +364,8 @@
             i,  // Display as "round i" (the destination round)
             i - 1,
             i,
-            last.xOffset + last.accountedOut,
-            cur.xOffset + cur.accountedIn,
+            sourceX,
+            destX,
             width,
             (i - 1) * roundHeight + voteBlockHeight,
             i * roundHeight,
@@ -388,9 +373,46 @@
             transfer.type
           )
         );
+      }
+    }
 
-        last.accountedOut += width;
-        cur.accountedIn += width;
+    // Phase 3: Create carryovers AFTER transfers (positioned in CENTER)
+    for (let allocation of sortedAllocations) {
+      let last = lastVotes.get(allocation.allocatee);
+      if (last) {
+        let cur = curVotes.get(allocation.allocatee)!;
+        
+        // Carryover fills the CENTER space (between elimination out and surplus out on source,
+        // between surplus in and elimination in on destination)
+        const sourceCenter = last.xOffset + last.accountedOutLeft;
+        const sourceCenterWidth = last.width - last.accountedOutLeft - last.accountedOutRight;
+        
+        const destCenter = cur.xOffset + cur.accountedInLeft;
+        const destCenterWidth = cur.width - cur.accountedInLeft - cur.accountedInRight;
+        
+        // Carryover width is the minimum of the center spaces available
+        const carryoverWidth = Math.min(sourceCenterWidth, destCenterWidth);
+        const carryoverVotes = Math.min(last.votes, cur.votes);
+        
+        if (carryoverWidth > 0) {
+          transfers.push(
+            new TransferBlock(
+              allocation.allocatee,
+              allocation.allocatee,
+              carryoverVotes,
+              i + 1,
+              i - 1,
+              i,
+              sourceCenter,
+              destCenter,
+              carryoverWidth,
+              (i - 1) * roundHeight + voteBlockHeight,
+              i * roundHeight,
+              last.votes,
+              undefined
+            )
+          );
+        }
       }
     }
 

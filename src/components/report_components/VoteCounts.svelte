@@ -11,6 +11,7 @@
   export let candidateVotes: ICandidateVotes[];
   export let quota: number | undefined = undefined;
   export let seats: number = 1;
+  export let winners: CandidateId[] = [];
 
   const { getCandidate } = getContext("candidates") as CandidateContext;
 
@@ -21,17 +22,22 @@
   const labelSpace = 180;
   const width = 600;
 
+  // Helper to check if a candidate is a winner
+  const isWinner = (candidateId: CandidateId) => winners.includes(candidateId);
+
   // Sort by total votes (firstRoundVotes + transferVotes) in descending order
   // But put elected candidates first, sorted by round elected
   $: sortedCandidateVotes = [...candidateVotes].sort((a, b) => {
-    // Elected candidates first
-    const aElected = a.roundElected !== undefined;
-    const bElected = b.roundElected !== undefined;
+    // Elected candidates first (either by roundElected or by being in winners array)
+    const aElected = a.roundElected !== undefined || isWinner(a.candidate);
+    const bElected = b.roundElected !== undefined || isWinner(b.candidate);
     if (aElected && !bElected) return -1;
     if (!aElected && bElected) return 1;
     if (aElected && bElected) {
-      // Sort by round elected
-      return (a.roundElected ?? 0) - (b.roundElected ?? 0);
+      // Sort by round elected (winners without roundElected go last among elected)
+      const aRound = a.roundElected ?? Infinity;
+      const bRound = b.roundElected ?? Infinity;
+      return aRound - bRound;
     }
     // Then by total votes
     return (b.firstRoundVotes + b.transferVotes) - (a.firstRoundVotes + a.transferVotes);
@@ -159,6 +165,7 @@
     {#each sortedCandidateVotes as votes, i}
       {@const isElected = votes.roundElected !== undefined}
       {@const isEliminated = votes.roundEliminated !== undefined}
+      {@const isWinnerCandidate = isElected || isWinner(votes.candidate)}
       <g
         transform={`translate(0 ${outerHeight * (i + 0.5)})`}>
         <text font-size="12" text-anchor="end" dominant-baseline="middle">
@@ -167,7 +174,7 @@
         <g transform={`translate(5 ${-innerHeight / 2 - 1})`}>
           <rect
             class="firstRound"
-            class:eliminated={isEliminated && !isElected}
+            class:eliminated={!isWinnerCandidate}
             height={innerHeight}
             width={scale * votes.firstRoundVotes}
             use:tooltip={`<strong>${getCandidate(votes.candidate).name}</strong>
@@ -175,7 +182,7 @@
             in the first round.`} />
           <rect
             class="transfer"
-            class:eliminated={isEliminated && !isElected}
+            class:eliminated={!isWinnerCandidate}
             x={scale * votes.firstRoundVotes}
             height={innerHeight}
             width={scale * votes.transferVotes}
@@ -183,7 +190,7 @@
             received <strong>${votes.transferVotes.toLocaleString()}</strong> transfer votes.`}
             />
         </g>
-        {#if isElected}
+        {#if isWinnerCandidate}
           {@const totalVotes = votes.firstRoundVotes + votes.transferVotes}
           {@const reachedQuota = quota && totalVotes >= quota}
           {@const hasWideBar = totalVotes >= maxVotes * 0.8}
@@ -196,8 +203,10 @@
             x={width - labelSpace - 5}>
             {#if reachedQuota}
               Elected in round {votes.roundElected}
-            {:else}
+            {:else if votes.roundElected !== undefined}
               Elected in round {votes.roundElected} (final)
+            {:else}
+              Elected (final)
             {/if}
           </text>
         {:else if isEliminated}
@@ -208,6 +217,16 @@
             text-anchor="end"
             x={width - labelSpace - 5}>
             Eliminated in round {votes.roundEliminated}
+          </text>
+        {:else if isSTV}
+          <!-- Candidate was neither elected nor eliminated - remaining when seats filled -->
+          <text
+            class="eliminatedText"
+            font-size="11"
+            dominant-baseline="middle"
+            text-anchor="end"
+            x={width - labelSpace - 5}>
+            Eliminated in final round
           </text>
         {/if}
       </g>

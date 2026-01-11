@@ -237,7 +237,7 @@
     {/if}
   </div>
   <div class="rightCol">
-    <VoteCounts candidateVotes={report.totalVotes} {quota} {seats} />
+    <VoteCounts candidateVotes={report.totalVotes} {quota} {seats} winners={report.winners} />
   </div>
 </div>
 
