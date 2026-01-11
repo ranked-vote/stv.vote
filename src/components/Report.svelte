@@ -9,8 +9,8 @@
   import VoteCounts from "./report_components/VoteCounts.svelte";
   import Sankey from "./report_components/Sankey.svelte";
   import CandidatePairTable from "./report_components/CandidatePairTable.svelte";
-  import RankingDistribution from "./report_components/RankingDistribution.svelte";
-  import Math from "./Math.svelte";
+  import _RankingDistribution from "./report_components/RankingDistribution.svelte";
+  import MathFormula from "./Math.svelte";
   import { EXHAUSTED } from "./candidates";
 
   import { onMount, setContext } from "svelte";
@@ -117,7 +117,7 @@
   $: sortedFirstAlternate = hasCandidates
     ? sortPairwiseTable(report.firstAlternate)
     : report.firstAlternate;
-  $: sortedFirstFinal = hasCandidates
+  $: _sortedFirstFinal = hasCandidates
     ? sortPairwiseTable(report.firstFinal)
     : report.firstFinal;
 </script>
@@ -213,7 +213,7 @@
       {#if quota}
         <p class="quota-info">
           Droop quota: <strong>{quota.toLocaleString()}</strong> votes
-          <Math formula={`\\left\\lfloor \\frac{${report.ballotCount.toLocaleString()}}{${seats} + 1} \\right\\rfloor + 1`} />
+          <MathFormula formula={`\\left\\lfloor \\frac{${report.ballotCount.toLocaleString()}}{${seats} + 1} \\right\\rfloor + 1`} />
         </p>
       {/if}
     {/if}
@@ -340,59 +340,6 @@
   </div>
 </div>
 
-{#if report.rankingDistribution && report.rankingDistribution.totalBallots > 0}
-<div class="row">
-  <div class="leftCol">
-    <h2>Ranking Distribution</h2>
-    <p>
-      This shows how many candidates voters ranked, both overall and broken down by each candidate's first-choice supporters. This reveals whether some candidates attracted voters who ranked multiple candidates versus those who ranked fewer candidates.
-    </p>
-  </div>
-
-  <div class="rightCol">
-    <RankingDistribution
-      candidates={report.candidates}
-      rankingDistribution={report.rankingDistribution}
-      totalVotes={report.totalVotes} />
-  </div>
-</div>
-{/if}
+<!-- Hidden: Ranking Distribution and Final Vote by First Choice sections (not working) -->
 {/if}<!-- end hasPairwiseData -->
-
-{#if hasCandidates && report.rounds && report.rounds.length > 1 && hasPairwiseData}
-  <div class="row">
-    <div class="leftCol">
-      <h2>Final Vote by First Choice</h2>
-      <p>
-        This table tracks which candidate ballots were ultimately allocated to,
-        among ballots that ranked an eliminated candidate first.
-      </p>
-      {#if isSTV}
-        <p>
-          In STV, "final" means the candidate each ballot was counted towards
-          when all seats were filled or the tabulation ended.
-        </p>
-      {/if}
-    </div>
-
-    <div class="rightCol">
-      <CandidatePairTable
-        generateTooltip={(row: Allocatee, col: Allocatee, entry: ICandidatePairEntry) => (col !== EXHAUSTED ? `
-        Of the <strong>${entry.denominator.toLocaleString()}</strong> ballots that ranked <strong>${getCandidate(row).name}</strong>
-        first, <strong>${entry.numerator.toLocaleString()}</strong>
-        (<strong>${Math.round(entry.frac * 1000) / 10}%</strong>)
-        were allocated to <strong>${getCandidate(col).name}</strong>
-        in the final round.
-        ` : `
-        Of the <strong>${entry.denominator.toLocaleString()}</strong> ballots that ranked <strong>${getCandidate(row).name}</strong>
-        first, <strong>${entry.numerator.toLocaleString()}</strong>
-        (<strong>${Math.round(entry.frac * 1000) / 10}%</strong>)
-        were exhausted by the final round.
-        `)}
-        data={sortedFirstFinal}
-        rowLabel="First Round Choice"
-        colLabel="Final Round Choice" />
-    </div>
-  </div>
-{/if}
 {/if}
