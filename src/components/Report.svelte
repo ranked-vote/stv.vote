@@ -274,7 +274,7 @@
     </div>
 
     <div class="rightCol">
-      <Sankey rounds={report.rounds} totalVotes={report.totalVotes} {seats} {quota} />
+      <Sankey rounds={report.rounds} totalVotes={report.totalVotes} {quota} />
     </div>
   </div>
 {/if}

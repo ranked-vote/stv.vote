@@ -14,7 +14,6 @@
 
   export let rounds: ITabulatorRound[];
   export let totalVotes: ICandidateVotes[] = [];
-  export let seats: number = 1;
   export let quota: number | undefined = undefined;
 
   const { getCandidate } = getContext("candidates") as CandidateContext;

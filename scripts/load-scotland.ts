@@ -20,6 +20,7 @@ import {
 } from "./parse-scotland-ballots.js";
 import { tabulateSTV, type Ballot } from "./tabulate-stv.js";
 import { computePairwiseTables } from "./compute-pairwise.js";
+import { normalizeName } from "./normalize-name.js";
 
 const BALLOT_DATA_DIR = "raw-data/scotland/2022/SC2022_ballot_format";
 
@@ -30,7 +31,37 @@ function slugify(s: string): string {
     .replace(/^-|-$/g, "");
 }
 
-function loadWard(db: Database, ward: ScotlandWardData, councilSlug: string) {
+/**
+ * Normalize all candidate names in ward data (both the candidate list and ballot rankings)
+ * This ensures the names are consistent throughout the tabulation and storage.
+ */
+function normalizeWardNames(ward: ScotlandWardData): ScotlandWardData {
+  // Create a mapping from original names to normalized names
+  const normalizedCandidates = ward.candidates.map(normalizeName);
+
+  // Build a map for quick lookup when normalizing ballots
+  const nameMap = new Map<string, string>();
+  for (let i = 0; i < ward.candidates.length; i++) {
+    nameMap.set(ward.candidates[i], normalizedCandidates[i]);
+  }
+
+  // Normalize ballot rankings
+  const normalizedBallots = ward.ballots.map((ballot) => ({
+    ...ballot,
+    rankings: ballot.rankings.map((name) => nameMap.get(name) ?? name),
+  }));
+
+  return {
+    ...ward,
+    candidates: normalizedCandidates,
+    ballots: normalizedBallots,
+  };
+}
+
+function loadWard(db: Database, wardRaw: ScotlandWardData, councilSlug: string) {
+  // Normalize all candidate names (convert ALL CAPS surnames to proper case)
+  const ward = normalizeWardNames(wardRaw);
+
   // Build paths
   const wardSlug = slugify(ward.wardName.replace(/^\d+\s+/, "")); // Remove leading number
   const jurisdictionPath = `gb/scotland/${councilSlug}`;
@@ -108,7 +139,7 @@ function loadWard(db: Database, ward: ScotlandWardData, councilSlug: string) {
   `);
 
   for (let i = 0; i < ward.candidates.length; i++) {
-    const name = ward.candidates[i];
+    const name = ward.candidates[i]; // Already normalized by normalizeWardNames
     const party = ward.parties[i];
     const votes = stvResult.candidateVotes.find((v) => v.candidate === i);
     const isWinner = stvResult.winners.includes(i) ? 1 : 0;
