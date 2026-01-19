@@ -1,25 +1,26 @@
-import { json, error } from '@sveltejs/kit';
-import { getReport } from '$lib/server/reports';
-import type { RequestHandler } from './$types';
+import { json, error } from "@sveltejs/kit";
+import { getReport } from "$lib/server/reports";
+import type { RequestHandler } from "./$types";
 
 export const prerender = true;
 
 export const GET: RequestHandler = async ({ params }) => {
-	const { path } = params;
+  const { path } = params;
 
-	try {
-		const report = getReport(path);
+  try {
+    const report = getReport(path);
 
-		if (!report || !report.info) {
-			throw error(404, 'Report not found');
-		}
+    if (!report || !report.info) {
+      throw error(404, "Report not found");
+    }
 
-		return json(report);
-	} catch (err: unknown) {
-		if (err && typeof err === 'object' && 'status' in err) {
-			throw err;
-		}
-		const message = err instanceof Error ? err.message : 'Internal server error';
-		throw error(500, message);
-	}
+    return json(report);
+  } catch (err: unknown) {
+    if (err && typeof err === "object" && "status" in err) {
+      throw err;
+    }
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    throw error(500, message);
+  }
 };

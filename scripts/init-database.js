@@ -102,5 +102,9 @@ db.exec(`
 `);
 
 console.log("Database initialized successfully at data.sqlite3");
-console.log("Tables created: reports, candidates, rounds, allocations, transfers");
-console.log("STV fields added: seats, quota, winners, roundElected, surplusTransferred, electedThisRound, eliminatedThisRound");
+console.log(
+  "Tables created: reports, candidates, rounds, allocations, transfers",
+);
+console.log(
+  "STV fields added: seats, quota, winners, roundElected, surplusTransferred, electedThisRound, eliminatedThisRound",
+);

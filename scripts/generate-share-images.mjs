@@ -63,7 +63,7 @@ async function optimizePng(filePath) {
     // Run oxipng with maximum optimization to match trunk's expectations
     // --strip safe: remove safe-to-remove metadata
     const result = await execAsync(`oxipng --strip safe "${filePath}"`);
-    
+
     // Log oxipng output if it contains useful information
     if (result.stdout && result.stdout.trim()) {
       log(logLevels.DEBUG, `oxipng: ${result.stdout.trim()}`);
@@ -102,15 +102,24 @@ async function optimizePngBatch(filePaths, concurrency = 10) {
   try {
     execSync("oxipng --version", { encoding: "utf8", stdio: "ignore" });
   } catch {
-    log(
-      logLevels.WARN,
-      "oxipng not found, skipping batch optimization",
-    );
-    return { totalSaved: 0, totalSizeBefore: 0, totalSizeAfter: 0, count: 0, optimized: 0 };
+    log(logLevels.WARN, "oxipng not found, skipping batch optimization");
+    return {
+      totalSaved: 0,
+      totalSizeBefore: 0,
+      totalSizeAfter: 0,
+      count: 0,
+      optimized: 0,
+    };
   }
 
   if (filePaths.length === 0) {
-    return { totalSaved: 0, totalSizeBefore: 0, totalSizeAfter: 0, count: 0, optimized: 0 };
+    return {
+      totalSaved: 0,
+      totalSizeBefore: 0,
+      totalSizeAfter: 0,
+      count: 0,
+      optimized: 0,
+    };
   }
 
   log(logLevels.INFO, `Optimizing ${filePaths.length} PNG files...`);
@@ -154,10 +163,7 @@ async function optimizePngBatch(filePaths, concurrency = 10) {
   log(logLevels.INFO, "\n" + "=".repeat(60));
   log(logLevels.INFO, "Optimization Summary");
   log(logLevels.INFO, "=".repeat(60));
-  log(
-    logLevels.INFO,
-    `✅ Optimized: ${optimized}/${filePaths.length} files`,
-  );
+  log(logLevels.INFO, `✅ Optimized: ${optimized}/${filePaths.length} files`);
   log(
     logLevels.INFO,
     `💾 Total size saved: ${(totalSaved / 1024).toFixed(1)}KB (${totalPercentSaved}%)`,
@@ -572,7 +578,7 @@ async function generateShareImages() {
     const generatedImages = results
       .filter((r) => r.success && !r.skipped)
       .map((r) => `static/share/${r.path}.png`);
-    
+
     // Also include homepage if it was generated
     try {
       await stat("static/share/homepage.png");
