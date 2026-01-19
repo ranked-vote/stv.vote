@@ -19,12 +19,11 @@ export interface IContestIndexEntry {
   office: string;
   officeName: string;
   name: string;
-  winner: string;           // Primary winner name (for display)
-  winners?: string[];       // All winner names for STV
+  winner: string; // Primary winner name (for display)
+  winners?: string[]; // All winner names for STV
   numCandidates: number;
   numRounds: number;
-  seats?: number;           // Number of seats (1 = IRV, >1 = STV)
-  condorcetWinner?: string;
+  seats?: number; // Number of seats (1 = IRV, >1 = STV)
   interesting: boolean;
   hasWriteInByName: boolean;
   winnerNotFirstRoundLeader: boolean;
@@ -37,12 +36,10 @@ export interface IContestReport {
   ballotCount: number;
   candidates: ICandidate[];
   rounds: ITabulatorRound[];
-  winner: CandidateId;           // Primary winner (first elected or IRV winner)
-  winners: CandidateId[];        // All winners for STV
-  seats: number;                 // Number of seats (1 = IRV, >1 = STV)
-  quota?: number;                // Droop quota for STV
-  condorcet?: CandidateId;
-  smithSet: CandidateId[];
+  winner: CandidateId; // Primary winner (first elected or IRV winner)
+  winners: CandidateId[]; // All winners for STV
+  seats: number; // Number of seats (1 = IRV, >1 = STV)
+  quota?: number; // Droop quota for STV
   numCandidates: number;
   totalVotes: ICandidateVotes[];
   pairwisePreferences: ICandidatePairTable;
@@ -75,8 +72,8 @@ export interface ICandidateVotes {
   firstRoundVotes: number;
   transferVotes: number;
   roundEliminated?: number;
-  roundElected?: number;              // Round when candidate reached quota (STV)
-  surplusTransferred?: number;        // Surplus votes transferred after election (STV)
+  roundElected?: number; // Round when candidate reached quota (STV)
+  surplusTransferred?: number; // Surplus votes transferred after election (STV)
 }
 
 export interface IElectionInfo {
@@ -106,8 +103,8 @@ export interface ITabulatorRound {
   overvote: number;
   continuingBallots: number;
   transfers: Transfer[];
-  electedThisRound?: CandidateId[];     // Candidates elected this round (STV)
-  eliminatedThisRound?: CandidateId[];  // Candidates eliminated this round
+  electedThisRound?: CandidateId[]; // Candidates elected this round (STV)
+  eliminatedThisRound?: CandidateId[]; // Candidates eliminated this round
 }
 
 export interface ITabulatorAllocation {
@@ -115,11 +112,11 @@ export interface ITabulatorAllocation {
   votes: number;
 }
 
-export type TransferType = 'elimination' | 'surplus';
+export type TransferType = "elimination" | "surplus";
 
 export interface Transfer {
   from: CandidateId;
   to: Allocatee;
   count: number;
-  type?: TransferType;    // 'elimination' (default) or 'surplus' (STV)
+  type?: TransferType; // 'elimination' (default) or 'surplus' (STV)
 }

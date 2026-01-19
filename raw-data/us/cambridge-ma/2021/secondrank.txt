@@ -1,0 +1,413 @@
+
+
+====== Write-in #1 (22 pairs) =====
+Write-in #2               3     13.6%
+McGovern                  3     13.6%
+Siddiqui                  3     13.6%
+Bullister                 3     13.6%
+Skeadas                   3     13.6%
+Nolan                     2     9.1% 
+Hicks                     1     4.5% 
+Sobrinho-Wheeler          1     4.5% 
+Zondervan                 1     4.5% 
+Simmons                   1     4.5% 
+Azeem                     1     4.5% 
+
+
+====== Azeem (1332 pairs) =====
+Sobrinho-Wheeler          213   16.0%
+Siddiqui                  194   14.6%
+Mallon                    163   12.2%
+Bullister                 146   11.0%
+Hicks                     110   8.3% 
+McGovern                  89    6.7% 
+Zondervan                 68    5.1% 
+McGuirk                   67    5.0% 
+Skeadas                   64    4.8% 
+Nolan                     45    3.4% 
+Simmons                   34    2.6% 
+Williams                  33    2.5% 
+Carlone                   33    2.5% 
+Toner                     29    2.2% 
+Pierre                    18    1.4% 
+Eckstut                   11    0.8% 
+Levy                      9     0.7% 
+Moree                     6     0.5% 
+
+
+====== Bullister (510 pairs) =====
+Azeem                     78    15.3%
+Carlone                   65    12.7%
+Williams                  45    8.8% 
+Skeadas                   40    7.8% 
+Siddiqui                  39    7.6% 
+Nolan                     39    7.6% 
+Mallon                    38    7.5% 
+Zondervan                 32    6.3% 
+Sobrinho-Wheeler          24    4.7% 
+McGovern                  23    4.5% 
+Hicks                     16    3.1% 
+Eckstut                   13    2.5% 
+McGuirk                   12    2.4% 
+Pierre                    12    2.4% 
+Simmons                   10    2.0% 
+Levy                      9     1.8% 
+Moree                     8     1.6% 
+Toner                     7     1.4% 
+
+
+====== Carlone (1453 pairs) =====
+Nolan                     443   30.5%
+Williams                  304   20.9%
+Mallon                    146   10.0%
+McGovern                  96    6.6% 
+Zondervan                 93    6.4% 
+Siddiqui                  74    5.1% 
+Bullister                 50    3.4% 
+Simmons                   45    3.1% 
+Toner                     42    2.9% 
+Skeadas                   40    2.8% 
+Hicks                     32    2.2% 
+Sobrinho-Wheeler          32    2.2% 
+McGuirk                   14    1.0% 
+Levy                      13    0.9% 
+Azeem                     13    0.9% 
+Eckstut                   7     0.5% 
+Pierre                    5     0.3% 
+Moree                     4     0.3% 
+
+
+====== Eckstut (61 pairs) =====
+Bullister                 10    16.4%
+Hicks                     9     14.8%
+Carlone                   6     9.8% 
+Sobrinho-Wheeler          6     9.8% 
+McGuirk                   4     6.6% 
+Zondervan                 4     6.6% 
+Nolan                     4     6.6% 
+Siddiqui                  3     4.9% 
+Mallon                    3     4.9% 
+Toner                     3     4.9% 
+Levy                      2     3.3% 
+Azeem                     2     3.3% 
+Moree                     2     3.3% 
+Simmons                   2     3.3% 
+McGovern                  1     1.6% 
+
+
+====== Hicks (350 pairs) =====
+Williams                  54    15.4%
+Siddiqui                  43    12.3%
+Azeem                     40    11.4%
+Skeadas                   34    9.7% 
+Simmons                   28    8.0% 
+Zondervan                 27    7.7% 
+Sobrinho-Wheeler          21    6.0% 
+Mallon                    19    5.4% 
+Pierre                    17    4.9% 
+Bullister                 11    3.1% 
+McGovern                  11    3.1% 
+Nolan                     10    2.9% 
+Carlone                   9     2.6% 
+Eckstut                   8     2.3% 
+Levy                      6     1.7% 
+McGuirk                   6     1.7% 
+Toner                     4     1.1% 
+Moree                     2     0.6% 
+
+
+====== Levy (85 pairs) =====
+Bullister                 13    15.3%
+Nolan                     8     9.4% 
+Williams                  8     9.4% 
+Siddiqui                  7     8.2% 
+Simmons                   7     8.2% 
+Carlone                   6     7.1% 
+McGuirk                   5     5.9% 
+Zondervan                 5     5.9% 
+Toner                     5     5.9% 
+Hicks                     4     4.7% 
+Mallon                    4     4.7% 
+Azeem                     3     3.5% 
+Skeadas                   3     3.5% 
+McGovern                  3     3.5% 
+Sobrinho-Wheeler          2     2.4% 
+Eckstut                   1     1.2% 
+Moree                     1     1.2% 
+
+
+====== Mallon (1166 pairs) =====
+Siddiqui                  370   31.7%
+McGovern                  231   19.8%
+Nolan                     92    7.9% 
+Azeem                     78    6.7% 
+Simmons                   67    5.7% 
+Toner                     61    5.2% 
+Carlone                   51    4.4% 
+Sobrinho-Wheeler          39    3.3% 
+McGuirk                   33    2.8% 
+Zondervan                 26    2.2% 
+Williams                  25    2.1% 
+Skeadas                   23    2.0% 
+Bullister                 22    1.9% 
+Hicks                     19    1.6% 
+Pierre                    15    1.3% 
+Moree                     7     0.6% 
+Levy                      6     0.5% 
+Eckstut                   1     0.1% 
+
+
+====== McGovern (1456 pairs) =====
+Siddiqui                  341   23.4%
+Simmons                   240   16.5%
+Nolan                     198   13.6%
+Mallon                    172   11.8%
+Toner                     67    4.6% 
+Carlone                   66    4.5% 
+McGuirk                   64    4.4% 
+Azeem                     62    4.3% 
+Zondervan                 50    3.4% 
+Williams                  42    2.9% 
+Sobrinho-Wheeler          39    2.7% 
+Hicks                     30    2.1% 
+Skeadas                   29    2.0% 
+Pierre                    18    1.2% 
+Bullister                 16    1.1% 
+Moree                     11    0.8% 
+Levy                      7     0.5% 
+Eckstut                   3     0.2% 
+McGovern                  1     0.1% 
+
+
+====== McGuirk (556 pairs) =====
+Toner                     97    17.4%
+Siddiqui                  71    12.8%
+McGovern                  49    8.8% 
+Mallon                    47    8.5% 
+Simmons                   41    7.4% 
+Azeem                     39    7.0% 
+Nolan                     29    5.2% 
+Sobrinho-Wheeler          29    5.2% 
+Hicks                     20    3.6% 
+Skeadas                   20    3.6% 
+Zondervan                 18    3.2% 
+Williams                  18    3.2% 
+Carlone                   16    2.9% 
+Bullister                 15    2.7% 
+Pierre                    15    2.7% 
+Moree                     14    2.5% 
+Levy                      11    2.0% 
+Eckstut                   6     1.1% 
+McGuirk                   1     0.2% 
+
+
+====== Moree (69 pairs) =====
+McGuirk                   13    18.8%
+Toner                     12    17.4%
+Nolan                     7     10.1%
+McGovern                  7     10.1%
+Mallon                    5     7.2% 
+Carlone                   4     5.8% 
+Williams                  4     5.8% 
+Siddiqui                  3     4.3% 
+Bullister                 3     4.3% 
+Simmons                   3     4.3% 
+Levy                      2     2.9% 
+Pierre                    2     2.9% 
+Skeadas                   1     1.4% 
+Azeem                     1     1.4% 
+Hicks                     1     1.4% 
+Eckstut                   1     1.4% 
+
+
+====== Nolan (1907 pairs) =====
+Carlone                   408   21.4%
+Siddiqui                  301   15.8%
+Williams                  242   12.7%
+McGovern                  166   8.7% 
+Zondervan                 137   7.2% 
+Simmons                   135   7.1% 
+Mallon                    128   6.7% 
+Toner                     84    4.4% 
+Bullister                 74    3.9% 
+Skeadas                   69    3.6% 
+Sobrinho-Wheeler          50    2.6% 
+Azeem                     35    1.8% 
+Pierre                    21    1.1% 
+McGuirk                   20    1.0% 
+Hicks                     16    0.8% 
+Levy                      14    0.7% 
+Eckstut                   6     0.3% 
+Moree                     1     0.1% 
+
+
+====== Pierre (310 pairs) =====
+Simmons                   85    27.4%
+Siddiqui                  54    17.4%
+McGovern                  34    11.0%
+Williams                  28    9.0% 
+Mallon                    19    6.1% 
+Hicks                     16    5.2% 
+McGuirk                   12    3.9% 
+Toner                     12    3.9% 
+Azeem                     10    3.2% 
+Zondervan                 7     2.3% 
+Nolan                     7     2.3% 
+Bullister                 6     1.9% 
+Carlone                   6     1.9% 
+Skeadas                   5     1.6% 
+Eckstut                   3     1.0% 
+Sobrinho-Wheeler          2     0.6% 
+Moree                     2     0.6% 
+Levy                      1     0.3% 
+Write-in #1               1     0.3% 
+
+
+====== Siddiqui (3747 pairs) =====
+Mallon                    626   16.7%
+Simmons                   621   16.6%
+McGovern                  417   11.1%
+Azeem                     354   9.4% 
+Nolan                     335   8.9% 
+Sobrinho-Wheeler          272   7.3% 
+Zondervan                 262   7.0% 
+Skeadas                   177   4.7% 
+Williams                  162   4.3% 
+Carlone                   118   3.1% 
+Toner                     115   3.1% 
+Hicks                     83    2.2% 
+McGuirk                   70    1.9% 
+Bullister                 62    1.7% 
+Pierre                    53    1.4% 
+Eckstut                   8     0.2% 
+Levy                      6     0.2% 
+Moree                     5     0.1% 
+Write-in #1               1     0.0% 
+
+
+====== Simmons (1580 pairs) =====
+Siddiqui                  369   23.4%
+McGovern                  283   17.9%
+Toner                     169   10.7%
+Williams                  115   7.3% 
+Nolan                     105   6.6% 
+Mallon                    82    5.2% 
+Carlone                   77    4.9% 
+Hicks                     69    4.4% 
+Zondervan                 58    3.7% 
+McGuirk                   56    3.5% 
+Pierre                    45    2.8% 
+Sobrinho-Wheeler          44    2.8% 
+Skeadas                   42    2.7% 
+Azeem                     31    2.0% 
+Bullister                 15    0.9% 
+Levy                      8     0.5% 
+Moree                     8     0.5% 
+Eckstut                   4     0.3% 
+
+
+====== Skeadas (790 pairs) =====
+Siddiqui                  106   13.4%
+Zondervan                 97    12.3%
+Sobrinho-Wheeler          94    11.9%
+Williams                  79    10.0%
+Azeem                     77    9.7% 
+Nolan                     65    8.2% 
+Bullister                 56    7.1% 
+Simmons                   42    5.3% 
+McGovern                  32    4.1% 
+Mallon                    31    3.9% 
+Hicks                     30    3.8% 
+Carlone                   23    2.9% 
+McGuirk                   19    2.4% 
+Toner                     18    2.3% 
+Pierre                    11    1.4% 
+Eckstut                   6     0.8% 
+Levy                      3     0.4% 
+Write-in #1               1     0.1% 
+
+
+====== Sobrinho-Wheeler (1203 pairs) =====
+Zondervan                 472   39.2%
+Siddiqui                  183   15.2%
+Azeem                     148   12.3%
+Skeadas                   75    6.2% 
+Hicks                     61    5.1% 
+Williams                  44    3.7% 
+Mallon                    35    2.9% 
+McGovern                  30    2.5% 
+Nolan                     28    2.3% 
+Carlone                   27    2.2% 
+Simmons                   27    2.2% 
+McGuirk                   23    1.9% 
+Bullister                 23    1.9% 
+Toner                     17    1.4% 
+Eckstut                   4     0.3% 
+Moree                     3     0.2% 
+Pierre                    2     0.2% 
+Levy                      1     0.1% 
+
+
+====== Toner (1512 pairs) =====
+Simmons                   360   23.8%
+McGuirk                   303   20.0%
+McGovern                  222   14.7%
+Siddiqui                  132   8.7% 
+Nolan                     103   6.8% 
+Mallon                    76    5.0% 
+Carlone                   66    4.4% 
+Williams                  52    3.4% 
+Skeadas                   34    2.2% 
+Moree                     31    2.1% 
+Azeem                     26    1.7% 
+Sobrinho-Wheeler          21    1.4% 
+Levy                      20    1.3% 
+Zondervan                 18    1.2% 
+Pierre                    15    1.0% 
+Bullister                 15    1.0% 
+Hicks                     9     0.6% 
+Eckstut                   6     0.4% 
+Write-in #1               3     0.2% 
+
+
+====== Williams (1123 pairs) =====
+Carlone                   201   17.9%
+Nolan                     194   17.3%
+Siddiqui                  119   10.6%
+Zondervan                 109   9.7% 
+Skeadas                   90    8.0% 
+Bullister                 73    6.5% 
+Simmons                   62    5.5% 
+Hicks                     56    5.0% 
+Sobrinho-Wheeler          43    3.8% 
+Azeem                     37    3.3% 
+McGovern                  35    3.1% 
+Toner                     32    2.8% 
+Mallon                    26    2.3% 
+McGuirk                   20    1.8% 
+Pierre                    15    1.3% 
+Levy                      5     0.4% 
+Eckstut                   3     0.3% 
+Moree                     3     0.3% 
+
+
+====== Zondervan (1272 pairs) =====
+Sobrinho-Wheeler          357   28.1%
+Siddiqui                  205   16.1%
+Williams                  113   8.9% 
+Skeadas                   108   8.5% 
+Nolan                     106   8.3% 
+Carlone                   79    6.2% 
+Azeem                     59    4.6% 
+Mallon                    43    3.4% 
+McGovern                  40    3.1% 
+Bullister                 39    3.1% 
+Simmons                   39    3.1% 
+Hicks                     36    2.8% 
+McGuirk                   16    1.3% 
+Pierre                    11    0.9% 
+Toner                     9     0.7% 
+Levy                      6     0.5% 
+Eckstut                   4     0.3% 
+Write-in #1               1     0.1% 
+Moree                     1     0.1% 

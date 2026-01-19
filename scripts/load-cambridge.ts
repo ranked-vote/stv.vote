@@ -9,7 +9,7 @@ import {
   parseCambridgeCSV,
   normalizeCandidate,
 } from "./parse-cambridge-csv.js";
-import { tabulateSTV } from "./tabulate-stv.js";
+import { tabulateSTV } from "./tabulate-stv-cambridge.js";
 import { computePairwiseTables } from "./compute-pairwise.js";
 import { existsSync } from "node:fs";
 
@@ -33,7 +33,7 @@ const CAMBRIDGE_ELECTIONS: ElectionConfig[] = [
     office: "council",
     officeName: "City Council",
     seats: 9,
-    csvFile: "raw-data/cambridge-ma/2019/votes.csv",
+    csvFile: "raw-data/us/cambridge-ma/2019/votes.csv",
   },
   // 2021
   {
@@ -43,7 +43,7 @@ const CAMBRIDGE_ELECTIONS: ElectionConfig[] = [
     office: "council",
     officeName: "City Council",
     seats: 9,
-    csvFile: "raw-data/cambridge-ma/2021/council.csv",
+    csvFile: "raw-data/us/cambridge-ma/2021/council.csv",
   },
   // 2023
   {
@@ -53,7 +53,7 @@ const CAMBRIDGE_ELECTIONS: ElectionConfig[] = [
     office: "council",
     officeName: "City Council",
     seats: 9,
-    csvFile: "raw-data/cambridge-ma/2023/council.csv",
+    csvFile: "raw-data/us/cambridge-ma/2023/council.csv",
   },
 ];
 

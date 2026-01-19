@@ -18,11 +18,11 @@ import {
   expandBallots,
   type ScotlandWardData,
 } from "./parse-scotland-ballots.js";
-import { tabulateSTV, type Ballot } from "./tabulate-stv.js";
+import { tabulateSTV, type Ballot } from "./tabulate-stv-cambridge.js";
 import { computePairwiseTables } from "./compute-pairwise.js";
 import { normalizeName } from "./normalize-name.js";
 
-const BALLOT_DATA_DIR = "raw-data/scotland/2022/SC2022_ballot_format";
+const BALLOT_DATA_DIR = "raw-data/uk/scotland/2022/SC2022_ballot_format";
 
 function slugify(s: string): string {
   return s
@@ -58,7 +58,11 @@ function normalizeWardNames(ward: ScotlandWardData): ScotlandWardData {
   };
 }
 
-function loadWard(db: Database, wardRaw: ScotlandWardData, councilSlug: string) {
+function loadWard(
+  db: Database,
+  wardRaw: ScotlandWardData,
+  councilSlug: string,
+) {
   // Normalize all candidate names (convert ALL CAPS surnames to proper case)
   const ward = normalizeWardNames(wardRaw);
 

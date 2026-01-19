@@ -28,16 +28,20 @@ bun run dev
 ## Scripts
 
 ### Web Development
+
 - `bun run dev`: start SvelteKit dev server
 - `bun run build`: build static site to `build/` directory
 - `bun run preview`: preview the built site locally
 - `bun run check`: run Svelte type checking
 
 ### Database
+
 - `bun run init-db`: initialize empty SQLite database with schema
 - `bun run load-scotland`: load Scotland 2022 council election data
+- `bun run load-portland`: load Portland OR November 2024 election data
 
 ### Card Image Generation
+
 - `bun run generate-images`: generate share images (automatically starts/stops dev server if needed)
   - Processes images in parallel (default: 5 concurrent, set `CONCURRENCY` env var to adjust)
   - Skips unchanged images
@@ -70,18 +74,24 @@ import { Database } from "bun:sqlite";
 const db = new Database("data.sqlite3");
 
 // Insert a report
-const result = db.prepare(`
+const result = db
+  .prepare(
+    `
   INSERT INTO reports (name, date, jurisdictionPath, electionPath, office, ...)
   VALUES (?, ?, ?, ?, ?, ...)
-`).run(...values);
+`,
+  )
+  .run(...values);
 
 const reportId = result.lastInsertRowid;
 
 // Insert candidates
-db.prepare(`
+db.prepare(
+  `
   INSERT INTO candidates (report_id, candidate_index, name, firstRoundVotes, ...)
   VALUES (?, ?, ?, ?, ...)
-`).run(reportId, ...candidateValues);
+`,
+).run(reportId, ...candidateValues);
 
 // Insert rounds, allocations, transfers...
 ```
@@ -109,7 +119,12 @@ Deploys are handled by GitHub Pages via `.github/workflows/deploy.yml`:
 ## Data Sources
 
 ### Scotland 2022 Council Elections
+
 Scotland council election data (`raw-data/scotland/2022/`) is made available under the **CC-BY-SA 4.0** license. Attribution: [@gerrymulvenna](https://github.com/gerrymulvenna), containing candidate data provided by [Democracy Club](https://democracyclub.org.uk/).
+
+### Portland OR November 2024 Elections
+
+Portland, OR election data (`raw-data/us/us-portland-or/`) consists of Cast Vote Records (CVR) from the November 2024 General Election. Data source: [Multnomah County Elections Division](https://multco.us/info/turnout-and-statistics-november-2024-general-election). Includes contests for Mayor, Auditor, and four Councilor districts.
 
 ## License
 

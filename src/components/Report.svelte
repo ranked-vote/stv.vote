@@ -39,11 +39,6 @@
     }
   }
 
-  function getCandidateNameById(cid: number): string {
-    const c = report.candidates[cid];
-    return c ? c.name : "";
-  }
-
   setContext("candidates", {
     getCandidate,
   });
@@ -220,23 +215,6 @@
       {/if}
     {/if}
 
-    {#if hasCandidates && !isSTV}
-      {#if report.condorcet != null && report.winner != null}
-        <p>
-          {#if report.winner == report.condorcet}
-            <strong>{getCandidate(report.winner).name}</strong> was also the <a href="https://en.wikipedia.org/wiki/Condorcet_method">Condorcet winner</a>.
-          {:else}
-            <strong>{getCandidate(report.condorcet).name}</strong> was the <a href="https://en.wikipedia.org/wiki/Condorcet_method">Condorcet winner</a>, meaning that they would have won in a head-to-head matchup against <strong>{getCandidate(report.winner).name}</strong>.
-          {/if}
-        </p>
-      {:else if report.condorcet == null && report.winner != null && report.smithSet}
-        <p>
-          No Condorcet winner exists; multiple candidates form a
-          <a href="https://en.wikipedia.org/wiki/Condorcet_paradox">Condorcet cycle</a>:
-          {report.smithSet.map(getCandidateNameById).join(", ")}. This means that among these candidates, each one would beat some others in head-to-head matchups, but no single candidate beats all others. In this situation, the winner depends on the order of eliminations in the STV process, rather than a clear preference.
-        </p>
-      {/if}
-    {/if}
   </div>
   <div class="rightCol">
     <VoteCounts candidateVotes={report.totalVotes} {quota} {seats} winners={report.winners} />

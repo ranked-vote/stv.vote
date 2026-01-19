@@ -40,6 +40,15 @@ export default ts.config(
     },
   },
   {
+    files: ["**/*.test.mjs", "**/*.test.js", "**/*.spec.mjs", "**/*.spec.js"],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+        ...globals.node,
+      },
+    },
+  },
+  {
     ignores: ["build/", ".svelte-kit/", "node_modules/", ".trunk/", "static/"],
   },
 );

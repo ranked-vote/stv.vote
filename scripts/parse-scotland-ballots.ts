@@ -199,7 +199,7 @@ export function getCouncils(baseDir: string): string[] {
 // CLI for testing
 if (import.meta.main) {
   const baseDir =
-    process.argv[2] || "raw-data/scotland/2022/SC2022_ballot_format";
+    process.argv[2] || "raw-data/uk/scotland/2022/SC2022_ballot_format";
 
   console.log(`Parsing Scotland 2022 ballot data from ${baseDir}...`);
 

@@ -1,5 +1,5 @@
-import Database from 'better-sqlite3';
-import { resolve } from 'path';
+import Database from "better-sqlite3";
+import { resolve } from "path";
 import type {
   IReportIndex,
   IContestReport,
@@ -15,9 +15,9 @@ import type {
   Allocatee,
   TransferType,
   CandidateId,
-} from '$lib/report_types';
+} from "$lib/report_types";
 
-const dbPath = resolve(process.cwd(), 'data.sqlite3');
+const dbPath = resolve(process.cwd(), "data.sqlite3");
 
 function getDatabase(): Database.Database {
   try {
@@ -103,7 +103,7 @@ interface TransferRow {
 }
 
 function parseAllocatee(value: string): Allocatee {
-  if (value === 'X') return 'X';
+  if (value === "X") return "X";
   return parseInt(value, 10);
 }
 
@@ -133,35 +133,32 @@ export function getIndex(): IReportIndex {
         r.date DESC, r.jurisdictionName ASC
     `;
 
-    const rows = db.prepare(sqlCmd).all() as (ReportRow & { numCandidates: number })[];
+    const rows = db.prepare(sqlCmd).all() as (ReportRow & {
+      numCandidates: number;
+    })[];
 
     // Group by election (path)
     const electionMap = new Map<string, IElectionIndexEntry>();
 
     for (const row of rows) {
       // Get all winners for STV
-      const winnerRows = db.prepare(
-        'SELECT name FROM candidates WHERE report_id = ? AND winner = 1 ORDER BY roundElected, candidate_index'
-      ).all(row.id) as { name: string }[];
+      const winnerRows = db
+        .prepare(
+          "SELECT name FROM candidates WHERE report_id = ? AND winner = 1 ORDER BY roundElected, candidate_index",
+        )
+        .all(row.id) as { name: string }[];
 
-      const winnerNames = winnerRows.map(w => w.name);
-
-      const condorcetRow = row.condorcet !== null
-        ? db.prepare(
-            'SELECT name FROM candidates WHERE report_id = ? AND candidate_index = ?'
-          ).get(row.id, row.condorcet) as { name: string } | undefined
-        : undefined;
+      const winnerNames = winnerRows.map((w) => w.name);
 
       const contest: IContestIndexEntry = {
         office: row.office,
         officeName: row.officeName,
         name: row.name,
-        winner: winnerNames[0] || 'No Winner',
+        winner: winnerNames[0] || "No Winner",
         winners: winnerNames.length > 1 ? winnerNames : undefined,
         numCandidates: row.numCandidates,
         numRounds: row.numRounds,
         seats: row.seats > 1 ? row.seats : undefined,
-        condorcetWinner: condorcetRow?.name,
         interesting: row.interesting === 1,
         hasWriteInByName: row.hasWriteInByName === 1,
         winnerNotFirstRoundLeader: row.winnerNotFirstRoundLeader === 1,
@@ -182,7 +179,9 @@ export function getIndex(): IReportIndex {
 
     // Sort contests within each election
     for (const election of electionMap.values()) {
-      election.contests.sort((a, b) => a.officeName.localeCompare(b.officeName));
+      election.contests.sort((a, b) =>
+        a.officeName.localeCompare(b.officeName),
+      );
     }
 
     return { elections: Array.from(electionMap.values()) };
@@ -200,22 +199,24 @@ export function getReport(path: string): IContestReport | null {
   }
 
   try {
-    const pathParts = path.split('/');
+    const pathParts = path.split("/");
     const office = pathParts[pathParts.length - 1];
-    const electionPath = pathParts.slice(0, -1).join('/');
+    const electionPath = pathParts.slice(0, -1).join("/");
 
-    const reportRow = db.prepare(
-      'SELECT * FROM reports WHERE path = ? AND office = ?'
-    ).get(electionPath, office) as ReportRow | undefined;
+    const reportRow = db
+      .prepare("SELECT * FROM reports WHERE path = ? AND office = ?")
+      .get(electionPath, office) as ReportRow | undefined;
 
     if (!reportRow) {
       return null;
     }
 
     // Get candidates
-    const candidateRows = db.prepare(
-      'SELECT * FROM candidates WHERE report_id = ? ORDER BY candidate_index'
-    ).all(reportRow.id) as CandidateRow[];
+    const candidateRows = db
+      .prepare(
+        "SELECT * FROM candidates WHERE report_id = ? ORDER BY candidate_index",
+      )
+      .all(reportRow.id) as CandidateRow[];
 
     const candidates: ICandidate[] = candidateRows.map((row) => ({
       name: row.name,
@@ -233,18 +234,18 @@ export function getReport(path: string): IContestReport | null {
     }));
 
     // Get rounds
-    const roundRows = db.prepare(
-      'SELECT * FROM rounds WHERE report_id = ? ORDER BY round_number'
-    ).all(reportRow.id) as RoundRow[];
+    const roundRows = db
+      .prepare("SELECT * FROM rounds WHERE report_id = ? ORDER BY round_number")
+      .all(reportRow.id) as RoundRow[];
 
     const rounds: ITabulatorRound[] = roundRows.map((roundRow) => {
-      const allocationRows = db.prepare(
-        'SELECT * FROM allocations WHERE round_id = ?'
-      ).all(roundRow.id) as AllocationRow[];
+      const allocationRows = db
+        .prepare("SELECT * FROM allocations WHERE round_id = ?")
+        .all(roundRow.id) as AllocationRow[];
 
-      const transferRows = db.prepare(
-        'SELECT * FROM transfers WHERE round_id = ?'
-      ).all(roundRow.id) as TransferRow[];
+      const transferRows = db
+        .prepare("SELECT * FROM transfers WHERE round_id = ?")
+        .all(roundRow.id) as TransferRow[];
 
       const allocations: ITabulatorAllocation[] = allocationRows.map((a) => ({
         allocatee: parseAllocatee(a.allocatee),
@@ -259,12 +260,14 @@ export function getReport(path: string): IContestReport | null {
       }));
 
       // Parse JSON arrays for elected/eliminated this round
-      const electedThisRound: CandidateId[] | undefined = roundRow.electedThisRound
-        ? JSON.parse(roundRow.electedThisRound)
-        : undefined;
-      const eliminatedThisRound: CandidateId[] | undefined = roundRow.eliminatedThisRound
-        ? JSON.parse(roundRow.eliminatedThisRound)
-        : undefined;
+      const electedThisRound: CandidateId[] | undefined =
+        roundRow.electedThisRound
+          ? JSON.parse(roundRow.electedThisRound)
+          : undefined;
+      const eliminatedThisRound: CandidateId[] | undefined =
+        roundRow.eliminatedThisRound
+          ? JSON.parse(roundRow.eliminatedThisRound)
+          : undefined;
 
       return {
         allocations,
@@ -278,19 +281,20 @@ export function getReport(path: string): IContestReport | null {
     });
 
     // Parse JSON fields
-    const smithSet = reportRow.smithSet ? JSON.parse(reportRow.smithSet) : [];
-    const pairwisePreferences: ICandidatePairTable = reportRow.pairwisePreferences
-      ? JSON.parse(reportRow.pairwisePreferences)
-      : { rows: [], cols: [], entries: [] };
+    const pairwisePreferences: ICandidatePairTable =
+      reportRow.pairwisePreferences
+        ? JSON.parse(reportRow.pairwisePreferences)
+        : { rows: [], cols: [], entries: [] };
     const firstAlternate: ICandidatePairTable = reportRow.firstAlternate
       ? JSON.parse(reportRow.firstAlternate)
       : { rows: [], cols: [], entries: [] };
     const firstFinal: ICandidatePairTable = reportRow.firstFinal
       ? JSON.parse(reportRow.firstFinal)
       : { rows: [], cols: [], entries: [] };
-    const rankingDistribution: IRankingDistribution | undefined = reportRow.rankingDistribution
-      ? JSON.parse(reportRow.rankingDistribution)
-      : undefined;
+    const rankingDistribution: IRankingDistribution | undefined =
+      reportRow.rankingDistribution
+        ? JSON.parse(reportRow.rankingDistribution)
+        : undefined;
 
     // Parse winners array
     const winnersArray: CandidateId[] = reportRow.winners
@@ -301,8 +305,8 @@ export function getReport(path: string): IContestReport | null {
       info: {
         name: reportRow.name,
         date: reportRow.date,
-        dataFormat: reportRow.dataFormat || 'unknown',
-        tabulation: reportRow.tabulation || 'unknown',
+        dataFormat: reportRow.dataFormat || "unknown",
+        tabulation: reportRow.tabulation || "unknown",
         jurisdictionPath: reportRow.jurisdictionPath,
         electionPath: reportRow.electionPath,
         office: reportRow.office,
@@ -318,8 +322,6 @@ export function getReport(path: string): IContestReport | null {
       winners: winnersArray,
       seats: reportRow.seats,
       quota: reportRow.quota ?? undefined,
-      condorcet: reportRow.condorcet ?? undefined,
-      smithSet,
       numCandidates: candidates.length,
       totalVotes,
       pairwisePreferences,

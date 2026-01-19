@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { IElectionIndexEntry, IContestIndexEntry } from "$lib/report_types";
   import tooltip from "$lib/tooltip";
+  import { SvelteMap } from "svelte/reactivity";
+  import { resolve } from "$app/paths";
 
   export let elections: IElectionIndexEntry[];
 
@@ -14,11 +16,11 @@
     return names.map(getSurname).join(', ');
   }
 
-  function getTooltipText(contest: { interesting: boolean; winnerNotFirstRoundLeader: boolean; condorcetWinner?: string }): string | null {
+  function getTooltipText(contest: { interesting: boolean; winnerNotFirstRoundLeader: boolean }): string | null {
     if (contest.interesting && contest.winnerNotFirstRoundLeader) {
-      return `This election is highlighted because:<br>• The STV winner differs from the Condorcet winner, there is a Condorcet cycle, or exhausted ballots outnumber the winner's votes<br>• The winner did not lead in the first round`;
+      return `This election is highlighted because:<br>• Exhausted ballots outnumber the winner's votes<br>• The winner did not lead in the first round`;
     } else if (contest.interesting) {
-      return `This election is highlighted because one of the following:<br>• The STV winner differs from the Condorcet winner<br>• There is a Condorcet cycle<br>• Exhausted ballots outnumber the winner's votes`;
+      return `This election is highlighted because exhausted ballots outnumber the winner's votes.`;
     } else if (contest.winnerNotFirstRoundLeader) {
       return `The winner did not lead in the first round of voting.`;
     }
@@ -93,7 +95,7 @@
   })();
 
   $: electionsByYear = (() => {
-    let map = new Map<string, IElectionIndexEntry[]>();
+    let map = new SvelteMap<string, IElectionIndexEntry[]>();
     filteredElections.forEach((e) => {
       let year = e.date.substring(0, 4);
       if (!map.has(year)) {
@@ -105,7 +107,7 @@
       }
     });
     // Sort elections within each year by jurisdiction name alphabetically
-    map.forEach((elections, year) => {
+    map.forEach((elections) => {
       elections.sort((a, b) => a.jurisdictionName.localeCompare(b.jurisdictionName));
     });
     return map;
@@ -117,25 +119,25 @@
   });
 </script>
 
-{#each sortedYears as [year, yearElections]}
+{#each sortedYears as [year, yearElections] (year)}
   <div class="yearSection">
     <h2>{year}</h2>
     <div class="electionSection">
-      {#each yearElections as election}
+      {#each yearElections as election (election.path)}
         <div class="electionHeader">
           <h3>
             <strong>{election.jurisdictionName}</strong>
             {election.electionName}
           </h3>
         </div>
-        {#each election.contests as contest}
+        {#each election.contests as contest (contest.office)}
           <div 
             class="race" 
             class:interesting={contest.interesting} 
             class:winner-not-first={contest.winnerNotFirstRoundLeader}
             use:tooltip={getTooltipText(contest)}
           >
-            <a href="/report/{election.path}/{contest.office}">
+            <a href={resolve(`/report/${election.path}/${contest.office}`, {})}>
               <div class="title">
                 <strong>{contest.officeName}</strong>
                 {getWinnerSurnames(contest)}
