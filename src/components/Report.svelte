@@ -199,6 +199,15 @@
         No candidate data available for this election.
       {/if}
     </p>
+   
+    {#if isSTV}
+    <p>
+      In STV, candidates who reach the <strong>quota</strong> ({quota?.toLocaleString()} votes)
+      are elected. Surplus votes above the quota are transferred to voters' next preferences.
+      When no candidate reaches the quota, the candidate with the fewest votes is eliminated
+      and their votes are transferred.
+    </p>
+  {/if}
 
     {#if isSTV && winnerNames.length > 0}
       <p><strong>Elected candidates:</strong></p>
@@ -209,7 +218,7 @@
       </ol>
       {#if quota}
         <p class="quota-info">
-          Droop quota: <strong>{quota.toLocaleString()}</strong> votes
+          Votes needed to win: <strong>{quota.toLocaleString()}</strong> votes
           <MathFormula formula={`\\left\\lfloor \\frac{${report.ballotCount.toLocaleString()}}{${seats} + 1} \\right\\rfloor + 1`} />
         </p>
       {/if}
@@ -236,18 +245,9 @@
         {/if}
       </p>
 
-      {#if isSTV}
-        <p>
-          In STV, candidates who reach the <strong>quota</strong> ({quota?.toLocaleString()} votes)
-          are elected. Surplus votes above the quota are transferred to voters' next preferences.
-          When no candidate reaches the quota, the candidate with the fewest votes is eliminated
-          and their votes are transferred.
-        </p>
-      {/if}
-
       <p>
         Note that the tabulation (but not the winner) may differ from the official count. You
-        can <a href={resolve(`/discrepancies`, {})}>read more about why this is</a>.
+        can <a href={resolve(`/about#understanding-discrepancies`, {})}>read more about why this is</a>.
       </p>
     </div>
 

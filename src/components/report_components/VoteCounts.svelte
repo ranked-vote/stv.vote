@@ -157,7 +157,7 @@
         text-anchor="end"
         x={quotaX}
         y={-2}>
-        Quota: {quota?.toLocaleString()}
+        Votes needed to win: {quota?.toLocaleString()}
       </text>
     {/if}
 
