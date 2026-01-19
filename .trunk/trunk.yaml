@@ -17,6 +17,8 @@ runtimes:
     - python@3.10.8
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
+  disabled:
+    - oxipng
   files:
     - name: svelte
       extensions:
@@ -30,7 +32,6 @@ lint:
           - typescript-eslint@8.52.0
           - globals@17.0.0
           - "@eslint/js@9.39.2"
-    - oxipng@10.0.0
     - actionlint@1.7.9
     - checkov@3.2.497
     - clippy@1.90.0

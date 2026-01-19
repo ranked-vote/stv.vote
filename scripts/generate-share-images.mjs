@@ -3,10 +3,6 @@ import fs from "fs/promises";
 import path from "path";
 import { stat } from "fs/promises";
 import { spawn, execSync } from "child_process";
-import { promisify } from "util";
-import { exec } from "child_process";
-
-const execAsync = promisify(exec);
 
 let detectedPort = 3000;
 let devServerProcess = null;
@@ -51,139 +47,6 @@ function logProgress(current, total, prefix = "Processing") {
   if (current === total) {
     process.stdout.write("\n");
   }
-}
-
-// Optimize PNG using oxipng if available, otherwise skip silently
-async function optimizePng(filePath) {
-  try {
-    // Get file size before optimization
-    const statsBefore = await stat(filePath);
-    const sizeBefore = statsBefore.size;
-
-    // Run oxipng with maximum optimization to match trunk's expectations
-    // --strip safe: remove safe-to-remove metadata
-    const result = await execAsync(`oxipng --strip safe "${filePath}"`);
-
-    // Log oxipng output if it contains useful information
-    if (result.stdout && result.stdout.trim()) {
-      log(logLevels.DEBUG, `oxipng: ${result.stdout.trim()}`);
-    }
-    if (result.stderr && result.stderr.trim()) {
-      log(logLevels.DEBUG, `oxipng stderr: ${result.stderr.trim()}`);
-    }
-
-    // Get file size after optimization
-    const statsAfter = await stat(filePath);
-    const sizeAfter = statsAfter.size;
-    const saved = sizeBefore - sizeAfter;
-    const percentSaved = ((saved / sizeBefore) * 100).toFixed(1);
-
-    if (saved > 0) {
-      log(
-        logLevels.DEBUG,
-        `Optimized ${path.basename(filePath)}: ${(sizeBefore / 1024).toFixed(1)}KB → ${(sizeAfter / 1024).toFixed(1)}KB (${percentSaved}% saved)`,
-      );
-    }
-
-    return { saved, sizeBefore, sizeAfter };
-  } catch (error) {
-    // Log but don't fail - optimization is optional
-    log(
-      logLevels.WARN,
-      `PNG optimization failed for ${path.basename(filePath)}: ${error.message}`,
-    );
-    return { saved: 0, sizeBefore: 0, sizeAfter: 0 };
-  }
-}
-
-// Optimize multiple PNG files in batch
-async function optimizePngBatch(filePaths, concurrency = 10) {
-  // Check if oxipng is available
-  try {
-    execSync("oxipng --version", { encoding: "utf8", stdio: "ignore" });
-  } catch {
-    log(logLevels.WARN, "oxipng not found, skipping batch optimization");
-    return {
-      totalSaved: 0,
-      totalSizeBefore: 0,
-      totalSizeAfter: 0,
-      count: 0,
-      optimized: 0,
-    };
-  }
-
-  if (filePaths.length === 0) {
-    return {
-      totalSaved: 0,
-      totalSizeBefore: 0,
-      totalSizeAfter: 0,
-      count: 0,
-      optimized: 0,
-    };
-  }
-
-  log(logLevels.INFO, `Optimizing ${filePaths.length} PNG files...`);
-  const optimizeStartTime = Date.now();
-  let totalSaved = 0;
-  let totalSizeBefore = 0;
-  let totalSizeAfter = 0;
-  let optimized = 0;
-
-  // Process in batches with concurrency limit
-  for (let i = 0; i < filePaths.length; i += concurrency) {
-    const batch = filePaths.slice(i, i + concurrency);
-    const batchResults = await Promise.all(
-      batch.map((filePath) => optimizePng(filePath)),
-    );
-
-    for (const result of batchResults) {
-      if (result) {
-        totalSaved += result.saved;
-        totalSizeBefore += result.sizeBefore;
-        totalSizeAfter += result.sizeAfter;
-        if (result.saved > 0) {
-          optimized++;
-        }
-      }
-    }
-
-    logProgress(
-      Math.min(i + batch.length, filePaths.length),
-      filePaths.length,
-      "Optimizing images",
-    );
-  }
-
-  const optimizeTime = Date.now() - optimizeStartTime;
-  const totalPercentSaved =
-    totalSizeBefore > 0
-      ? ((totalSaved / totalSizeBefore) * 100).toFixed(1)
-      : "0.0";
-
-  log(logLevels.INFO, "\n" + "=".repeat(60));
-  log(logLevels.INFO, "Optimization Summary");
-  log(logLevels.INFO, "=".repeat(60));
-  log(logLevels.INFO, `✅ Optimized: ${optimized}/${filePaths.length} files`);
-  log(
-    logLevels.INFO,
-    `💾 Total size saved: ${(totalSaved / 1024).toFixed(1)}KB (${totalPercentSaved}%)`,
-  );
-  log(
-    logLevels.INFO,
-    `📦 Total size: ${(totalSizeBefore / 1024).toFixed(1)}KB → ${(totalSizeAfter / 1024).toFixed(1)}KB`,
-  );
-  log(
-    logLevels.INFO,
-    `⏱️  Optimization time: ${(optimizeTime / 1000).toFixed(2)}s`,
-  );
-
-  return {
-    totalSaved,
-    totalSizeBefore,
-    totalSizeAfter,
-    count: filePaths.length,
-    optimized,
-  };
 }
 
 // Simple page setup helper
@@ -574,24 +437,6 @@ async function generateShareImages() {
       },
     );
 
-    // Collect all generated image paths for batch optimization
-    const generatedImages = results
-      .filter((r) => r.success && !r.skipped)
-      .map((r) => `static/share/${r.path}.png`);
-
-    // Also include homepage if it was generated
-    try {
-      await stat("static/share/homepage.png");
-      generatedImages.push("static/share/homepage.png");
-    } catch {
-      // Homepage not generated, skip
-    }
-
-    // Optimize all generated images in batch
-    if (generatedImages.length > 0) {
-      await optimizePngBatch(generatedImages, concurrency);
-    }
-
     const scriptTotalTime = Date.now() - scriptStartTime;
     const successCount = results.filter((r) => r.success && !r.skipped).length;
     const skippedCount = results.filter((r) => r.success && r.skipped).length;
@@ -801,13 +646,6 @@ process.on("SIGTERM", () => {
       try {
         process.env.FORCE_REGENERATE = "1"; // Always regenerate when using --homepage
         await generateHomepageImage(browser);
-        // Optimize homepage image
-        try {
-          await stat("static/share/homepage.png");
-          await optimizePngBatch(["static/share/homepage.png"], 1);
-        } catch {
-          // Homepage not generated, skip
-        }
       } finally {
         await browser.close();
       }
