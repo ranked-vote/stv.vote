@@ -9,6 +9,7 @@
   import VoteCounts from "./report_components/VoteCounts.svelte";
   import Sankey from "./report_components/Sankey.svelte";
   import CandidatePairTable from "./report_components/CandidatePairTable.svelte";
+  import CandidateMap from "./report_components/CandidateMap.svelte";
   import _RankingDistribution from "./report_components/RankingDistribution.svelte";
   import MathFormula from "./Math.svelte";
   import { EXHAUSTED } from "./candidates";
@@ -253,6 +254,41 @@
 
     <div class="rightCol">
       <Sankey rounds={report.rounds} totalVotes={report.totalVotes} {quota} />
+    </div>
+  </div>
+{/if}
+
+{#if report.firstAlternate && report.firstAlternate.entries.length > 2}
+  <div class="row">
+    <div class="leftCol">
+      <h2>Candidate Clustering</h2>
+
+      <p>
+        This visualization shows candidates positioned based on <strong>second-choice transfers</strong>.
+        Candidates whose voters frequently rank each other appear closer together, forming natural "clusters" or voting blocs.
+      </p>
+
+      <p>
+        Distance is based on the <strong>First Alternate</strong> table below — if voters who rank
+        candidate A first often rank candidate B second (and vice versa), they'll appear close together.
+        {#if isSTV}
+          In STV, proportional representation means winners should be distributed across
+          different clusters, representing diverse voter preferences.
+        {/if}
+      </p>
+
+      <p>
+        Circle size indicates first-round vote share. Green circles are elected candidates.
+        Hover over candidates to see their top second-choice transfers.
+      </p>
+    </div>
+
+    <div class="rightCol">
+      <CandidateMap
+        firstAlternate={report.firstAlternate}
+        totalVotes={report.totalVotes}
+        winners={report.winners}
+      />
     </div>
   </div>
 {/if}
