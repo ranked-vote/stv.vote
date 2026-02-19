@@ -1,307 +1,305 @@
-@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;0,600;1,400&display=fallback");
 body {
-  margin: 0;
-  padding: 0;
-  border-top: 5px solid #0d4aaa;
-  font-family: "Source Sans Pro", sans-serif;
-  color: #555;
-  font-size: 11pt;
+	margin: 0;
+	padding: 0;
+	border-top: 0.5rem solid #0d4aaa;
+	font-family: "Source Sans Pro", sans-serif;
+	color: #555;
 }
 
 /* Layout */
 
 .container {
-  margin: 20px auto;
-  max-width: 600px;
-  padding: 0 12px;
+	margin: 1.25rem auto;
+	max-width: 37.5rem;
+	padding: 0 0.75rem;
 }
 
 .yearSection h2 {
-  padding-right: 20px;
+	padding-right: 1.25rem;
 }
 
 .title strong {
-  display: block;
+	display: block;
 }
 
 .row {
-  margin-bottom: 60px;
+	margin-bottom: 3.75rem;
 }
 
 .row:last-child {
-  margin-bottom: 0;
+	margin-bottom: 0;
 }
 
-@media (min-width: 1100px) {
-  .container.wide {
-    max-width: 1000px;
-  }
+@media (min-width: 68.75rem) {
+	.container.wide {
+		max-width: 62.5rem;
+	}
 
-  .row {
-    display: flex;
-    flex-direction: row;
-  }
+	.row {
+		display: flex;
+		flex-direction: row;
+	}
 
-  .leftCol {
-    width: 350px;
-  }
+	.leftCol {
+		width: 21.875rem;
+	}
 
-  .leftCol p {
-    text-align: justify;
-  }
+	.leftCol p {
+		text-align: justify;
+	}
 
-  .rightCol {
-    width: 650px;
-    margin-left: 40px;
-  }
+	.rightCol {
+		width: 40.625rem;
+		margin-left: 2.5rem;
+	}
 
-  .title strong {
-    display: inline;
-  }
+	.title strong {
+		display: inline;
+	}
 
-  .yearSection h2 {
-    padding-left: 30px;
-  }
+	.yearSection h2 {
+		padding-left: 1.875rem;
+	}
 }
 
 .rightCol :first-child,
 .leftCol :first-child {
-  margin-top: 0;
+	margin-top: 0;
 }
 
 li {
-  margin-bottom: 10px;
+	margin-bottom: 0.625rem;
 }
 
 /* Style */
 
 p {
-  margin: 16px 0;
-  line-height: 1.4;
+	margin: 1rem 0;
+	line-height: 1.4;
 }
 
 .description {
-  font-size: 16pt;
-  color: black;
+	font-size: 2rem;
+	color: black;
 }
 
 .description h1 {
-  display: inline;
-  font-size: 16pt;
+	display: inline;
+	font-size: 2rem;
 }
 
 a {
-  color: #0d4aaa;
-  text-decoration: none;
+	color: #0d4aaa;
+	text-decoration: none;
 }
 
 h2 {
-  margin: 0;
-  font-size: 16pt;
-  color: #7a8593;
+	margin: 0;
+	font-size: 1.75rem;
+	color: #7a8593;
 }
 
 h3 {
-  margin: 0;
-  font-size: 16pt;
-  font-weight: normal;
-  color: #7a8593;
+	margin: 0;
+	font-size: 1.75rem;
+	font-weight: normal;
+	color: #7a8593;
 }
 
 h3 a {
-  font-weight: bold;
-  color: black;
+	font-weight: bold;
+	color: black;
 }
 
 h3 strong {
-  color: #0d4aaa;
+	color: #0d4aaa;
 }
 
 .meta {
-  color: #7a8593;
+	color: #7a8593;
 }
 
 .yearSection {
-  display: flex;
+	display: flex;
 }
 
 .rightCol .electionHeader {
-  margin-bottom: 10px;
-  margin-top: 22px;
-  padding: 0;
+	margin-bottom: 0.625rem;
+	margin-top: 1.375rem;
+	padding: 0;
 }
 
 .electionHeader:first-child {
-  margin-top: 0;
+	margin-top: 0;
 }
 
 .yearSection {
-  margin-top: 22px;
+	margin-top: 1.375rem;
 }
 
 .yearSection:first-child {
-  margin-top: 0;
+	margin-top: 0;
 }
 
 .electionSection {
-  flex: 1;
-  min-width: 0; /* Allow flex item to shrink below content size */
+	flex: 1;
+	min-width: 0; /* Allow flex item to shrink below content size */
 }
 
 .race a {
-  display: flex;
-  align-items: center;
-  color: #7a8593;
-  padding: 5px;
-  margin: 0 -5px;
-  text-decoration: none;
+	display: flex;
+	align-items: center;
+	color: #7a8593;
+	padding: 0.3125rem;
+	margin: 0 -0.3125rem;
+	text-decoration: none;
 }
 
 .race a:hover {
-  background: #eee;
+	background: #eee;
 }
 
 .race a .title strong {
-  color: black;
+	color: black;
 }
 
 .race a .title {
-  flex: 1;
-  min-width: 0; /* Allow flex item to shrink below content size */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+	flex: 1;
+	min-width: 0; /* Allow flex item to shrink below content size */
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .race a .meta {
-  text-align: right;
-  flex: 0 0 auto; /* Don't grow or shrink, maintain natural size */
-  margin-left: 10px;
+	text-align: right;
+	flex: 0 0 auto; /* Don't grow or shrink, maintain natural size */
+	margin-left: 0.625rem;
 }
 
 hr {
-  border: none;
-  border-bottom: 1px dotted #ddd;
+	border: none;
+	border-bottom: 0.0625rem dotted #ddd;
 }
 
 /* Interesting Election Highlighting (non-Condorcet winner or exhausted > winner) */
 .race.interesting {
-  border-left: 4px solid #0d4aaa;
-  background-color: #f2f5fd;
-  margin-left: -5px;
-  padding-left: 5px;
+	border-left: 0.25rem solid #0d4aaa;
+	background-color: #f2f5fd;
+	margin-left: -0.3125rem;
+	padding-left: 0.3125rem;
 }
 
 /* Subtle highlight for elections where winner didn't lead in round 1 */
 .race.winner-not-first {
-  border-left: 2px solid #88a0dd;
-  background-color: #f8faff;
-  margin-left: -5px;
-  padding-left: 5px;
+	border-left: 0.125rem solid #88a0dd;
+	background-color: #f8faff;
+	margin-left: -0.3125rem;
+	padding-left: 0.3125rem;
 }
 
 /* If both interesting and winner-not-first, use interesting styling */
 .race.interesting.winner-not-first {
-  border-left: 4px solid #0d4aaa;
-  background-color: #f2f5fd;
+	border-left: 0.25rem solid #0d4aaa;
+	background-color: #f2f5fd;
 }
 
 .interesting-badge {
-  display: inline-block;
-  background-color: #0d4aaa;
-  color: white;
-  font-size: 0.8em;
-  padding: 2px 6px;
-  border-radius: 3px;
-  margin-left: 8px;
-  font-weight: 600;
+	display: inline-block;
+	background-color: #0d4aaa;
+	color: white;
+	font-size: 0.8em;
+	padding: 0.125rem 0.375rem;
+	border-radius: 0.1875rem;
+	margin-left: 0.5rem;
+	font-weight: 600;
 }
 
 .condorcet-info {
-  display: block;
-  font-size: 0.9em;
-  color: #666;
-  font-style: italic;
-  margin-top: 2px;
+	display: block;
+	font-size: 0.9em;
+	color: #666;
+	font-style: italic;
+	margin-top: 0.125rem;
 }
 
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
-  body {
-    background-color: black;
-    color: #e3e3e3;
-  }
+	body {
+		background-color: black;
+		color: #e3e3e3;
+	}
 
-  .description {
-    color: #e3e3e3;
-  }
+	.description {
+		color: #e3e3e3;
+	}
 
-  h2 {
-    color: #a5adb8;
-  }
+	h2 {
+		color: #a5adb8;
+	}
 
-  h3 {
-    color: #a5adb8;
-  }
+	h3 {
+		color: #a5adb8;
+	}
 
-  h3 a {
-    color: #e3e3e3;
-  }
+	h3 a {
+		color: #e3e3e3;
+	}
 
-  .meta {
-    color: #a5adb8;
-  }
+	.meta {
+		color: #a5adb8;
+	}
 
-  .race a {
-    color: #a5adb8;
-  }
+	.race a {
+		color: #a5adb8;
+	}
 
-  .race a:hover {
-    background: #2d2d2f;
-  }
+	.race a:hover {
+		background: #2d2d2f;
+	}
 
-  .race a .title strong {
-    color: #e3e3e3;
-  }
+	.race a .title strong {
+		color: #e3e3e3;
+	}
 
-  hr {
-    border-bottom-color: #444;
-  }
+	hr {
+		border-bottom-color: #444;
+	}
 
-  .race.interesting {
-    background-color: #1f1f2d;
-    border-left-color: #0d4aaa;
-  }
+	.race.interesting {
+		background-color: #1f1f2d;
+		border-left-color: #0d4aaa;
+	}
 
-  .race.winner-not-first {
-    background-color: #25252d;
-    border-left-color: #6688cc;
-  }
+	.race.winner-not-first {
+		background-color: #25252d;
+		border-left-color: #6688cc;
+	}
 
-  .race.interesting.winner-not-first {
-    background-color: #1f1f2d;
-    border-left-color: #0d4aaa;
-  }
+	.race.interesting.winner-not-first {
+		background-color: #1f1f2d;
+		border-left-color: #0d4aaa;
+	}
 
-  .condorcet-info {
-    color: #999;
-  }
+	.condorcet-info {
+		color: #999;
+	}
 
-  /* Make links brighter blue in dark mode */
-  a {
-    color: #4a8fff;
-  }
+	/* Make links brighter blue in dark mode */
+	a {
+		color: #4a8fff;
+	}
 
-  h3 strong {
-    color: #4a8fff;
-  }
+	h3 strong {
+		color: #4a8fff;
+	}
 
-  /* Make visited links muted blue in dark mode */
-  a:visited {
-    color: #8080d0;
-  }
+	/* Make visited links muted blue in dark mode */
+	a:visited {
+		color: #8080d0;
+	}
 
-  h3 a:visited {
-    color: #a5adb8;
-  }
+	h3 a:visited {
+		color: #a5adb8;
+	}
 }

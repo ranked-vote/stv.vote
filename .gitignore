@@ -7,5 +7,8 @@ yarn-error.log
 .env
 .env.*
 !.env.example
+
+# DB is committed at repo root; copy into static/ for deploy only
+/static/data.sqlite3
 # Snyk Security Extension - AI Rules (auto-generated)
 .cursor/rules/snyk_rules.mdc
