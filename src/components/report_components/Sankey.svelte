@@ -60,6 +60,7 @@
   const roundHeight = 90;
   const voteBlockHeight = 14;
   const edgeMargin = 60;
+  const labelFontSize = 12;
 
   const candidateMargin = 20; // px
 
@@ -89,8 +90,25 @@
     firstRoundAllocations.reduce((a, b) => a + b.votes, 0);
 
   const innerHeight = roundHeight * (rounds.length - 1) + voteBlockHeight;
-  const labelSpace = 100;
-  const height = 2 * labelSpace + innerHeight;
+  // Labels are rotated vertically, so their rendered text width becomes the
+  // required top/bottom margin. Estimate that width to prevent long names
+  // (for example, "Undeclared write-ins") from being clipped by the viewBox.
+  function requiredLabelSpace(allocations: ITabulatorAllocation[]): number {
+    const longestLabel = allocations.reduce(
+      (longest, allocation) => {
+        const label = getCandidate(allocation.allocatee).name;
+        return label.length > longest.length ? label : longest;
+      },
+      "",
+    );
+    return Math.max(100, longestLabel.length * labelFontSize * 0.62 + 20);
+  }
+
+  const topLabelSpace = requiredLabelSpace(rounds[0].allocations);
+  const bottomLabelSpace = requiredLabelSpace(
+    rounds[rounds.length - 1].allocations,
+  );
+  const height = topLabelSpace + innerHeight + bottomLabelSpace;
 
   class VoteBlock {
     constructor(
@@ -654,15 +672,15 @@
 
 <svg width="100%" viewBox={`0 0 ${width} ${height}`}>
   {#each rounds as _, i (i)}
-    <text dominant-baseline="middle" font-size="10" y={i * roundHeight + labelSpace + voteBlockHeight / 2}>Round {i+1}</text>
+    <text dominant-baseline="middle" font-size="10" y={i * roundHeight + topLabelSpace + voteBlockHeight / 2}>Round {i+1}</text>
   {/each}
-  <g transform={`translate(${edgeMargin} ${labelSpace})`}>
+  <g transform={`translate(${edgeMargin} ${topLabelSpace})`}>
     {#each voteBlockRows[0] as voteBlock (voteBlock.nodeKey())}
       <g
         transform={`translate(${voteBlock.x + voteBlock.width / 2} -10)`}
         on:pointerenter={() => (hover = { kind: "node", key: voteBlock.nodeKey() })}
         on:pointerleave={() => (hover = null)}>
-        <text font-size="12" dominant-baseline="middle" transform="rotate(-90)">
+        <text font-size={labelFontSize} dominant-baseline="middle" transform="rotate(-90)">
           {voteBlock.label()}
         </text>
       </g>
@@ -715,7 +733,7 @@
         on:pointerenter={() => (hover = { kind: "node", key: voteBlock.nodeKey() })}
         on:pointerleave={() => (hover = null)}>
         <text
-          font-size="12"
+          font-size={labelFontSize}
           dominant-baseline="middle"
           text-anchor="end"
           transform="rotate(-90)">

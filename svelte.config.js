@@ -1,4 +1,4 @@
-import { Database } from "bun:sqlite";
+import { DatabaseSync } from "node:sqlite";
 import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { resolve } from "path";
@@ -6,10 +6,10 @@ import { resolve } from "path";
 function getPrerenderEntries() {
 	try {
 		const dbPath = resolve(process.cwd(), "data.sqlite3");
-		const db = new Database(dbPath, { readonly: true });
+		const db = new DatabaseSync(dbPath, { readOnly: true });
 
 		const rows = db
-			.query(
+			.prepare(
 				`
 			SELECT path, office FROM reports WHERE hidden != 1
 		`,

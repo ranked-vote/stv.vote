@@ -38,13 +38,22 @@
   let numClusters = 0;
   let hoveredCandidate: number | null = null; // Index into candidateRows
   
-  // Filter to only include actual candidates (not exhausted "X")
-  $: candidateRows = firstAlternate.rows.filter((r): r is CandidateId => r !== "X");
+  function isClusterCandidate(
+    allocatee: ICandidatePairTable["rows"][number],
+  ): allocatee is CandidateId {
+    return allocatee !== "X" && !getCandidate(allocatee).writeIn;
+  }
+
+  // Generic write-in buckets do not represent a coherent candidate or voter
+  // bloc, so exclude them from both the visualization and its calculations.
+  $: candidateRows = firstAlternate.rows.filter(isClusterCandidate);
 
   // Compute similarity from first alternate data
   // Uses geometric mean of bidirectional transfer rates
-  function firstAlternateToSimilarity(table: ICandidatePairTable): number[][] {
-    const rows = table.rows.filter((r): r is CandidateId => r !== "X");
+  function firstAlternateToSimilarity(
+    table: ICandidatePairTable,
+    rows: CandidateId[],
+  ): number[][] {
     const n = rows.length;
     
     // Create index map for looking up entries
@@ -358,7 +367,10 @@
 
   // Reactive computation
   $: if (firstAlternate && firstAlternate.entries.length > 0 && candidateRows.length > 1) {
-    const similarity = firstAlternateToSimilarity(firstAlternate);
+    const similarity = firstAlternateToSimilarity(
+      firstAlternate,
+      candidateRows,
+    );
     const distances = similarityToDistance(similarity);
     const normalizedDist = normalizeDistances(distances);
     positions = classicalMDS(normalizedDist);
@@ -445,7 +457,10 @@
       const entries = firstAlternate.entries[rowIdx];
       const colsWithFrac = firstAlternate.cols
         .map((col, i) => ({ col, frac: entries[i]?.frac ?? 0 }))
-        .filter(({ col, frac }) => col !== "X" && col !== candidateId && frac > 0)
+        .filter(
+          ({ col, frac }) =>
+            isClusterCandidate(col) && col !== candidateId && frac > 0,
+        )
         .sort((a, b) => b.frac - a.frac)
         .slice(0, 3);
       

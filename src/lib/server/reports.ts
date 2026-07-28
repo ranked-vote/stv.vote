@@ -1,4 +1,4 @@
-import { Database } from "bun:sqlite";
+import { DatabaseSync } from "node:sqlite";
 import { resolve } from "path";
 import type {
 	Allocatee,
@@ -19,9 +19,9 @@ import type {
 
 const dbPath = resolve(process.cwd(), "data.sqlite3");
 
-function getDatabase(): Database {
+function getDatabase(): DatabaseSync {
 	try {
-		return new Database(dbPath, { readonly: true });
+		return new DatabaseSync(dbPath, { readOnly: true });
 	} catch {
 		// Return null-ish database that will return empty results
 		throw new Error(`Database not found at ${dbPath}`);
@@ -108,7 +108,7 @@ function parseAllocatee(value: string): Allocatee {
 }
 
 export function getIndex(): IReportIndex {
-	let db: Database;
+	let db: DatabaseSync;
 	try {
 		db = getDatabase();
 	} catch {
@@ -133,7 +133,7 @@ export function getIndex(): IReportIndex {
         r.date DESC, r.jurisdictionName ASC
     `;
 
-		const rows = db.prepare(sqlCmd).all() as (ReportRow & {
+		const rows = db.prepare(sqlCmd).all() as unknown as (ReportRow & {
 			numCandidates: number;
 		})[];
 
@@ -191,7 +191,7 @@ export function getIndex(): IReportIndex {
 }
 
 export function getReport(path: string): IContestReport | null {
-	let db: Database;
+	let db: DatabaseSync;
 	try {
 		db = getDatabase();
 	} catch {
@@ -216,7 +216,7 @@ export function getReport(path: string): IContestReport | null {
 			.prepare(
 				"SELECT * FROM candidates WHERE report_id = ? ORDER BY candidate_index",
 			)
-			.all(reportRow.id) as CandidateRow[];
+			.all(reportRow.id) as unknown as CandidateRow[];
 
 		const candidates: ICandidate[] = candidateRows.map((row) => ({
 			name: row.name,
@@ -236,16 +236,16 @@ export function getReport(path: string): IContestReport | null {
 		// Get rounds
 		const roundRows = db
 			.prepare("SELECT * FROM rounds WHERE report_id = ? ORDER BY round_number")
-			.all(reportRow.id) as RoundRow[];
+			.all(reportRow.id) as unknown as RoundRow[];
 
 		const rounds: ITabulatorRound[] = roundRows.map((roundRow) => {
 			const allocationRows = db
 				.prepare("SELECT * FROM allocations WHERE round_id = ?")
-				.all(roundRow.id) as AllocationRow[];
+				.all(roundRow.id) as unknown as AllocationRow[];
 
 			const transferRows = db
 				.prepare("SELECT * FROM transfers WHERE round_id = ?")
-				.all(roundRow.id) as TransferRow[];
+				.all(roundRow.id) as unknown as TransferRow[];
 
 			const allocations: ITabulatorAllocation[] = allocationRows.map((a) => ({
 				allocatee: parseAllocatee(a.allocatee),
