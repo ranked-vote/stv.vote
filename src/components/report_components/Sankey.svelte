@@ -346,8 +346,17 @@
           destX = cur.xOffset + cur.accountedInLeft;
           last.accountedOutRight += width;
           cur.accountedInLeft += width;
+        } else if (transfer.to === EXHAUSTED) {
+          // Exhausted elimination transfers travel right, so place them on
+          // the source's RIGHT and the exhausted block's LEFT. This keeps
+          // them from crossing candidate transfers travelling left.
+          sourceX = last.xOffset + last.width - last.accountedOutRight - width;
+          destX = cur.xOffset + cur.accountedInLeft;
+          last.accountedOutRight += width;
+          cur.accountedInLeft += width;
         } else {
-          // Elimination: leaves from LEFT of source, arrives at RIGHT of destination
+          // Candidate elimination transfers travel left: source LEFT to
+          // destination RIGHT.
           sourceX = last.xOffset + last.accountedOutLeft;
           destX = cur.xOffset + cur.width - cur.accountedInRight - width;
           last.accountedOutLeft += width;

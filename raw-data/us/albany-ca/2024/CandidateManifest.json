@@ -1,0 +1,93 @@
+{
+	"Version": "5.10.50.85",
+	"List": [
+		{
+			"Description": "JENNIFER HANSEN-ROMERO",
+			"Id": 104,
+			"ExternalId": "6394",
+			"ContestId": 85,
+			"Type": "Regular",
+			"Disabled": 0
+		},
+		{
+			"Description": "PEGGY (MARGARET)  MCQUAID",
+			"Id": 105,
+			"ExternalId": "6396",
+			"ContestId": 85,
+			"Type": "Regular",
+			"Disabled": 0
+		},
+		{
+			"Description": "JEREMIAH GARRETT-PINGUELO",
+			"Id": 106,
+			"ExternalId": "6393",
+			"ContestId": 85,
+			"Type": "Regular",
+			"Disabled": 0
+		},
+		{
+			"Description": "AARON TIEDEMANN",
+			"Id": 107,
+			"ExternalId": "6397",
+			"ContestId": 85,
+			"Type": "Regular",
+			"Disabled": 0
+		},
+		{
+			"Description": "PRESTON JORDAN",
+			"Id": 108,
+			"ExternalId": "6395",
+			"ContestId": 85,
+			"Type": "Regular",
+			"Disabled": 0
+		},
+		{
+			"Description": "Write-in",
+			"Id": 475,
+			"ExternalId": "",
+			"ContestId": 85,
+			"Type": "WriteIn",
+			"Disabled": 0
+		},
+		{
+			"Description": "JOLENE GAZMEN",
+			"Id": 109,
+			"ExternalId": "6400",
+			"ContestId": 86,
+			"Type": "Regular",
+			"Disabled": 0
+		},
+		{
+			"Description": "DAYNA INKELES",
+			"Id": 110,
+			"ExternalId": "6401",
+			"ContestId": 86,
+			"Type": "Regular",
+			"Disabled": 0
+		},
+		{
+			"Description": "BRIAN L. DOSS",
+			"Id": 111,
+			"ExternalId": "6399",
+			"ContestId": 86,
+			"Type": "Regular",
+			"Disabled": 0
+		},
+		{
+			"Description": "VERONICA DAVIDSON",
+			"Id": 112,
+			"ExternalId": "6398",
+			"ContestId": 86,
+			"Type": "Regular",
+			"Disabled": 0
+		},
+		{
+			"Description": "Write-in",
+			"Id": 409,
+			"ExternalId": "",
+			"ContestId": 86,
+			"Type": "WriteIn",
+			"Disabled": 0
+		}
+	]
+}

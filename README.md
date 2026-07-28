@@ -39,6 +39,7 @@ bun run dev
 - `bun run init-db`: initialize empty SQLite database with schema
 - `bun run load-scotland`: load Scotland 2022 council election data
 - `bun run load-portland`: load Portland OR November 2024 election data
+- `bun run load-albany`: load Albany CA November 2024 election data
 
 ### Card Image Generation
 
@@ -125,6 +126,10 @@ Scotland council election data (`raw-data/scotland/2022/`) is made available und
 ### Portland OR November 2024 Elections
 
 Portland, OR election data (`raw-data/us/us-portland-or/`) consists of Cast Vote Records (CVR) from the November 2024 General Election. Data source: [Multnomah County Elections Division](https://multco.us/info/turnout-and-statistics-november-2024-general-election). Includes contests for Mayor, Auditor, and four Councilor districts.
+
+### Albany CA November 2024 Elections
+
+Albany election data (`raw-data/us/albany-ca/2024/`) contains contest-scoped NIST SP 1500-103 JSON cast-vote records from the [Alameda County Registrar of Voters](https://alamedacountyca.gov/rovresults/rcv/252). It includes the three-seat City Council and two-seat Board of Education proportional ranked-choice voting contests.
 
 ## License
 
