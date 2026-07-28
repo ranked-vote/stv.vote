@@ -54,7 +54,7 @@ const config = {
 		}),
 		prerender: {
 			entries: ["*", ...getPrerenderEntries()],
-			handleHttpError: ({ path, referrer, message }) => {
+			handleHttpError: ({ path, message }) => {
 				// Ignore errors for card routes during prerender - they're generated dynamically
 				if (path.startsWith("/card/")) {
 					console.warn(`Skipping prerender for ${path}: ${message}`);
