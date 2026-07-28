@@ -1,12 +1,9 @@
 /**
- * Fractional STV Tabulator
+ * Fractional STV tabulator using the weighted inclusive Gregory method.
  *
- * Implements STV with fractional surplus transfers (weighted inclusive Gregory method):
- * - Threshold: Droop quota (floor(votes / (seats + 1)) + 1)
- * - When a candidate exceeds threshold, surplus is distributed proportionally
- * - Each ballot's weight is reduced by (surplus / votes) when transferred
- *
- * Used by: Portland OR (2024+)
+ * The count is expressed as immutable state transitions. Weighted ballot
+ * fragments in candidate piles (plus the exhausted pile) are the sole source
+ * of truth; vote totals are always derived from those piles.
  */
 
 import type {
@@ -20,7 +17,7 @@ import type {
 
 export interface Ballot {
 	rankings: string[];
-	weight: number; // Current weight of this ballot (starts at 1.0)
+	weight: number;
 }
 
 export interface STVResult {
@@ -31,417 +28,478 @@ export interface STVResult {
 	candidateVotes: ICandidateVotes[];
 }
 
-interface BallotState {
-	originalRankings: string[];
-	currentIndex: number; // Index into rankings for current active choice
-	weight: number; // Current weight (fractional)
+type CandidateStatus = "active" | "elected" | "eliminated";
+
+interface BallotFragment {
+	readonly rankings: readonly string[];
+	readonly currentIndex: number;
+	readonly weight: number;
 }
 
-interface CandidateState {
-	index: CandidateId;
-	name: string;
-	votes: number; // Current vote total (can be fractional)
-	status: "active" | "elected" | "eliminated";
-	roundElected?: number;
-	roundEliminated?: number;
-	firstRoundVotes: number;
-	transferVotes: number;
+interface CountState {
+	readonly statuses: readonly CandidateStatus[];
+	readonly piles: readonly (readonly BallotFragment[])[];
+	readonly exhausted: readonly BallotFragment[];
+	readonly winners: readonly CandidateId[];
+	readonly transferVotes: readonly number[];
+	readonly roundElected: readonly (number | undefined)[];
+	readonly roundEliminated: readonly (number | undefined)[];
 }
 
-/**
- * Get the current active choice for a ballot, skipping eliminated candidates
- * Note: For Portland method, we skip eliminated but NOT elected candidates during surplus transfer
- */
-function getCurrentChoice(
-	ballot: BallotState,
-	candidateStatus: Map<string, "active" | "elected" | "eliminated">,
-	skipElected: boolean = true,
-): string | null {
-	while (ballot.currentIndex < ballot.originalRankings.length) {
-		const choice = ballot.originalRankings[ballot.currentIndex];
-		const status = candidateStatus.get(choice);
+interface Transition {
+	readonly state: CountState;
+	readonly transfers: readonly Transfer[];
+	readonly elected?: CandidateId;
+	readonly eliminated?: CandidateId;
+}
 
-		if (status === "eliminated") {
-			ballot.currentIndex++;
-			continue;
-		}
+const EXHAUSTED = "X";
+const EPSILON = 1e-9;
 
-		if (status === "elected" && skipElected) {
-			ballot.currentIndex++;
-			continue;
-		}
+function sumWeights(fragments: readonly BallotFragment[]): number {
+	return fragments.reduce((sum, fragment) => sum + fragment.weight, 0);
+}
 
-		if (status === "active" || (status === "elected" && !skipElected)) {
-			return choice;
-		}
+function totalWeight(state: CountState): number {
+	return (
+		state.piles.reduce((sum, pile) => sum + sumWeights(pile), 0) +
+		sumWeights(state.exhausted)
+	);
+}
 
-		ballot.currentIndex++;
+function nearlyEqual(left: number, right: number): boolean {
+	return Math.abs(left - right) <= EPSILON * Math.max(1, left, right);
+}
+
+function assertConservesWeight(
+	state: CountState,
+	expectedWeight: number,
+	context: string,
+): void {
+	const actualWeight = totalWeight(state);
+	if (!nearlyEqual(actualWeight, expectedWeight)) {
+		throw new Error(
+			`${context} did not conserve ballot weight: expected ${expectedWeight}, got ${actualWeight}`,
+		);
 	}
-	return null; // Exhausted
+
+	for (const [candidate, pile] of state.piles.entries()) {
+		if (
+			state.statuses[candidate] === "eliminated" &&
+			!nearlyEqual(sumWeights(pile), 0)
+		) {
+			throw new Error(`${context} left weight with an eliminated candidate`);
+		}
+		for (const fragment of pile) {
+			if (!Number.isFinite(fragment.weight) || fragment.weight < 0) {
+				throw new Error(`${context} produced an invalid ballot weight`);
+			}
+		}
+	}
 }
 
-/**
- * Advance ballot to next choice
- */
-function advanceToNextChoice(
-	ballot: BallotState,
-	candidateStatus: Map<string, "active" | "elected" | "eliminated">,
-): string | null {
-	ballot.currentIndex++;
-	return getCurrentChoice(ballot, candidateStatus, true);
+function nextPreference(
+	fragment: BallotFragment,
+	startIndex: number,
+	statuses: readonly CandidateStatus[],
+	candidateIds: ReadonlyMap<string, CandidateId>,
+): { candidate: CandidateId; index: number } | null {
+	for (let index = startIndex; index < fragment.rankings.length; index++) {
+		const candidate = candidateIds.get(fragment.rankings[index]);
+		if (candidate !== undefined && statuses[candidate] === "active") {
+			return { candidate, index };
+		}
+	}
+	return null;
 }
 
-/**
- * Calculate Droop quota: floor(ballots / (seats + 1)) + 1
- */
+function appendFragment(
+	piles: BallotFragment[][],
+	exhausted: BallotFragment[],
+	fragment: BallotFragment,
+	destination: { candidate: CandidateId; index: number } | null,
+): void {
+	const routed = {
+		...fragment,
+		currentIndex: destination?.index ?? fragment.rankings.length,
+	};
+	if (destination) {
+		piles[destination.candidate].push(routed);
+	} else {
+		exhausted.push(routed);
+	}
+}
+
+function copyPiles(state: CountState): BallotFragment[][] {
+	return state.piles.map((pile) => [...pile]);
+}
+
+function addTransfer(
+	counts: Map<CandidateId | typeof EXHAUSTED, number>,
+	destination: CandidateId | typeof EXHAUSTED,
+	weight: number,
+): void {
+	counts.set(destination, (counts.get(destination) ?? 0) + weight);
+}
+
+function toTransfers(
+	from: CandidateId,
+	type: TransferType,
+	counts: ReadonlyMap<CandidateId | typeof EXHAUSTED, number>,
+): Transfer[] {
+	return [...counts].map(([to, count]) => ({ from, to, count, type }));
+}
+
+function initializeState(
+	ballots: readonly Ballot[],
+	candidateCount: number,
+	candidateIds: ReadonlyMap<string, CandidateId>,
+): CountState {
+	const statuses = Array<CandidateStatus>(candidateCount).fill("active");
+	const piles = Array.from(
+		{ length: candidateCount },
+		(): BallotFragment[] => [],
+	);
+	const exhausted: BallotFragment[] = [];
+
+	for (const ballot of ballots) {
+		const fragment: BallotFragment = {
+			rankings: [...ballot.rankings],
+			currentIndex: 0,
+			weight: ballot.weight ?? 1,
+		};
+		appendFragment(
+			piles,
+			exhausted,
+			fragment,
+			nextPreference(fragment, 0, statuses, candidateIds),
+		);
+	}
+
+	return {
+		statuses,
+		piles,
+		exhausted,
+		winners: [],
+		transferVotes: Array(candidateCount).fill(0),
+		roundElected: Array(candidateCount).fill(undefined),
+		roundEliminated: Array(candidateCount).fill(undefined),
+	};
+}
+
+function electCandidate(
+	state: CountState,
+	candidate: CandidateId,
+	quota: number,
+	round: number,
+	seats: number,
+	candidateIds: ReadonlyMap<string, CandidateId>,
+): Transition {
+	const sourcePile = state.piles[candidate];
+	const sourceTotal = sumWeights(sourcePile);
+	const surplus = sourceTotal - quota;
+	const statuses = [...state.statuses];
+	statuses[candidate] = "elected";
+	const winners = [...state.winners, candidate];
+	const roundElected = [...state.roundElected];
+	roundElected[candidate] = round;
+
+	// Once the final seat is filled no transfer is performed. Retaining the
+	// complete pile keeps the terminal state conservative.
+	if (surplus <= EPSILON || winners.length >= seats) {
+		return {
+			state: { ...state, statuses, winners, roundElected },
+			transfers: [],
+			elected: candidate,
+		};
+	}
+
+	const transferFraction = surplus / sourceTotal;
+	const piles = copyPiles(state);
+	piles[candidate] = [];
+	const exhausted = [...state.exhausted];
+	const transferVotes = [...state.transferVotes];
+	const transferCounts = new Map<CandidateId | typeof EXHAUSTED, number>();
+
+	for (const fragment of sourcePile) {
+		const transferWeight = fragment.weight * transferFraction;
+		const retainedWeight = fragment.weight - transferWeight;
+		piles[candidate].push({ ...fragment, weight: retainedWeight });
+
+		if (transferWeight <= 0) continue;
+		const transferred = { ...fragment, weight: transferWeight };
+		const destination = nextPreference(
+			transferred,
+			fragment.currentIndex + 1,
+			statuses,
+			candidateIds,
+		);
+		appendFragment(piles, exhausted, transferred, destination);
+		const allocatee = destination?.candidate ?? EXHAUSTED;
+		addTransfer(transferCounts, allocatee, transferWeight);
+		if (destination) transferVotes[destination.candidate] += transferWeight;
+	}
+
+	const nextState: CountState = {
+		...state,
+		statuses,
+		piles,
+		exhausted,
+		winners,
+		transferVotes,
+		roundElected,
+	};
+	const transferred = [...transferCounts.values()].reduce(
+		(sum, weight) => sum + weight,
+		0,
+	);
+	if (!nearlyEqual(transferred, surplus)) {
+		throw new Error(
+			`Surplus transfer from candidate ${candidate} was ${transferred}, expected ${surplus}`,
+		);
+	}
+	return {
+		state: nextState,
+		transfers: toTransfers(candidate, "surplus", transferCounts),
+		elected: candidate,
+	};
+}
+
+function eliminateCandidate(
+	state: CountState,
+	candidate: CandidateId,
+	round: number,
+	candidateIds: ReadonlyMap<string, CandidateId>,
+): Transition {
+	const sourcePile = state.piles[candidate];
+	const sourceTotal = sumWeights(sourcePile);
+	const statuses = [...state.statuses];
+	statuses[candidate] = "eliminated";
+	const piles = copyPiles(state);
+	piles[candidate] = [];
+	const exhausted = [...state.exhausted];
+	const transferVotes = [...state.transferVotes];
+	const roundEliminated = [...state.roundEliminated];
+	roundEliminated[candidate] = round;
+	const transferCounts = new Map<CandidateId | typeof EXHAUSTED, number>();
+
+	for (const fragment of sourcePile) {
+		const destination = nextPreference(
+			fragment,
+			fragment.currentIndex + 1,
+			statuses,
+			candidateIds,
+		);
+		appendFragment(piles, exhausted, fragment, destination);
+		const allocatee = destination?.candidate ?? EXHAUSTED;
+		addTransfer(transferCounts, allocatee, fragment.weight);
+		if (destination) transferVotes[destination.candidate] += fragment.weight;
+	}
+
+	const transferred = [...transferCounts.values()].reduce(
+		(sum, weight) => sum + weight,
+		0,
+	);
+	if (!nearlyEqual(transferred, sourceTotal)) {
+		throw new Error(
+			`Elimination transfer from candidate ${candidate} was ${transferred}, expected ${sourceTotal}`,
+		);
+	}
+
+	return {
+		state: {
+			...state,
+			statuses,
+			piles,
+			exhausted,
+			transferVotes,
+			roundEliminated,
+		},
+		transfers: toTransfers(candidate, "elimination", transferCounts),
+		eliminated: candidate,
+	};
+}
+
+function allocations(state: CountState): ITabulatorAllocation[] {
+	const result = state.piles.flatMap((pile, candidate) =>
+		state.statuses[candidate] === "eliminated"
+			? []
+			: [{ allocatee: candidate, votes: sumWeights(pile) }],
+	);
+	result.push({ allocatee: EXHAUSTED, votes: sumWeights(state.exhausted) });
+	return result.sort((left, right) => {
+		if (left.allocatee === EXHAUSTED) return 1;
+		if (right.allocatee === EXHAUSTED) return -1;
+		return right.votes - left.votes;
+	});
+}
+
+function continuingWeight(state: CountState): number {
+	return state.piles.reduce(
+		(sum, pile, candidate) =>
+			state.statuses[candidate] === "eliminated" ? sum : sum + sumWeights(pile),
+		0,
+	);
+}
+
+function validateInputs(
+	ballots: readonly Ballot[],
+	seats: number,
+	candidateNames: readonly string[],
+	quotaBasis: number,
+): void {
+	if (!Number.isInteger(seats) || seats < 1 || seats > candidateNames.length) {
+		throw new Error(
+			"Seats must be a positive integer no greater than candidates",
+		);
+	}
+	if (!Number.isFinite(quotaBasis) || quotaBasis < 0) {
+		throw new Error("Quota basis must be a non-negative finite number");
+	}
+	if (new Set(candidateNames).size !== candidateNames.length) {
+		throw new Error("Candidate names must be unique");
+	}
+	for (const ballot of ballots) {
+		if (!Number.isFinite(ballot.weight) || ballot.weight < 0) {
+			throw new Error("Ballot weights must be non-negative finite numbers");
+		}
+	}
+}
+
+/** Calculate the Droop quota: floor(ballots / (seats + 1)) + 1. */
 export function calculateDroopQuota(
 	totalBallots: number,
 	seats: number,
 ): number {
+	if (!Number.isFinite(totalBallots) || totalBallots < 0) {
+		throw new Error("Total ballots must be a non-negative finite number");
+	}
+	if (!Number.isInteger(seats) || seats < 1) {
+		throw new Error("Seats must be a positive integer");
+	}
 	return Math.floor(totalBallots / (seats + 1)) + 1;
 }
 
-/**
- * Tabulate an STV election with fractional surplus transfers
- */
 export function tabulateFractionalSTV(
 	ballots: Ballot[],
 	seats: number,
 	candidateNames: string[],
-	totalBallotsForQuota?: number, // Optional: total ballots including undervotes for quota calculation
+	totalBallotsForQuota?: number,
 ): STVResult {
-	// Use provided total or count of ballots with rankings
-	const quotaBasis = totalBallotsForQuota ?? ballots.length;
+	const quotaBasis =
+		totalBallotsForQuota ??
+		ballots.reduce((sum, ballot) => sum + (ballot.weight ?? 1), 0);
+	validateInputs(ballots, seats, candidateNames, quotaBasis);
 	const quota = calculateDroopQuota(quotaBasis, seats);
+	const candidateIds = new Map(
+		candidateNames.map((name, candidate) => [name, candidate]),
+	);
+	let state = initializeState(ballots, candidateNames.length, candidateIds);
+	const initialWeight = totalWeight(state);
+	const firstRoundVotes = state.piles.map(sumWeights);
 	const rounds: ITabulatorRound[] = [];
-	const winners: CandidateId[] = [];
 
-	// Initialize candidate states
-	const candidateMap = new Map<string, CandidateState>();
-	const candidateStatus = new Map<
-		string,
-		"active" | "elected" | "eliminated"
-	>();
+	assertConservesWeight(state, initialWeight, "Initial allocation");
 
-	for (let i = 0; i < candidateNames.length; i++) {
-		const name = candidateNames[i];
-		candidateMap.set(name, {
-			index: i,
-			name,
-			votes: 0,
-			status: "active",
-			firstRoundVotes: 0,
-			transferVotes: 0,
-		});
-		candidateStatus.set(name, "active");
-	}
-
-	// Initialize ballot states - each ballot starts with weight 1.0
-	const ballotStates: BallotState[] = ballots.map((b) => ({
-		originalRankings: b.rankings,
-		currentIndex: 0,
-		weight: b.weight ?? 1.0,
-	}));
-
-	// Track which ballots are assigned to which candidate
-	const candidateBallots = new Map<string, BallotState[]>();
-	for (const name of candidateNames) {
-		candidateBallots.set(name, []);
-	}
-	const exhaustedBallots: BallotState[] = [];
-	let exhaustedVotes = 0;
-
-	// Initial allocation (first preferences)
-	for (const ballot of ballotStates) {
-		const choice = getCurrentChoice(ballot, candidateStatus, false);
-		if (choice) {
-			candidateBallots.get(choice)!.push(ballot);
-			const state = candidateMap.get(choice)!;
-			state.votes += ballot.weight;
-			state.firstRoundVotes += ballot.weight;
-		} else {
-			exhaustedBallots.push(ballot);
-			exhaustedVotes += ballot.weight;
+	for (let round = 1; state.winners.length < seats; round++) {
+		if (round > candidateNames.length * 2) {
+			throw new Error("Tabulation exceeded its maximum possible round count");
 		}
-	}
 
-	let roundNumber = 1;
-	const maxRounds = candidateNames.length * 3; // Safety limit
-
-	while (winners.length < seats && roundNumber <= maxRounds) {
-		// Count active candidates
-		const activeCandidates = Array.from(candidateMap.values()).filter(
-			(c) => c.status === "active",
+		const active = state.statuses.flatMap((status, candidate) =>
+			status === "active" ? [candidate] : [],
 		);
+		if (active.length === 0) break;
 
-		if (activeCandidates.length === 0) break;
-
-		// Record round allocations (before any transfers)
-		const allocations: ITabulatorAllocation[] = [];
-		for (const candidate of candidateMap.values()) {
-			if (candidate.status === "active" || candidate.status === "elected") {
-				allocations.push({
-					allocatee: candidate.index,
-					votes: candidate.votes, // Keep fractional
-				});
-			}
-		}
-		// Add exhausted
-		allocations.push({
-			allocatee: "X",
-			votes: exhaustedVotes,
-		});
-
-		// Sort allocations by votes descending (for display)
-		allocations.sort((a, b) => {
-			if (a.allocatee === "X") return 1;
-			if (b.allocatee === "X") return -1;
-			return b.votes - a.votes;
-		});
-
-		const transfers: Transfer[] = [];
-		const electedThisRound: CandidateId[] = [];
-		const eliminatedThisRound: CandidateId[] = [];
-
-		// Check for candidates at or above quota
-		const overQuota = activeCandidates
-			.filter((c) => c.votes >= quota)
-			.sort((a, b) => b.votes - a.votes); // Highest first
-
-		if (overQuota.length > 0) {
-			// Elect the highest candidate and transfer surplus
-			const elected = overQuota[0];
-
-			elected.status = "elected";
-			elected.roundElected = roundNumber;
-			candidateStatus.set(elected.name, "elected");
-			winners.push(elected.index);
-			electedThisRound.push(elected.index);
-
-			// Calculate surplus
-			const surplus = elected.votes - quota;
-
-			if (surplus > 0 && winners.length < seats) {
-				// Transfer fraction = surplus / elected.votes
-				const transferFraction = surplus / elected.votes;
-
-				// Get all ballots currently assigned to elected candidate
-				const ballotPile = candidateBallots.get(elected.name)!;
-				const transferCounts = new Map<string | "X", number>();
-				const ballotsToReassign: {
-					transferredBallot: BallotState;
-					newChoice: string | null;
-				}[] = [];
-
-				// For each ballot, find next choice and calculate transfer
-				for (const ballot of ballotPile) {
-					// Split the ballot's value. The retained portion stays with the
-					// elected candidate, while a distinct ballot state carrying only
-					// the surplus portion moves to the next preference.
-					const transferWeight = ballot.weight * transferFraction;
-					ballot.weight = ballot.weight - transferWeight;
-
-					const transferredBallot: BallotState = {
-						originalRankings: ballot.originalRankings,
-						currentIndex: ballot.currentIndex + 1,
-						weight: transferWeight,
-					};
-					const nextChoice = getCurrentChoice(
-						transferredBallot,
-						candidateStatus,
-						true,
-					);
-
-					if (nextChoice) {
-						ballotsToReassign.push({
-							transferredBallot,
-							newChoice: nextChoice,
-						});
-						transferCounts.set(
-							nextChoice,
-							(transferCounts.get(nextChoice) || 0) + transferWeight,
-						);
-
-						// Update candidate vote totals
-						const nextState = candidateMap.get(nextChoice)!;
-						nextState.votes += transferWeight;
-						nextState.transferVotes += transferWeight;
-					} else {
-						exhaustedBallots.push(transferredBallot);
-						transferCounts.set(
-							"X",
-							(transferCounts.get("X") || 0) + transferWeight,
-						);
-						exhaustedVotes += transferWeight;
-					}
-				}
-
-				// Move only the surplus portions to their new piles.
-				for (const { transferredBallot, newChoice } of ballotsToReassign) {
-					if (newChoice) {
-						candidateBallots.get(newChoice)!.push(transferredBallot);
-					}
-				}
-
-				// Record transfers
-				for (const [to, count] of transferCounts) {
-					const toAllocatee = to === "X" ? "X" : candidateMap.get(to)!.index;
-					transfers.push({
-						from: elected.index,
-						to: toAllocatee,
-						count: count,
-						type: "surplus" as TransferType,
-					});
-				}
-			}
-
-			// Set elected candidate to quota votes
-			elected.votes = quota;
-		} else {
-			// No one at quota - eliminate lowest
-			const lowestVotes = Math.min(...activeCandidates.map((c) => c.votes));
-			const lowestCandidates = activeCandidates.filter(
-				(c) => Math.abs(c.votes - lowestVotes) < 0.0001,
+		const before = allocations(state);
+		const overQuota = active
+			.filter((candidate) => sumWeights(state.piles[candidate]) >= quota)
+			.sort(
+				(left, right) =>
+					sumWeights(state.piles[right]) - sumWeights(state.piles[left]) ||
+					candidateNames[left].localeCompare(candidateNames[right]),
 			);
 
-			// Tie-breaker: use the one that appears first alphabetically (deterministic)
-			lowestCandidates.sort((a, b) => a.name.localeCompare(b.name));
-			const eliminated = lowestCandidates[0];
-
-			eliminated.status = "eliminated";
-			eliminated.roundEliminated = roundNumber;
-			candidateStatus.set(eliminated.name, "eliminated");
-			eliminatedThisRound.push(eliminated.index);
-
-			// Transfer all ballots from eliminated candidate at their current weight
-			const ballotPile = candidateBallots.get(eliminated.name)!;
-			const transferCounts = new Map<string | "X", number>();
-
-			for (const ballot of ballotPile) {
-				const nextChoice = advanceToNextChoice(ballot, candidateStatus);
-				if (nextChoice) {
-					candidateBallots.get(nextChoice)!.push(ballot);
-					const state = candidateMap.get(nextChoice)!;
-					state.votes += ballot.weight;
-					state.transferVotes += ballot.weight;
-					transferCounts.set(
-						nextChoice,
-						(transferCounts.get(nextChoice) || 0) + ballot.weight,
+		const transition =
+			overQuota.length > 0
+				? electCandidate(state, overQuota[0], quota, round, seats, candidateIds)
+				: eliminateCandidate(
+						state,
+						[...active].sort(
+							(left, right) =>
+								sumWeights(state.piles[left]) -
+									sumWeights(state.piles[right]) ||
+								candidateNames[left].localeCompare(candidateNames[right]),
+						)[0],
+						round,
+						candidateIds,
 					);
-				} else {
-					exhaustedBallots.push(ballot);
-					exhaustedVotes += ballot.weight;
-					transferCounts.set(
-						"X",
-						(transferCounts.get("X") || 0) + ballot.weight,
-					);
-				}
-			}
 
-			// Record transfers
-			for (const [to, count] of transferCounts) {
-				const toAllocatee = to === "X" ? "X" : candidateMap.get(to)!.index;
-				transfers.push({
-					from: eliminated.index,
-					to: toAllocatee,
-					count: count,
-					type: "elimination" as TransferType,
-				});
-			}
-
-			candidateBallots.set(eliminated.name, []);
-			eliminated.votes = 0;
-		}
-
-		// Calculate continuing ballots
-		const continuingVotes = Array.from(candidateMap.values())
-			.filter((c) => c.status === "active" || c.status === "elected")
-			.reduce((sum, c) => sum + c.votes, 0);
-
-		// Create round record
+		state = transition.state;
+		assertConservesWeight(state, initialWeight, `Round ${round}`);
 		rounds.push({
-			allocations,
+			allocations: before,
 			undervote: 0,
 			overvote: 0,
-			continuingBallots: Math.round(continuingVotes),
-			transfers,
+			continuingBallots: Math.round(continuingWeight(state)),
+			transfers: [...transition.transfers],
 			electedThisRound:
-				electedThisRound.length > 0 ? electedThisRound : undefined,
+				transition.elected === undefined ? undefined : [transition.elected],
 			eliminatedThisRound:
-				eliminatedThisRound.length > 0 ? eliminatedThisRound : undefined,
+				transition.eliminated === undefined
+					? undefined
+					: [transition.eliminated],
 		});
 
-		roundNumber++;
-
-		// Check if remaining active candidates can fill remaining seats
-		const remaining = Array.from(candidateMap.values()).filter(
-			(c) => c.status === "active",
+		const remaining = state.statuses.flatMap((status, candidate) =>
+			status === "active" ? [candidate] : [],
 		);
-		if (remaining.length <= seats - winners.length && remaining.length > 0) {
-			// Elect remaining candidates in order of current votes (highest first)
-			remaining.sort((a, b) => b.votes - a.votes);
-			for (const c of remaining) {
-				if (winners.length >= seats) break;
-				c.status = "elected";
-				c.roundElected = roundNumber;
-				candidateStatus.set(c.name, "elected");
-				winners.push(c.index);
+		const openSeats = seats - state.winners.length;
+		if (remaining.length > 0 && remaining.length <= openSeats) {
+			const elected = [...remaining].sort(
+				(left, right) =>
+					sumWeights(state.piles[right]) - sumWeights(state.piles[left]) ||
+					candidateNames[left].localeCompare(candidateNames[right]),
+			);
+			const statuses = [...state.statuses];
+			const roundElected = [...state.roundElected];
+			for (const candidate of elected) {
+				statuses[candidate] = "elected";
+				roundElected[candidate] = round + 1;
 			}
-
-			// Record final round
-			const finalAllocations: ITabulatorAllocation[] = [];
-			for (const candidate of candidateMap.values()) {
-				if (candidate.status === "elected") {
-					finalAllocations.push({
-						allocatee: candidate.index,
-						votes: candidate.votes,
-					});
-				}
-			}
-			finalAllocations.push({
-				allocatee: "X",
-				votes: exhaustedVotes,
-			});
-			finalAllocations.sort((a, b) => {
-				if (a.allocatee === "X") return 1;
-				if (b.allocatee === "X") return -1;
-				return b.votes - a.votes;
-			});
-
+			state = {
+				...state,
+				statuses,
+				roundElected,
+				winners: [...state.winners, ...elected],
+			};
+			assertConservesWeight(state, initialWeight, `Final round ${round + 1}`);
 			rounds.push({
-				allocations: finalAllocations,
+				allocations: allocations(state),
 				undervote: 0,
 				overvote: 0,
-				continuingBallots: Math.round(continuingVotes),
+				continuingBallots: Math.round(continuingWeight(state)),
 				transfers: [],
-				electedThisRound: remaining.map((c) => c.index),
+				electedThisRound: elected,
 			});
-
-			break;
 		}
 	}
-
-	// Build candidate votes summary
-	const candidateVotes: ICandidateVotes[] = Array.from(
-		candidateMap.values(),
-	).map((c) => ({
-		candidate: c.index,
-		firstRoundVotes: c.firstRoundVotes,
-		transferVotes: c.transferVotes,
-		roundEliminated: c.roundEliminated,
-		roundElected: c.roundElected,
-	}));
 
 	return {
 		rounds,
-		winners,
+		winners: [...state.winners],
 		quota,
-		candidates: candidateNames,
-		candidateVotes,
+		candidates: [...candidateNames],
+		candidateVotes: candidateNames.map((_, candidate) => ({
+			candidate,
+			firstRoundVotes: firstRoundVotes[candidate],
+			transferVotes: state.transferVotes[candidate],
+			roundEliminated: state.roundEliminated[candidate],
+			roundElected: state.roundElected[candidate],
+		})),
 	};
 }
 
-// CLI for testing
 if (import.meta.main) {
-	console.log("Portland STV Tabulator loaded");
+	console.log("Fractional STV tabulator loaded");
 }
