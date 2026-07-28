@@ -17,6 +17,7 @@
 		"load-scotland": "bun scripts/load-scotland.ts",
 		"load-portland": "bun scripts/load-portland.ts",
 		"load-albany": "bun scripts/load-albany.ts",
+		"load-minneapolis": "bun scripts/load-minneapolis.ts",
 		"test": "bun test",
 		"test:watch": "bun test --watch",
 		"test:ci": "bun test --coverage",

@@ -94,6 +94,27 @@ const EXPECTED_ALBANY_WINNERS = [
 	},
 ];
 
+// City of Minneapolis official RCV results, November 4, 2025.
+// Source: https://vote.minneapolismn.gov/results-data/election-results/2025/
+const EXPECTED_MINNEAPOLIS_WINNERS = [
+	{
+		year: 2025,
+		jurisdictionName: "Minneapolis, MN",
+		electionName: "November 2025",
+		officeName: "Park & Recreation Commissioner At Large",
+		seats: 3,
+		winners: ["Meg Forney", "Tom Olsen", "Amber A. Frederick"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Minneapolis, MN",
+		electionName: "November 2025",
+		officeName: "Board of Estimate and Taxation",
+		seats: 2,
+		winners: ["Eric Harris Bernstein", "Steve Brandt"],
+	},
+];
+
 // Cambridge MA STV official results (multi-winner elections)
 const EXPECTED_CAMBRIDGE_WINNERS = [
 	{
@@ -358,6 +379,22 @@ describe("Albany STV Election Winner Validation", () => {
 
 	test.each(
 		EXPECTED_ALBANY_WINNERS,
+	)("should have correct winners for $year $officeName", (expected) => {
+		const report = findReport(reports, expected);
+		expect(report).toBeDefined();
+		validateWinners(report, expected);
+	});
+});
+
+describe("Minneapolis STV Election Winner Validation", () => {
+	let reports;
+
+	beforeAll(() => {
+		reports = getReportsFromDatabase();
+	});
+
+	test.each(
+		EXPECTED_MINNEAPOLIS_WINNERS,
 	)("should have correct winners for $year $officeName", (expected) => {
 		const report = findReport(reports, expected);
 		expect(report).toBeDefined();

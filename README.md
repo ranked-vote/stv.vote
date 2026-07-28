@@ -131,6 +131,10 @@ Portland, OR election data (`raw-data/us/us-portland-or/`) consists of Cast Vote
 
 Albany election data (`raw-data/us/albany-ca/2024/`) contains contest-scoped NIST SP 1500-103 JSON cast-vote records from the [Alameda County Registrar of Voters](https://alamedacountyca.gov/rovresults/rcv/252). It includes the three-seat City Council and two-seat Board of Education proportional ranked-choice voting contests.
 
+### Minneapolis MN November 2025 Elections
+
+Minneapolis election data (`raw-data/us/minneapolis-mn/2025/`) contains official cast-vote records from the [City of Minneapolis Elections & Voter Services](https://vote.minneapolismn.gov/results-data/election-results/2025/). It includes the three-seat Park & Recreation Commissioner At Large contest and the two-seat Board of Estimate and Taxation contest.
+
 ## License
 
 Website content and generated reports may be freely distributed with attribution under CC-BY.
