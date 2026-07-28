@@ -31,7 +31,12 @@ function displayOfficeName(contest: NistContest): string {
 }
 
 function insertContest(db: Database, contest: NistContest): void {
-	const expandedBallots = contest.ballots.flatMap((pattern) =>
+	// Match the other STV loaders: ballots without a valid ranking never enter
+	// the count, so they should not appear as initially exhausted in the Sankey.
+	const countablePatterns = contest.ballots.filter(
+		(pattern) => pattern.rankings.length > 0,
+	);
+	const expandedBallots = countablePatterns.flatMap((pattern) =>
 		Array.from({ length: pattern.count }, () => ({
 			rankings: pattern.rankings,
 		})),
@@ -84,7 +89,7 @@ function insertContest(db: Database, contest: NistContest): void {
 			"Albany, CA",
 			"November 2024",
 			SOURCE_URL,
-			contest.totalBallots,
+			contest.continuingBallots,
 			REPORT_PATH,
 			contest.seats,
 			result.quota,

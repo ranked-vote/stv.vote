@@ -35,12 +35,14 @@ describe("Albany NIST CVR parser", () => {
 
 	test("conserves ballot weight through every fractional transfer", () => {
 		for (const contest of contests) {
-			const ballots = contest.ballots.flatMap((pattern) =>
-				Array.from({ length: pattern.count }, () => ({
-					rankings: pattern.rankings,
-					weight: 1,
-				})),
-			);
+			const ballots = contest.ballots
+				.filter((pattern) => pattern.rankings.length > 0)
+				.flatMap((pattern) =>
+					Array.from({ length: pattern.count }, () => ({
+						rankings: pattern.rankings,
+						weight: 1,
+					})),
+				);
 			const result = tabulateFractionalSTV(
 				ballots,
 				contest.seats,
@@ -53,7 +55,7 @@ describe("Albany NIST CVR parser", () => {
 					(sum, allocation) => sum + allocation.votes,
 					0,
 				);
-				expect(allocated).toBeCloseTo(contest.totalBallots, 6);
+				expect(allocated).toBeCloseTo(contest.continuingBallots, 6);
 			}
 		}
 	});
