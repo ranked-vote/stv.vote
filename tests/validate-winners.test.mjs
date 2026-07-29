@@ -115,6 +115,35 @@ const EXPECTED_MINNEAPOLIS_WINNERS = [
 	},
 ];
 
+// Scottish National Results Reporting Portal, 2024 by-elections.
+// Source: https://stv-results.prorep.org.uk/by_elections.html
+const EXPECTED_SCOTLAND_BY_ELECTION_WINNERS = [
+	{
+		year: 2024,
+		jurisdictionName: "Glasgow, Scotland",
+		electionName: "March 2024 By-Election",
+		officeName: "Hillhead",
+		seats: 1,
+		winners: ["Seonad Hoy"],
+	},
+	{
+		year: 2024,
+		jurisdictionName: "Angus, Scotland",
+		electionName: "April 2024 By-Election",
+		officeName: "Arbroath West Letham and Friockheim",
+		seats: 1,
+		winners: ["Jack Alistair James Cruickshanks"],
+	},
+	{
+		year: 2024,
+		jurisdictionName: "North Ayrshire, Scotland",
+		electionName: "May 2024 By-Election",
+		officeName: "Kilwinning",
+		seats: 1,
+		winners: ["Mary Hume"],
+	},
+];
+
 // Cambridge MA STV official results (multi-winner elections)
 const EXPECTED_CAMBRIDGE_WINNERS = [
 	{
@@ -396,6 +425,22 @@ describe("Minneapolis STV Election Winner Validation", () => {
 	test.each(
 		EXPECTED_MINNEAPOLIS_WINNERS,
 	)("should have correct winners for $year $officeName", (expected) => {
+		const report = findReport(reports, expected);
+		expect(report).toBeDefined();
+		validateWinners(report, expected);
+	});
+});
+
+describe("Scotland By-Election Winner Validation", () => {
+	let reports;
+
+	beforeAll(() => {
+		reports = getReportsFromDatabase();
+	});
+
+	test.each(
+		EXPECTED_SCOTLAND_BY_ELECTION_WINNERS,
+	)("should have correct winner for $year $officeName", (expected) => {
 		const report = findReport(reports, expected);
 		expect(report).toBeDefined();
 		validateWinners(report, expected);

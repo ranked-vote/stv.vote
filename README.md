@@ -37,7 +37,7 @@ bun run dev
 ### Database
 
 - `bun run init-db`: initialize empty SQLite database with schema
-- `bun run load-scotland`: load Scotland 2022 council election data
+- `bun run load-scotland`: load Scotland 2022 and 2024 council election data
 - `bun run load-portland`: load Portland OR November 2024 election data
 - `bun run load-albany`: load Albany CA November 2024 election data
 
@@ -122,6 +122,10 @@ Deploys are handled by GitHub Pages via `.github/workflows/deploy.yml`:
 ### Scotland 2022 Council Elections
 
 Scotland council election data (`raw-data/scotland/2022/`) is made available under the **CC-BY-SA 4.0** license. Attribution: [@gerrymulvenna](https://github.com/gerrymulvenna), containing candidate data provided by [Democracy Club](https://democracyclub.org.uk/).
+
+### Scotland 2024 Council By-Elections
+
+The official [National Results Reporting Portal](https://stv-results.prorep.org.uk/by_elections.html) provides the 2024 preference profiles in `raw-data/uk/scotland/2024/`.
 
 ### Portland OR November 2024 Elections
 
