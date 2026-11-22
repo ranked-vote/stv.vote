@@ -15,7 +15,7 @@ import type {
 	ITabulatorRound,
 	Transfer,
 	TransferType,
-} from "$lib/report_types";
+} from "#lib/report_types";
 
 const dbPath = resolve(process.cwd(), "data.sqlite3");
 

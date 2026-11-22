@@ -1,5 +1,42 @@
+import { DatabaseSync } from "node:sqlite";
+import { resolve } from "node:path";
+import adapter from "@sveltejs/adapter-static";
 import { sveltekit } from "@sveltejs/kit/vite";
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig, createLogger } from "vite";
+
+function getPrerenderEntries() {
+	try {
+		const dbPath = resolve(process.cwd(), "data.sqlite3");
+		const db = new DatabaseSync(dbPath, { readOnly: true });
+
+		const rows = db
+			.prepare(
+				`
+			SELECT path, office FROM reports WHERE hidden != 1
+		`,
+			)
+			.all();
+
+		db.close();
+
+		const entries = [];
+		for (const row of rows) {
+			const fullPath = `${row.path}/${row.office}`;
+			entries.push(`/report/${fullPath}`);
+			entries.push(`/card/${fullPath}`);
+			entries.push(`/api/${fullPath}/report.json`);
+		}
+
+		return entries;
+	} catch (err) {
+		console.warn(
+			"Could not load reports from database for prerender entries:",
+			err.message,
+		);
+		return [];
+	}
+}
 
 // Create custom logger that filters out noisy warnings
 const logger = createLogger();
@@ -29,7 +66,35 @@ const onwarn = (warning, warn) => {
 };
 
 export default defineConfig({
-  plugins: [sveltekit()],
+  plugins: [
+    sveltekit({
+      preprocess: vitePreprocess({ script: true }),
+      // Keep production-build intermediates separate from a running dev
+      // server. Otherwise prerendered pages written during `bun run build`
+      // are observed by Vite's dev watcher and can cause a reload storm.
+      outDir: process.env.STV_SVELTE_OUT_DIR || ".svelte-kit",
+      adapter: adapter({
+        pages: "build",
+        assets: "build",
+        fallback: undefined,
+        precompress: false,
+        strict: true,
+      }),
+      prerender: {
+        entries: ["*", ...getPrerenderEntries()],
+        handleHttpError: ({ path, message }) => {
+          // Ignore errors for card routes during prerender - they're generated dynamically
+          if (path.startsWith("/card/")) {
+            console.warn(`Skipping prerender for ${path}: ${message}`);
+            return;
+          }
+          // For other routes, throw to fail the build
+          throw new Error(`Prerender error for ${path}: ${message}`);
+        },
+        handleUnseenRoutes: "ignore",
+      },
+    }),
+  ],
   customLogger: logger,
   server: {
     port: 3000,

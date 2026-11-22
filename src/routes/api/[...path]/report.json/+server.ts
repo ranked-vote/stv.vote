@@ -1,5 +1,5 @@
 import { json, error } from "@sveltejs/kit";
-import { getReport } from "$lib/server/reports";
+import { getReport } from "#lib/server/reports";
 import type { RequestHandler } from "./$types";
 
 export const prerender = true;

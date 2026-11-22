@@ -2,10 +2,10 @@
   import type {
     ICandidateVotes,
     CandidateId,
-  } from "$lib/report_types";
+  } from "#lib/report_types";
   import type { CandidateContext } from "../candidates";
   import { getContext } from "svelte";
-  import tooltip from "$lib/tooltip";
+  import tooltip from "#lib/tooltip";
 
   export let candidateVotes: ICandidateVotes[];
   export let quota: number | undefined = undefined;

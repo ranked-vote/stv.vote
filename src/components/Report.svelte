@@ -5,7 +5,7 @@
     ICandidate,
     ICandidatePairEntry,
     ICandidatePairTable,
-  } from "$lib/report_types";
+  } from "#lib/report_types";
   import VoteCounts from "./report_components/VoteCounts.svelte";
   import Sankey from "./report_components/Sankey.svelte";
   import CandidatePairTable from "./report_components/CandidatePairTable.svelte";
@@ -154,7 +154,7 @@
   <p class="description"></p>
   <div class="electionHeader">
     <h3>
-      <a href={resolve(`/`, {})}>stv.vote</a>
+      <a href={resolve("/")}>stv.vote</a>
       //
       <strong>{report.info.jurisdictionName}</strong>
       {report.info.officeName}
@@ -248,7 +248,7 @@
 
       <p>
         Note that the tabulation (but not the winner) may differ from the official count. You
-        can <a href={resolve(`/about#understanding-discrepancies`, {})}>read more about why this is</a>.
+        can <a href={resolve("/about#understanding-discrepancies")}>read more about why this is</a>.
       </p>
     </div>
 
