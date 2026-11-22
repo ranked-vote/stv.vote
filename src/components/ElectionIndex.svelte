@@ -189,7 +189,7 @@
     min-height: 44px;
     padding: var(--space-2) 0;
     cursor: pointer;
-    color: var(--ink);
+    color: var(--accent);
     font-size: var(--text-country);
     line-height: 1.25;
   }
