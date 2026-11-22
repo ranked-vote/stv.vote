@@ -279,6 +279,7 @@ function loadWard(
 
 // Main
 const db = new Database("data.sqlite3");
+db.run("PRAGMA foreign_keys = ON");
 
 // Ensure tables exist
 console.log("Initializing database...");

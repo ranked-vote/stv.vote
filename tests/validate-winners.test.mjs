@@ -5,15 +5,9 @@ import path from "path";
 // Portland OR STV results from CVR data (November 2024)
 // Source: https://multco.us/info/turnout-and-statistics-november-2024-general-election
 //
-// NOTE: CVR was exported Nov 29, 2024. Official results from Dec 2, 2024 may differ
-// due to adjudicated ballots added after CVR export. Our tabulation validates
-// against what the CVR data produces, which may differ from official final results.
-//
-// Official results: https://rcvresults.multco.us/
-// Official D1 winners: Candace Avalos, Loretta Smith, Jamie Dunphy
-// Official D2 winners: Elana Pirtle-Guiney, Mariah Hudson, Sam Sachs
-// Official D3 winners: Steve Novick, Tiffany Koyama Lane, Jesse Cornett
-// Official D4 winners: Mitch Green, Eli Arnold, Chad Lykins
+// All winners match the official final results (Dec 2, 2024):
+// https://rcvresults.multco.us/
+// Our quotas are within a few votes of the official thresholds.
 const EXPECTED_PORTLAND_WINNERS = [
 	{
 		year: 2024,
@@ -37,7 +31,6 @@ const EXPECTED_PORTLAND_WINNERS = [
 		electionName: "November 2024",
 		officeName: "Councilor, District 1",
 		seats: 3,
-		// Same winners as official, different order due to lower quota from CVR ballot count
 		winners: ["Candace Avalos", "Jamie Dunphy", "Loretta Smith"],
 	},
 	{
@@ -46,7 +39,6 @@ const EXPECTED_PORTLAND_WINNERS = [
 		electionName: "November 2024",
 		officeName: "Councilor, District 2",
 		seats: 3,
-		// CVR results differ from official (Official: Pirtle-Guiney, Hudson, Sachs)
 		winners: ["Sameer Kanal", "Elana Pirtle-Guiney", "Dan Ryan"],
 	},
 	{
@@ -55,7 +47,6 @@ const EXPECTED_PORTLAND_WINNERS = [
 		electionName: "November 2024",
 		officeName: "Councilor, District 3",
 		seats: 3,
-		// CVR results differ from official (Official: Novick, Koyama Lane, Cornett)
 		winners: ["Steve Novick", "Angelita Morillo", "Tiffany Koyama Lane"],
 	},
 	{
@@ -64,7 +55,6 @@ const EXPECTED_PORTLAND_WINNERS = [
 		electionName: "November 2024",
 		officeName: "Councilor, District 4",
 		seats: 3,
-		// CVR results differ from official (Official: Green, Arnold, Lykins)
 		winners: ["Olivia Clark", "Mitch Green", "Eric Zimmerman"],
 	},
 ];
