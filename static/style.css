@@ -1,305 +1,133 @@
+:root {
+	--font-body: "Source Sans Pro", system-ui, sans-serif;
+	--text-title: 2rem;
+	--text-section: 1.75rem;
+	--text-country: 1.75rem;
+	--text-election: 1.5rem;
+	--text-body: 1rem;
+	--text-small: 0.875rem;
+	--text-data: 0.8125rem;
+	--space-1: 0.25rem;
+	--space-2: 0.5rem;
+	--space-3: 0.75rem;
+	--space-4: 1rem;
+	--space-6: 1.5rem;
+	--space-8: 2rem;
+	--space-12: 3rem;
+	--space-16: 4rem;
+	--background: #fff;
+	--ink: #1a1f29;
+	--text: #3d4450;
+	--muted: #596575;
+	--accent: #0d4aaa;
+	--rule: #dce1e7;
+	--hover: #f4f6f9;
+	--accent-tint: #f2f5fd;
+	--secondary-accent: #687fac;
+	--secondary-tint: #f5f7fc;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background: #11151b;
+		--ink: #e8eaed;
+		--text: #c9ced6;
+		--muted: #a5adb8;
+		--accent: #80b1ff;
+		--rule: #39424e;
+		--hover: #1c2531;
+		--accent-tint: #1b2940;
+		--secondary-accent: #90a5cd;
+		--secondary-tint: #1c2430;
+	}
+}
+
+* { box-sizing: border-box; }
 body {
 	margin: 0;
-	padding: 0;
-	border-top: 0.5rem solid #0d4aaa;
-	font-family: "Source Sans Pro", sans-serif;
-	color: #555;
+	border-top: 0.5rem solid var(--accent);
+	font-family: var(--font-body);
+	font-size: var(--text-body);
+	font-weight: 400;
+	line-height: 1.5;
+	background: var(--background);
+	color: var(--text);
 }
-
-/* Layout */
 
 .container {
-	margin: 1.25rem auto;
+	margin: var(--space-8) auto;
 	max-width: 37.5rem;
-	padding: 0 0.75rem;
+	padding: 0 var(--space-6);
 }
-
-.yearSection h2 {
-	padding-right: 1.25rem;
-}
-
-.title strong {
-	display: block;
-}
-
-.row {
-	margin-bottom: 3.75rem;
-}
-
-.row:last-child {
-	margin-bottom: 0;
-}
-
-@media (min-width: 68.75rem) {
-	.container.wide {
-		max-width: 62.5rem;
-	}
-
-	.row {
-		display: flex;
-		flex-direction: row;
-	}
-
-	.leftCol {
-		width: 21.875rem;
-	}
-
-	.leftCol p {
-		text-align: justify;
-	}
-
-	.rightCol {
-		width: 40.625rem;
-		margin-left: 2.5rem;
-	}
-
-	.title strong {
-		display: inline;
-	}
-
-	.yearSection h2 {
-		padding-left: 1.875rem;
-	}
-}
-
-.rightCol :first-child,
-.leftCol :first-child {
-	margin-top: 0;
-}
-
-li {
-	margin-bottom: 0.625rem;
-}
-
-/* Style */
-
-p {
-	margin: 1rem 0;
-	line-height: 1.4;
-}
-
-.description {
-	font-size: 2rem;
-	color: black;
-}
-
-.description h1 {
-	display: inline;
-	font-size: 2rem;
-}
-
-a {
-	color: #0d4aaa;
-	text-decoration: none;
-}
-
-h2 {
-	margin: 0;
-	font-size: 1.75rem;
-	color: #7a8593;
-}
-
-h3 {
-	margin: 0;
-	font-size: 1.75rem;
-	font-weight: normal;
-	color: #7a8593;
-}
-
-h3 a {
-	font-weight: bold;
-	color: black;
-}
-
-h3 strong {
-	color: #0d4aaa;
-}
-
-.meta {
-	color: #7a8593;
-}
+.row { margin-bottom: var(--space-16); }
+.row:last-child { margin-bottom: 0; }
+.leftCol, .rightCol { min-width: 0; max-width: 100%; }
+.leftCol p { text-align: left; }
+.leftCol > :first-child { margin-top: 0; }
+p { margin: var(--space-4) 0; }
+li { margin-bottom: var(--space-2); }
+strong, b { font-weight: 600; }
+h1, h2, h3, h4 { color: var(--ink); font-weight: 700; line-height: 1.25; }
+h1 { margin: 0; font-size: var(--text-title); }
+h2 { margin: 0 0 var(--space-4); font-size: var(--text-section); }
+h3, h4 { margin: 0 0 var(--space-3); font-size: var(--text-country); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.description { font-size: var(--text-title); line-height: 1.25; color: var(--ink); }
+.description h1 { display: inline; }
+.meta, .condorcet-info { color: var(--muted); font-size: var(--text-small); }
+.meta { font-variant-numeric: tabular-nums; }
+hr { border: 0; border-bottom: 1px solid var(--rule); margin: var(--space-8) 0; }
 
 .yearSection {
-	display: flex;
+	display: grid;
+	grid-template-columns: 4rem minmax(0, 1fr);
+	gap: var(--space-4);
+	margin-top: var(--space-8);
 }
-
-.rightCol .electionHeader {
-	margin-bottom: 0.625rem;
-	margin-top: 1.375rem;
-	padding: 0;
-}
-
-.electionHeader:first-child {
-	margin-top: 0;
-}
-
-.yearSection {
-	margin-top: 1.375rem;
-}
-
-.yearSection:first-child {
-	margin-top: 0;
-}
-
-.electionSection {
-	flex: 1;
-	min-width: 0; /* Allow flex item to shrink below content size */
-}
-
+.yearSection:first-child { margin-top: 0; }
+.yearSection h2 { margin: 0; padding-top: var(--space-2); font-variant-numeric: tabular-nums; }
+.electionSection { min-width: 0; }
+.race { border-left: 0.25rem solid transparent; }
 .race a {
 	display: flex;
-	align-items: center;
-	color: #7a8593;
-	padding: 0.3125rem;
-	margin: 0 -0.3125rem;
+	align-items: baseline;
+	gap: var(--space-4);
+	padding: var(--space-2);
+	color: var(--muted);
 	text-decoration: none;
 }
-
-.race a:hover {
-	background: #eee;
-}
-
-.race a .title strong {
-	color: black;
-}
-
-.race a .title {
-	flex: 1;
-	min-width: 0; /* Allow flex item to shrink below content size */
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.race a .meta {
-	text-align: right;
-	flex: 0 0 auto; /* Don't grow or shrink, maintain natural size */
-	margin-left: 0.625rem;
-}
-
-hr {
-	border: none;
-	border-bottom: 0.0625rem dotted #ddd;
-}
-
-/* Interesting Election Highlighting (non-Condorcet winner or exhausted > winner) */
-.race.interesting {
-	border-left: 0.25rem solid #0d4aaa;
-	background-color: #f2f5fd;
-	margin-left: -0.3125rem;
-	padding-left: 0.3125rem;
-}
-
-/* Subtle highlight for elections where winner didn't lead in round 1 */
-.race.winner-not-first {
-	border-left: 0.125rem solid #88a0dd;
-	background-color: #f8faff;
-	margin-left: -0.3125rem;
-	padding-left: 0.3125rem;
-}
-
-/* If both interesting and winner-not-first, use interesting styling */
-.race.interesting.winner-not-first {
-	border-left: 0.25rem solid #0d4aaa;
-	background-color: #f2f5fd;
-}
-
+.race a:hover { background: var(--hover); }
+.race .title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.race .office { color: var(--ink); font-size: var(--text-body); font-weight: 600; }
+.race .winners { margin-left: var(--space-1); font-size: var(--text-body); color: var(--muted); }
+.race .meta { flex: 0 0 auto; text-align: right; }
+.race.interesting { border-left-color: var(--accent); background: var(--accent-tint); }
+.race.winner-not-first { border-left-color: var(--secondary-accent); background: var(--secondary-tint); }
+.race.interesting.winner-not-first { border-left-color: var(--accent); background: var(--accent-tint); }
 .interesting-badge {
 	display: inline-block;
-	background-color: #0d4aaa;
-	color: white;
-	font-size: 0.8em;
-	padding: 0.125rem 0.375rem;
-	border-radius: 0.1875rem;
-	margin-left: 0.5rem;
+	background: var(--accent);
+	color: var(--background);
+	font-size: var(--text-small);
 	font-weight: 600;
+	padding: 0 var(--space-2);
+	margin-left: var(--space-2);
+}
+.condorcet-info { display: block; font-style: italic; margin-top: var(--space-1); }
+
+@media (min-width: 68.75rem) {
+	.container.wide { max-width: 62.5rem; }
+	.row { display: flex; align-items: flex-start; gap: 2.5rem; }
+	.leftCol { flex: 0 0 20rem; }
+	.rightCol { flex: 1; }
 }
 
-.condorcet-info {
-	display: block;
-	font-size: 0.9em;
-	color: #666;
-	font-style: italic;
-	margin-top: 0.125rem;
-}
-
-/* Dark Mode */
-@media (prefers-color-scheme: dark) {
-	body {
-		background-color: black;
-		color: #e3e3e3;
-	}
-
-	.description {
-		color: #e3e3e3;
-	}
-
-	h2 {
-		color: #a5adb8;
-	}
-
-	h3 {
-		color: #a5adb8;
-	}
-
-	h3 a {
-		color: #e3e3e3;
-	}
-
-	.meta {
-		color: #a5adb8;
-	}
-
-	.race a {
-		color: #a5adb8;
-	}
-
-	.race a:hover {
-		background: #2d2d2f;
-	}
-
-	.race a .title strong {
-		color: #e3e3e3;
-	}
-
-	hr {
-		border-bottom-color: #444;
-	}
-
-	.race.interesting {
-		background-color: #1f1f2d;
-		border-left-color: #0d4aaa;
-	}
-
-	.race.winner-not-first {
-		background-color: #25252d;
-		border-left-color: #6688cc;
-	}
-
-	.race.interesting.winner-not-first {
-		background-color: #1f1f2d;
-		border-left-color: #0d4aaa;
-	}
-
-	.condorcet-info {
-		color: #999;
-	}
-
-	/* Make links brighter blue in dark mode */
-	a {
-		color: #4a8fff;
-	}
-
-	h3 strong {
-		color: #4a8fff;
-	}
-
-	/* Make visited links muted blue in dark mode */
-	a:visited {
-		color: #8080d0;
-	}
-
-	h3 a:visited {
-		color: #a5adb8;
-	}
+@media (max-width: 39.999rem) {
+	.container { padding: 0 var(--space-4); margin-top: var(--space-6); }
+	.yearSection { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+	.yearSection h2 { padding-top: 0; }
+	.race a { flex-direction: column; gap: var(--space-1); }
+	.race .meta { text-align: left; }
 }

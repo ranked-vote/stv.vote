@@ -134,6 +134,248 @@ const EXPECTED_SCOTLAND_BY_ELECTION_WINNERS = [
 	},
 ];
 
+// ACT Legislative Assembly (Hare-Clark) members elected, per Elections ACT.
+// Our count uses weighted inclusive Gregory rather than the last-parcel
+// surplus rule, but every electorate elects the same members.
+const EXPECTED_ACT_WINNERS = [
+	{
+		year: 2008,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Brindabella",
+		seats: 5,
+		winners: ["Brendan Smyth", "Steve Doszpot", "Amanda Bresnan", "John Hargreaves", "Joy Burch"],
+	},
+	{
+		year: 2008,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Ginninderra",
+		seats: 5,
+		winners: ["Jon Stanhope", "Meredith Hunter", "Alistair Coe", "Mary Porter", "Vicki Dunne"],
+	},
+	{
+		year: 2008,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Molonglo",
+		seats: 7,
+		winners: ["Zed Seselja", "Katy Gallagher", "Shane Rattenbury", "Andrew Barr", "Jeremy Hanson", "Simon Corbell", "Caroline Le Couteur"],
+	},
+	{
+		year: 2012,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Brindabella",
+		seats: 5,
+		winners: ["Zed Seselja", "Joy Burch", "Brendan Smyth", "Mick Gentleman", "Andrew Wall"],
+	},
+	{
+		year: 2012,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Ginninderra",
+		seats: 5,
+		winners: ["Alistair Coe", "Vicki Dunne", "Mary Porter", "Yvette Berry", "Chris Bourke"],
+	},
+	{
+		year: 2012,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Molonglo",
+		seats: 7,
+		winners: ["Katy Gallagher", "Jeremy Hanson", "Andrew Barr", "Simon Corbell", "Shane Rattenbury", "Giulia Jones", "Steve Doszpot"],
+	},
+	{
+		year: 2016,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Brindabella",
+		seats: 5,
+		winners: ["Andrew Wall", "Mick Gentleman", "Joy Burch", "Mark Parton", "Nicole Lawder"],
+	},
+	{
+		year: 2016,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Ginninderra",
+		seats: 5,
+		winners: ["Yvette Berry", "Vicki Dunne", "Elizabeth Kikkert", "Tara Cheyne", "Gordon Ramsay"],
+	},
+	{
+		year: 2016,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Kurrajong",
+		seats: 5,
+		winners: ["Andrew Barr", "Shane Rattenbury", "Elizabeth Lee", "Steve Doszpot", "Rachel Stephen-Smith"],
+	},
+	{
+		year: 2016,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Murrumbidgee",
+		seats: 5,
+		winners: ["Jeremy Hanson", "Bec Cody", "Chris Steel", "Giulia Jones", "Caroline Le Couteur"],
+	},
+	{
+		year: 2016,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Yerrabi",
+		seats: 5,
+		winners: ["Meegan Fitzharris", "Alistair Coe", "Michael Pettersson", "Suzanne Orr", "James Milligan"],
+	},
+	{
+		year: 2020,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Brindabella",
+		seats: 5,
+		winners: ["Joy Burch", "Mick Gentleman", "Nicole Lawder", "Mark Parton", "Johnathan Davis"],
+	},
+	{
+		year: 2020,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Ginninderra",
+		seats: 5,
+		winners: ["Yvette Berry", "Elizabeth Kikkert", "Tara Cheyne", "Jo Clay", "Peter Cain"],
+	},
+	{
+		year: 2020,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Kurrajong",
+		seats: 5,
+		winners: ["Andrew Barr", "Shane Rattenbury", "Rachel Stephen-Smith", "Elizabeth Lee", "Rebecca Vassarotti"],
+	},
+	{
+		year: 2020,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Murrumbidgee",
+		seats: 5,
+		winners: ["Jeremy Hanson", "Chris Steel", "Giulia Jones", "Emma Davidson", "Marisa Paterson"],
+	},
+	{
+		year: 2020,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Yerrabi",
+		seats: 5,
+		winners: ["Alistair Coe", "Michael Pettersson", "Suzanne Orr", "Leanne Castley", "Andrew Braddock"],
+	},
+	{
+		year: 2024,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Brindabella",
+		seats: 5,
+		winners: ["Mark Parton", "Deborah Morris", "Caitlin Tough", "Taimus Werner-Gibbings", "Laura Nuttall"],
+	},
+	{
+		year: 2024,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Ginninderra",
+		seats: 5,
+		winners: ["Tara Cheyne", "Yvette Berry", "Peter Cain", "Jo Clay", "Chiaka Barry"],
+	},
+	{
+		year: 2024,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Kurrajong",
+		seats: 5,
+		winners: ["Andrew Barr", "Elizabeth Lee", "Rachel Stephen-Smith", "Thomas Emerson", "Shane Rattenbury"],
+	},
+	{
+		year: 2024,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Murrumbidgee",
+		seats: 5,
+		winners: ["Jeremy Hanson", "Chris Steel", "Fiona Carrick", "Ed Cocks", "Marisa Paterson"],
+	},
+	{
+		year: 2024,
+		jurisdictionName: "Australian Capital Territory",
+		electionName: "Legislative Assembly",
+		officeName: "Yerrabi",
+		seats: 5,
+		winners: ["Michael Pettersson", "Leanne Castley", "Suzanne Orr", "James Milligan", "Andrew Braddock"],
+	},
+];
+
+// 2025 Australian Senate, senators elected per the AEC.
+const EXPECTED_SENATE_WINNERS = [
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "New South Wales",
+		seats: 6,
+		winners: ["Tony Sheldon", "Andrew Bragg", "Tim Ayres", "Jessica Collins", "Mehreen Faruqi", "Warwick Stacey"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Victoria",
+		seats: 6,
+		winners: ["Raffaele Ciccone", "James Paterson", "Jess Walsh", "Jane Hume", "Steph Hodgins-May", "Michelle Ananda-Rajah"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Queensland",
+		seats: 6,
+		winners: ["Paul Scarr", "Nita Green", "Susan McDonald", "Corinne Mulholland", "Larissa Waters", "Malcolm Roberts"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Western Australia",
+		seats: 6,
+		winners: ["Ellie Whiteaker", "Slade Brockman", "Varun Ghosh", "Jordon Steele-John", "Matt O'Sullivan", "Tyron Whitten"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "South Australia",
+		seats: 6,
+		winners: ["Marielle Smith", "Alex Antic", "Karen Grogan", "Anne Ruston", "Sarah Hanson-Young", "Charlotte Walker"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Tasmania",
+		seats: 6,
+		winners: ["Carol Brown", "Claire Chandler", "Richard Dowling", "Nick McKim", "Jacqui Lambie", "Richard Colbeck"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Australian Capital Territory",
+		seats: 2,
+		winners: ["Katy Gallagher", "David Pocock"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Northern Territory",
+		seats: 2,
+		winners: ["Malarndirri McCarthy", "Jacinta Nampijinpa Price"],
+	},
+];
+
 // Cambridge MA STV official results (multi-winner elections)
 const EXPECTED_CAMBRIDGE_WINNERS = [
 	{
@@ -432,6 +674,43 @@ describe("Scotland By-Election Winner Validation", () => {
 		EXPECTED_SCOTLAND_BY_ELECTION_WINNERS,
 	)("should have correct winner for $year $officeName", (expected) => {
 		const report = findReport(reports, expected);
+		expect(report).toBeDefined();
+		validateWinners(report, expected);
+	});
+});
+
+describe("ACT Hare-Clark Election Winner Validation", () => {
+	let reports;
+
+	beforeAll(() => {
+		reports = getReportsFromDatabase();
+	});
+
+	test.each(
+		EXPECTED_ACT_WINNERS,
+	)("should have correct winners for $year $officeName", (expected) => {
+		const report = findReport(reports, expected);
+		expect(report).toBeDefined();
+		validateWinners(report, expected);
+	});
+});
+
+describe("Australian Senate Election Winner Validation", () => {
+	let reports;
+
+	beforeAll(() => {
+		reports = getReportsFromDatabase();
+	});
+
+	test.each(
+		EXPECTED_SENATE_WINNERS,
+	)("should have correct winners for $year $officeName", (expected) => {
+		const report = reports.find(
+			(r) =>
+				r.jurisdictionName === expected.jurisdictionName &&
+				r.officeName === expected.officeName &&
+				r.year === expected.year,
+		);
 		expect(report).toBeDefined();
 		validateWinners(report, expected);
 	});

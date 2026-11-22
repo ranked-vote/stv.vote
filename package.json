@@ -21,6 +21,8 @@
 		"load-portland": "bun scripts/load-portland.ts",
 		"load-albany": "bun scripts/load-albany.ts",
 		"load-minneapolis": "bun scripts/load-minneapolis.ts",
+		"load-act": "bun scripts/load-act.ts",
+		"load-aec-senate": "bun scripts/load-aec-senate.ts",
 		"test": "bun test",
 		"test:watch": "bun test --watch",
 		"test:ci": "bun test --coverage",

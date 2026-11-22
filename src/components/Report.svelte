@@ -121,12 +121,6 @@
 </script>
 
 <style>
-  @media (prefers-color-scheme: dark) {
-    :global(body) {
-      background-color: black;
-    }
-  }
-
   .winners-list {
     margin: 0.5em 0;
     padding-left: 1.5em;
@@ -137,30 +131,24 @@
   }
 
   .quota-info {
-    font-size: 0.9em;
-    color: #666;
+    font-size: var(--text-small);
+    color: var(--muted);
+    max-width: 100%;
+    overflow-x: auto;
     margin-top: 0.5em;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .quota-info {
-      color: #aaa;
-    }
-  }
+  .reportHeader { margin-bottom: var(--space-12); }
+  .breadcrumb { margin: 0 0 var(--space-2); font-size: var(--text-small); color: var(--muted); }
+  .visualization { overflow-x: auto; max-width: 100%; }
+  .visualization:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
 
 {#if hasReport}
-<div class="row">
-  <p class="description"></p>
-  <div class="electionHeader">
-    <h3>
-      <a href={resolve("/")}>stv.vote</a>
-      //
-      <strong>{report.info.jurisdictionName}</strong>
-      {report.info.officeName}
-    </h3>
-  </div>
-</div>
+<header class="reportHeader">
+  <p class="breadcrumb"><a href={resolve("/")}>stv.vote</a> / {report.info.jurisdictionName}</p>
+  <h1>{report.info.officeName}</h1>
+</header>
 
 <div class="row">
   <div class="leftCol">
@@ -226,7 +214,8 @@
     {/if}
 
   </div>
-  <div class="rightCol">
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus and scroll wide diagrams and tables.) -->
+  <div class="rightCol visualization" role="region" aria-label="Vote totals" tabindex="0">
     <VoteCounts candidateVotes={report.totalVotes} {quota} {seats} winners={report.winners} />
   </div>
 </div>
@@ -252,7 +241,8 @@
       </p>
     </div>
 
-    <div class="rightCol">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus and scroll wide diagrams and tables.) -->
+    <div class="rightCol visualization" role="region" aria-label="Vote transfers by round" tabindex="0">
       <Sankey rounds={report.rounds} totalVotes={report.totalVotes} {quota} />
     </div>
   </div>
@@ -283,7 +273,8 @@
       </p>
     </div>
 
-    <div class="rightCol">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus and scroll wide diagrams and tables.) -->
+    <div class="rightCol visualization" role="region" aria-label="Candidate clustering" tabindex="0">
       <CandidateMap
         firstAlternate={report.firstAlternate}
         totalVotes={report.totalVotes}
@@ -313,7 +304,8 @@
     {/if}
   </div>
 
-  <div class="rightCol">
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus and scroll wide diagrams and tables.) -->
+  <div class="rightCol visualization" role="region" aria-label="Pairwise preferences" tabindex="0">
     <CandidatePairTable
       data={sortedPairwisePreferences}
       rowLabel="Preferred Candidate"
@@ -336,7 +328,8 @@
     </p>
   </div>
 
-  <div class="rightCol">
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus and scroll wide diagrams and tables.) -->
+  <div class="rightCol visualization" role="region" aria-label="First alternate preferences" tabindex="0">
     <CandidatePairTable
       generateTooltip={(row, col, entry) => (col !== EXHAUSTED ? `
         Of the <strong>${entry.denominator.toLocaleString()}</strong> voters who chose <strong>${getCandidate(row).name}</strong>

@@ -62,7 +62,7 @@
 
 <style>
   table {
-    font-size: 8pt;
+    font-size: var(--text-data);
     margin: auto;
     cursor: default;
   }
@@ -84,7 +84,7 @@
   .entry {
     height: 40px;
     width: 40px;
-    font-size: 8pt;
+    font-size: var(--text-data);
     vertical-align: middle;
     text-align: center;
     color: black;
@@ -92,14 +92,14 @@
 
   .colsLabel {
     text-align: center;
-    font-size: 10pt;
-    font-weight: bold;
+    font-size: var(--text-small);
+    font-weight: 600;
     padding-bottom: 20px;
   }
 
   .rowsLabel {
-    font-size: 10pt;
-    font-weight: bold;
+    font-size: var(--text-small);
+    font-weight: 600;
     padding-right: 20px;
   }
 
