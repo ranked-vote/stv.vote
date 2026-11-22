@@ -13,13 +13,14 @@
  */
 
 import { Database } from "bun:sqlite";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { gunzipSync } from "node:zlib";
-import { computePairwiseTables } from "./compute-pairwise.js";
-import type { ActProfile } from "./convert-act-preferences.js";
 import { slugify } from "./convert-act-preferences.js";
-import { tabulateFractionalSTV } from "./tabulate-stv-fractional.js";
+import {
+	type BallotProfile,
+	insertProfileReport,
+	readProfile,
+} from "./load-profile-report.js";
 
 const DATA_DIR = "raw-data/au/act";
 const JURISDICTION_PATH = "au/act";
@@ -83,129 +84,26 @@ export function partyName(raw: string): string {
 		.join(" ");
 }
 
-function loadProfile(path: string): ActProfile {
-	return JSON.parse(gunzipSync(readFileSync(path)).toString("utf-8"));
-}
-
 function loadElectorate(
 	db: Database,
 	election: ActElection,
-	profile: ActProfile,
+	profile: BallotProfile,
 ) {
 	const seats = election.seats?.[profile.electorate] ?? 5;
-	const names = profile.candidates.map((c) => c.name);
-	if (new Set(names).size !== names.length) {
-		throw new Error(`${profile.electorate}: duplicate candidate names`);
-	}
-
-	const ballots = profile.ballots.map(([count, order]) => ({
-		rankings: order.map((i) => names[i]),
-		weight: count,
-		count,
-	}));
-	const totalBallots = profile.ballots.reduce((sum, [count]) => sum + count, 0);
-
-	const result = tabulateFractionalSTV(ballots, seats, names, totalBallots);
-	const pairwise = computePairwiseTables(ballots, names, result.rounds);
-
-	const electionPath = `${election.year}/10`;
-	const office = slugify(profile.electorate);
-	const path = `${JURISDICTION_PATH}/${electionPath}`;
-
-	const report = db
-		.prepare(`
-    INSERT INTO reports (
-      name, date, jurisdictionPath, electionPath, office, officeName,
-      jurisdictionName, electionName, website, ballotCount, path, seats, quota,
-      numRounds, winners, dataFormat, tabulation,
-      pairwisePreferences, firstAlternate, firstFinal, rankingDistribution
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `)
-		.run(
-			`ACT Legislative Assembly ${election.year} - ${profile.electorate}`,
-			election.date,
-			JURISDICTION_PATH,
-			electionPath,
-			office,
-			profile.electorate,
-			JURISDICTION_NAME,
-			`${election.year} Legislative Assembly Election`,
-			election.website,
-			totalBallots,
-			path,
-			seats,
-			result.quota,
-			result.rounds.length,
-			JSON.stringify(result.winners),
-			"act-ballot-preferences",
-			"stv",
-			JSON.stringify(pairwise.pairwisePreferences),
-			JSON.stringify(pairwise.firstAlternate),
-			pairwise.firstFinal ? JSON.stringify(pairwise.firstFinal) : null,
-			JSON.stringify(pairwise.rankingDistribution),
-		);
-	const reportId = report.lastInsertRowid;
-
-	const insertCandidate = db.prepare(`
-    INSERT INTO candidates (
-      report_id, candidate_index, name, writeIn, firstRoundVotes,
-      transferVotes, roundEliminated, roundElected, winner, candidate_type
-    ) VALUES (?, ?, ?, 0, ?, ?, ?, ?, ?, ?)
-  `);
-	profile.candidates.forEach((candidate, i) => {
-		const votes = result.candidateVotes.find((v) => v.candidate === i);
-		insertCandidate.run(
-			reportId,
-			i,
-			candidate.name,
-			votes?.firstRoundVotes ?? 0,
-			votes?.transferVotes ?? 0,
-			votes?.roundEliminated ?? null,
-			votes?.roundElected ?? null,
-			result.winners.includes(i) ? 1 : 0,
-			partyName(candidate.party),
-		);
+	const { result, names, totalBallots } = insertProfileReport(db, profile, {
+		name: `ACT Legislative Assembly ${election.year} - ${profile.electorate}`,
+		date: election.date,
+		jurisdictionPath: JURISDICTION_PATH,
+		jurisdictionName: JURISDICTION_NAME,
+		electionPath: `${election.year}/10`,
+		electionName: `${election.year} Legislative Assembly Election`,
+		office: slugify(profile.electorate),
+		officeName: profile.electorate,
+		website: election.website,
+		seats,
+		dataFormat: "act-ballot-preferences",
+		partyName,
 	});
-
-	const insertRound = db.prepare(`
-    INSERT INTO rounds (
-      report_id, round_number, undervote, overvote, continuingBallots,
-      electedThisRound, eliminatedThisRound
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
-	const insertAllocation = db.prepare(
-		"INSERT INTO allocations (round_id, allocatee, votes) VALUES (?, ?, ?)",
-	);
-	const insertTransfer = db.prepare(`
-    INSERT INTO transfers (round_id, from_candidate, to_allocatee, count, transfer_type)
-    VALUES (?, ?, ?, ?, ?)
-  `);
-	result.rounds.forEach((round, i) => {
-		const roundId = insertRound.run(
-			reportId,
-			i + 1,
-			round.undervote,
-			round.overvote,
-			round.continuingBallots,
-			round.electedThisRound ? JSON.stringify(round.electedThisRound) : null,
-			round.eliminatedThisRound
-				? JSON.stringify(round.eliminatedThisRound)
-				: null,
-		).lastInsertRowid;
-		for (const alloc of round.allocations) {
-			insertAllocation.run(roundId, String(alloc.allocatee), alloc.votes);
-		}
-		for (const transfer of round.transfers) {
-			insertTransfer.run(
-				roundId,
-				transfer.from,
-				String(transfer.to),
-				transfer.count,
-				transfer.type || "elimination",
-			);
-		}
-	});
-
 	console.log(
 		`  ${profile.electorate}: ${totalBallots.toLocaleString()} ballots, quota ${result.quota}, elected ${result.winners.map((w) => names[w]).join(", ")}`,
 	);
@@ -226,7 +124,7 @@ if (import.meta.main) {
 			.sort();
 		db.transaction(() => {
 			for (const file of files) {
-				loadElectorate(db, election, loadProfile(join(dir, file)));
+				loadElectorate(db, election, readProfile(join(dir, file)));
 			}
 		})();
 	}

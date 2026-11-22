@@ -308,6 +308,74 @@ const EXPECTED_ACT_WINNERS = [
 	},
 ];
 
+// 2025 Australian Senate, senators elected per the AEC.
+const EXPECTED_SENATE_WINNERS = [
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "New South Wales",
+		seats: 6,
+		winners: ["Tony Sheldon", "Andrew Bragg", "Tim Ayres", "Jessica Collins", "Mehreen Faruqi", "Warwick Stacey"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Victoria",
+		seats: 6,
+		winners: ["Raffaele Ciccone", "James Paterson", "Jess Walsh", "Jane Hume", "Steph Hodgins-May", "Michelle Ananda-Rajah"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Queensland",
+		seats: 6,
+		winners: ["Paul Scarr", "Nita Green", "Susan McDonald", "Corinne Mulholland", "Larissa Waters", "Malcolm Roberts"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Western Australia",
+		seats: 6,
+		winners: ["Ellie Whiteaker", "Slade Brockman", "Varun Ghosh", "Jordon Steele-John", "Matt O'Sullivan", "Tyron Whitten"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "South Australia",
+		seats: 6,
+		winners: ["Marielle Smith", "Alex Antic", "Karen Grogan", "Anne Ruston", "Sarah Hanson-Young", "Charlotte Walker"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Tasmania",
+		seats: 6,
+		winners: ["Carol Brown", "Claire Chandler", "Richard Dowling", "Nick McKim", "Jacqui Lambie", "Richard Colbeck"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Australian Capital Territory",
+		seats: 2,
+		winners: ["Katy Gallagher", "David Pocock"],
+	},
+	{
+		year: 2025,
+		jurisdictionName: "Australian Senate",
+		electionName: "2025 Federal Election",
+		officeName: "Northern Territory",
+		seats: 2,
+		winners: ["Malarndirri McCarthy", "Jacinta Nampijinpa Price"],
+	},
+];
+
 // Cambridge MA STV official results (multi-winner elections)
 const EXPECTED_CAMBRIDGE_WINNERS = [
 	{
@@ -622,6 +690,27 @@ describe("ACT Hare-Clark Election Winner Validation", () => {
 		EXPECTED_ACT_WINNERS,
 	)("should have correct winners for $year $officeName", (expected) => {
 		const report = findReport(reports, expected);
+		expect(report).toBeDefined();
+		validateWinners(report, expected);
+	});
+});
+
+describe("Australian Senate Election Winner Validation", () => {
+	let reports;
+
+	beforeAll(() => {
+		reports = getReportsFromDatabase();
+	});
+
+	test.each(
+		EXPECTED_SENATE_WINNERS,
+	)("should have correct winners for $year $officeName", (expected) => {
+		const report = reports.find(
+			(r) =>
+				r.jurisdictionName === expected.jurisdictionName &&
+				r.officeName === expected.officeName &&
+				r.year === expected.year,
+		);
 		expect(report).toBeDefined();
 		validateWinners(report, expected);
 	});
