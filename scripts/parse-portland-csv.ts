@@ -82,22 +82,28 @@ function extractRankings(
   row: Record<string, string>,
   candidateRankColumns: Map<string, Array<{ rank: number; header: string }>>,
 ): string[] {
-  const rankings: Array<{ rank: number; name: string }> = [];
-
-  // For each candidate, find which rank column has value "1"
+  // Collect every candidate marked at each rank
+  const byRank = new Map<number, string[]>();
   for (const [candidateName, rankCols] of candidateRankColumns.entries()) {
     for (const col of rankCols) {
-      const value = row[col.header]?.trim();
-      if (value === "1") {
-        rankings.push({ rank: col.rank, name: candidateName });
-        break; // Only one rank per candidate should be "1"
+      if (row[col.header]?.trim() === "1") {
+        const marked = byRank.get(col.rank) ?? [];
+        marked.push(candidateName);
+        byRank.set(col.rank, marked);
       }
     }
   }
 
-  // Sort by rank and extract names
-  rankings.sort((a, b) => a.rank - b.rank);
-  return rankings.map((r) => r.name);
+  // Portland skips an overvoted rank (two or more candidates marked at the
+  // same rank) and moves on to the next rank. A candidate counts only at the
+  // first rank where they appear.
+  const rankings: string[] = [];
+  for (const rank of [...byRank.keys()].sort((a, b) => a - b)) {
+    const marked = byRank.get(rank)!;
+    if (marked.length !== 1) continue;
+    if (!rankings.includes(marked[0])) rankings.push(marked[0]);
+  }
+  return rankings;
 }
 
 /**
@@ -115,7 +121,6 @@ export function parsePortlandCSV(csvPath: string): Promise<ParseResult> {
     > = new Map();
     let office: string | null = null;
     let seats: number | null = null;
-    let statusColumn: string | null = null;
     let headerParsed = false;
     let totalValidBallots = 0; // Count all valid ballots including undervotes for quota calculation
 
@@ -133,9 +138,6 @@ export function parsePortlandCSV(csvPath: string): Promise<ParseResult> {
         // Parse headers on first record
         if (!headerParsed) {
           headers = Object.keys(record);
-
-          // Find Status column
-          statusColumn = "Status";
 
           // Group columns by candidate number (X in Choice_X_Y)
           // Format: Choice_X_Y:Office:Rank:Number of Winners N:Candidate Name:Type
@@ -213,10 +215,8 @@ export function parsePortlandCSV(csvPath: string): Promise<ParseResult> {
           continue;
         }
 
-        // Check ballot validity (Status = 0 means valid)
-        if (statusColumn && record[statusColumn]?.trim() !== "0") {
-          continue; // Skip invalid ballots
-        }
+        // Rows with Status -1 / Remade 1 are remade ballots and are counted
+        // in the official tally, so every row is kept.
 
         // Extract rankings
         const rankings = extractRankings(record, candidateRankColumns);
