@@ -117,41 +117,106 @@
     // Sort years in descending order (newest first)
     return parseInt(b[0]) - parseInt(a[0]);
   });
+
+  function groupByCountry(yearElections: IElectionIndexEntry[]) {
+    const countries = new Map<string, IElectionIndexEntry[]>();
+    const names = new Intl.DisplayNames(['en'], { type: 'region' });
+    for (const election of yearElections) {
+      const code = election.path.split('/')[0].toUpperCase();
+      const name = /^[A-Z]{2}$/.test(code) ? names.of(code) ?? code : 'Other';
+      const group = countries.get(name) ?? [];
+      group.push(election);
+      countries.set(name, group);
+    }
+    return [...countries].sort(([a], [b]) => a.localeCompare(b)).map(([name, elections]) => ({
+      name,
+      elections,
+      count: elections.reduce((total, election) => total + election.contests.length, 0)
+    }));
+  }
 </script>
 
 {#each sortedYears as [year, yearElections] (year)}
   <div class="yearSection">
     <h2>{year}</h2>
     <div class="electionSection">
-      {#each yearElections as election (election.path)}
-        <div class="electionHeader">
-          <h3>
-            <strong>{election.jurisdictionName}</strong>
-            {election.electionName}
-          </h3>
-        </div>
-        {#each election.contests as contest (contest.office)}
-          <div 
-            class="race" 
-            class:interesting={contest.interesting} 
-            class:winner-not-first={contest.winnerNotFirstRoundLeader}
-            use:tooltip={getTooltipText(contest)}
-          >
-            <a href={resolve(`/report/${election.path}/${contest.office}`, {})}>
-              <div class="title">
-                <strong>{contest.officeName}</strong>
-                {getWinnerSurnames(contest)}
+      {#each groupByCountry(yearElections) as country (country.name)}
+        <details class="countrySection">
+          <summary>
+            <strong>{country.name}</strong>
+            <span class="reportCount">{country.count} {country.count === 1 ? 'report' : 'reports'}</span>
+          </summary>
+          <div class="countryElections">
+            {#each country.elections as election (election.path)}
+              <div class="electionHeader">
+                <h3>
+                  {election.jurisdictionName}
+                </h3>
+                <div class="electionName">{election.electionName}</div>
               </div>
-              <div class="meta">
-                <strong>{contest.numCandidates}</strong>
-                candidates,
-                <strong>{contest.numRounds}</strong>
-                rounds
-              </div>
-            </a>
+              {#each election.contests as contest (contest.office)}
+                <div
+                  class="race"
+                  class:interesting={contest.interesting}
+                  class:winner-not-first={contest.winnerNotFirstRoundLeader}
+                  use:tooltip={getTooltipText(contest)}
+                >
+                  <a href={resolve(`/report/${election.path}/${contest.office}`, {})}>
+                    <div class="title">
+                      <span class="office">{contest.officeName}</span>
+                      <span class="winners">{getWinnerSurnames(contest)}</span>
+                    </div>
+                    <div class="meta">
+                      <strong>{contest.numCandidates}</strong> candidates · <strong>{contest.numRounds}</strong> rounds
+                    </div>
+                  </a>
+                </div>
+              {/each}
+            {/each}
           </div>
-        {/each}
+        </details>
       {/each}
     </div>
   </div>
 {/each}
+
+<style>
+  summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    list-style: none;
+    min-height: 44px;
+    padding: var(--space-2) 0;
+    cursor: pointer;
+    color: var(--ink);
+    font-size: var(--text-country);
+    line-height: 1.25;
+  }
+  summary strong { font-weight: 700; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: '';
+    flex: 0 0 0.5rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: rotate(-45deg);
+  }
+  details[open] > summary::before { transform: rotate(45deg); }
+  summary:hover { background: var(--hover); }
+  summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .reportCount {
+    margin-left: 0;
+    font-size: var(--text-small);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .countryElections { padding: var(--space-3) 0 var(--space-6); }
+  .electionHeader { margin: var(--space-6) 0 var(--space-2); }
+  .electionHeader:first-child { margin-top: 0; }
+  .electionHeader h3 { font-size: var(--text-election); color: var(--accent); margin: 0; }
+  .electionName { font-size: 1.125rem; color: var(--muted); }
+</style>
