@@ -19,6 +19,8 @@ import type {
 
 export interface Ballot {
   rankings: string[];
+  /** Number of identical ballots this entry stands for (default 1). */
+  count?: number;
 }
 
 export interface PairwiseResult {
@@ -49,40 +51,39 @@ function computePairwisePreferences(
     Array(n).fill(0),
   );
 
+  const rankOf = new Int32Array(n).fill(-1);
   for (const ballot of ballots) {
-    // Build a rank map for this ballot (lower rank = higher preference)
-    const rankOf = new Map<number, number>();
-    for (let rank = 0; rank < ballot.rankings.length; rank++) {
-      const name = ballot.rankings[rank];
+    const w = ballot.count ?? 1;
+    // Ranked candidates in preference order (first occurrence only)
+    const ranked: number[] = [];
+    for (const name of ballot.rankings) {
       const idx = nameToIndex.get(name);
-      if (idx !== undefined && !rankOf.has(idx)) {
-        rankOf.set(idx, rank);
+      if (idx !== undefined && rankOf[idx] === -1) {
+        rankOf[idx] = ranked.length;
+        ranked.push(idx);
       }
     }
 
-    // Compare all pairs
-    for (let a = 0; a < n; a++) {
+    // A ranked candidate beats every unranked candidate and every candidate
+    // ranked below it. Pairs where neither is ranked don't count.
+    for (const a of ranked) {
+      const rankA = rankOf[a];
+      const rowP = prefersAoverB[a];
+      const rowD = denominators[a];
       for (let b = 0; b < n; b++) {
-        if (a === b) continue;
-
-        const rankA = rankOf.get(a);
-        const rankB = rankOf.get(b);
-
-        // Only count if at least one is ranked
-        if (rankA === undefined && rankB === undefined) continue;
-
-        denominators[a][b]++;
-
-        // A is preferred if:
-        // - A is ranked and B is not, OR
-        // - Both are ranked and A's rank is lower (better)
-        if (rankA !== undefined) {
-          if (rankB === undefined || rankA < rankB) {
-            prefersAoverB[a][b]++;
-          }
+        if (b === a) continue;
+        rowD[b] += w;
+        const rankB = rankOf[b];
+        if (rankB === -1) {
+          denominators[b][a] += w;
+          rowP[b] += w;
+        } else if (rankA < rankB) {
+          rowP[b] += w;
         }
       }
     }
+
+    for (const idx of ranked) rankOf[idx] = -1;
   }
 
   // Build the table
@@ -133,24 +134,25 @@ function computeFirstAlternate(
   ); // +1 for exhausted
 
   for (const ballot of ballots) {
+    const w = ballot.count ?? 1;
     if (ballot.rankings.length === 0) continue;
 
     const first = nameToIndex.get(ballot.rankings[0]);
     if (first === undefined) continue;
 
-    firstChoiceCounts[first]++;
+    firstChoiceCounts[first] += w;
 
     if (ballot.rankings.length > 1) {
       const second = nameToIndex.get(ballot.rankings[1]);
       if (second !== undefined) {
-        secondChoice[first][second]++;
+        secondChoice[first][second] += w;
       } else {
         // Unknown second choice treated as exhausted
-        secondChoice[first][n]++; // n = exhausted index
+        secondChoice[first][n] += w; // n = exhausted index
       }
     } else {
       // No second choice = exhausted
-      secondChoice[first][n]++;
+      secondChoice[first][n] += w;
     }
   }
 
@@ -218,12 +220,13 @@ export function computeFirstFinal(
 
   // For each ballot, simulate where it ends up
   for (const ballot of ballots) {
+    const w = ballot.count ?? 1;
     if (ballot.rankings.length === 0) continue;
 
     const firstIdx = nameToIndex.get(ballot.rankings[0]);
     if (firstIdx === undefined) continue;
 
-    firstChoiceCounts[firstIdx]++;
+    firstChoiceCounts[firstIdx] += w;
 
     // Find the final active candidate on this ballot
     let finalIdx: number | null = null;
@@ -239,10 +242,10 @@ export function computeFirstFinal(
     }
 
     if (finalIdx !== null) {
-      finalAllocation[firstIdx][finalIdx]++;
+      finalAllocation[firstIdx][finalIdx] += w;
     } else {
       // Exhausted
-      finalAllocation[firstIdx][n]++;
+      finalAllocation[firstIdx][n] += w;
     }
   }
 
@@ -293,6 +296,7 @@ function computeRankingDistribution(
   }
 
   for (const ballot of ballots) {
+    const w = ballot.count ?? 1;
     // Count unique valid rankings (some may have duplicates or invalid names)
     const uniqueValid = new Set<number>();
     for (const name of ballot.rankings) {
@@ -306,21 +310,21 @@ function computeRankingDistribution(
     if (count === 0) continue;
 
     const countStr = String(count);
-    overallDistribution[countStr] = (overallDistribution[countStr] || 0) + 1;
+    overallDistribution[countStr] = (overallDistribution[countStr] || 0) + w;
 
     // Track by first choice
     const first = ballot.rankings[0];
     if (first && candidateDistributions[first]) {
       candidateDistributions[first][countStr] =
-        (candidateDistributions[first][countStr] || 0) + 1;
-      candidateTotals[first]++;
+        (candidateDistributions[first][countStr] || 0) + w;
+      candidateTotals[first] += w;
     }
   }
 
   return {
     overallDistribution,
     candidateDistributions,
-    totalBallots: ballots.length,
+    totalBallots: ballots.reduce((sum, b) => sum + (b.count ?? 1), 0),
     candidateTotals,
   };
 }
