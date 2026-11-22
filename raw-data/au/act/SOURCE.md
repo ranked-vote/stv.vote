@@ -1,0 +1,76 @@
+# ACT Legislative Assembly ballot preference data
+
+Source: Elections ACT, "Ballot paper preference data" for each Legislative
+Assembly election (https://www.elections.act.gov.au/elections/previous-assembly-elections).
+Files for 2008–2020 are no longer linked from the current site and were taken
+from Internet Archive captures of the original Elections ACT URLs.
+
+Each `<year>/<electorate>.json.gz` is built from that year's
+`<Electorate>Total.txt`, `Candidates.txt`, `Groups.txt` and `Electorates.txt`
+by `bun scripts/convert-act-preferences.ts <source-dir> <year>`. Identical
+preference orders are grouped with a count. A ballot's preferences stop at the
+first missing number or repeated candidate.
+
+SHA-256 of the source files used (downloaded 2026-11-22):
+
+## 2008
+
+```
+918502725ea5f19c39dc5091cfee60496da9783e1b93e8b7da2e8093e4a67a86  BrindabellaTotal.txt
+2c9ce0686f63fdb0d0e45001cf9f60361cae4e5a905b3cb9c026654584a3a12b  Candidates.txt
+a6aaa35c52c6f453afc7d6283c93c5698b3f145ada1e847b4cbf775b162d2cb8  Electorates.txt
+7219b7e6d8a32fecd6df3129729b0057a913c6a2e3c9212c5bf4867b719c768b  GinninderraTotal.txt
+c6348741ec9beda11d01900529093a651dd24800059b81d49fe01b46f1be473f  Groups.txt
+6a70ae460eb96000c8580c5ad8968f860ddc3d9a66154871042d1f1185ba89d3  MolongloTotal.txt
+```
+
+## 2012
+
+```
+2bb8700031012e974fa268b1f1d502f7f096974b9373a76b78b56f3698a150b1  BrindabellaTotal.txt
+4a0d3f0647fb62537a077f5f2b23d6b2e39ce227490ea73c3edbdaa406fd5df8  Candidates.txt
+e5a087edc3da850808fbc2f88047d419974a8af02238ca4879af83c8565a55f8  Electorates.txt
+02bc09978723353f7877c141ceb004d8219c28b446c37038703cb39e50a171ff  GinninderraTotal.txt
+46f5a46f7a6bfdde22c459bbda06c1d06dba362b55727cf175ccb3766f869036  Groups.txt
+f9eb26cfcdffffeabe0d9b469111f33275bd49cef32b25dfc2113d18aa1980f6  MolongloTotal.txt
+```
+
+## 2016
+
+```
+6caab59e0191226d0961189515065f1b07b9c0914d2c078bb91239f4a8fa07fe  BrindabellaTotal.txt
+30c504d1296a0fc6cec854b3942f10916969f4bacb1cc9db531e39389916ab75  Candidates.txt
+a62e27ab956e5102c2b175dac4e0e0be4f69df24753d8394171d93dd9cf73ead  Electorates.txt
+59dd2c1c152fbd023dfc20670b7b95ff099b6a14fb8191ca9e2ef1a21d4fce43  GinninderraTotal.txt
+972e0680a2b8f336a3c5087959e66766f2dab32685668d8c8251ac6c29b26ce5  Groups.txt
+c8df5981cad4b28628b91282859eaff725e8b0ccaad3be23aa5b837928643ec1  KurrajongTotal.txt
+8113f54507b78426d7bae0ce51e0afded138bf87bd0989afd7fdda8ebabe8fe7  MurrumbidgeeTotal.txt
+620473c51af0b360766c519166415ebee7035bb7c462887aab56270fe29c94ca  YerrabiTotal.txt
+```
+
+## 2020
+
+```
+11a3f3bacf99308dc08d5ab79f8700652ff7bf305a762593061f4100cd7f845e  BrindabellaTotal.txt
+0eaacad0b5098554a9a140f33849038ddc8da3efa9475b402540e8007a3998f0  Candidates.txt
+a62e27ab956e5102c2b175dac4e0e0be4f69df24753d8394171d93dd9cf73ead  Electorates.txt
+269b8ddf991121f0e19e1b6cae4faff3dc252a155ddf9ca868a0ffe6e73bbc68  GinninderraTotal.txt
+02c805c8064a3995faccd55a2b8efeea6c322b538659908f2745c9adab24aedb  Groups.txt
+34cc17bbf66fafdbee41d489c1c2c68c8582a8bbd370a7c6859ccd87f7845d14  KurrajongTotal.txt
+57e2cf3a6776b0a93ef490cb8b98025df9cf260d8d0ed19cd248980ace706a3a  MurrumbidgeeTotal.txt
+a917d5a6a45bdd830259f82e31bbad4778fad3d88523d1daf3977be93096fb44  YerrabiTotal.txt
+```
+
+## 2024
+
+```
+994e99de7bc7044cf367b9c048fc58496ccfefd4a6e9d86fd037e66f5a1dc78b  BrindabellaTotal.txt
+5ef9b69c403ed8ab2989bd955a0545e2c6abee573d813c6fc01356e8798dbd9f  candidates.txt
+a62e27ab956e5102c2b175dac4e0e0be4f69df24753d8394171d93dd9cf73ead  Electorates.txt
+2998ed00716043db2d0bf4767363c64b0136791a8baf7c462653eca5e83530ee  GinninderraTotal.txt
+241b9d5be849ee0953851258640a911e785081203a78bca1c6c93f118da94f4e  Groups.txt
+16f579bde73cad40dfd88ba2d58fb3005c6b4dba6fe5721a589c116adc209dd6  KurrajongTotal.txt
+5151cc15f7c0914ff0486ad4b0212b14aa1f90876275981e9d20cc0026569cc0  MurrumbidgeeTotal.txt
+1d30d40b9550cc563ddf5bfdf83b1e26bc4c0c915f90760fca6495da33312aa2  YerrabiTotal.txt
+```
+
