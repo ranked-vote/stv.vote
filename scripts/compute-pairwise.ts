@@ -284,6 +284,7 @@ function computeRankingDistribution(
   const nameToIndex = new Map(candidateNames.map((name, i) => [name, i]));
 
   // Overall distribution: count of ballots with N rankings
+  const rankCounts: Record<number, number[]> = {};
   const overallDistribution: Record<string, number> = {};
   // Per-candidate: for ballots with candidate X as first choice
   const candidateDistributions: Record<string, Record<string, number>> = {};
@@ -301,7 +302,10 @@ function computeRankingDistribution(
     const uniqueValid = new Set<number>();
     for (const name of ballot.rankings) {
       const idx = nameToIndex.get(name);
-      if (idx !== undefined) {
+      if (idx !== undefined && !uniqueValid.has(idx)) {
+        const rank = uniqueValid.size;
+        const counts = rankCounts[idx] ??= [];
+        counts[rank] = (counts[rank] ?? 0) + w;
         uniqueValid.add(idx);
       }
     }
@@ -322,6 +326,7 @@ function computeRankingDistribution(
   }
 
   return {
+    rankCounts,
     overallDistribution,
     candidateDistributions,
     totalBallots: ballots.reduce((sum, b) => sum + (b.count ?? 1), 0),
