@@ -1,5 +1,5 @@
 /**
- * Load Albany, California proportional RCV contests from NIST CVRs.
+ * Load Albany, California proportional RCV contests (2024, 2026) from NIST CVRs.
  *
  * Usage: bun scripts/load-albany.ts
  */
@@ -12,25 +12,62 @@ import {
 	tabulateFractionalSTV,
 } from "./tabulate-stv-fractional.js";
 
-const DATA_DIRECTORY = "raw-data/us/albany-ca/2024";
-const CONTEST_IDS = [85, 86];
-const DATE = "2024-11-05";
 const JURISDICTION_PATH = "us/ca/albany";
-const ELECTION_PATH = "2024/11";
-const REPORT_PATH = `${JURISDICTION_PATH}/${ELECTION_PATH}`;
-const SOURCE_URL = "https://alamedacountyca.gov/rovresults/rcv/252";
 
-function officeSlug(contestId: number): string {
-	if (contestId === 85) return "city-council";
-	if (contestId === 86) return "board-of-education";
-	throw new Error(`Unknown Albany contest ${contestId}`);
+type AlbanyElection = {
+	year: number;
+	dataDirectory: string;
+	date: string;
+	electionPath: string;
+	electionName: string;
+	sourceUrl: string;
+	councilContestId: number;
+	boardContestId: number;
+};
+
+const ELECTIONS: AlbanyElection[] = [
+	{
+		year: 2024,
+		dataDirectory: "raw-data/us/albany-ca/2024",
+		date: "2024-11-05",
+		electionPath: "2024/11",
+		electionName: "November 2024",
+		sourceUrl: "https://alamedacountyca.gov/rovresults/rcv/252",
+		councilContestId: 85,
+		boardContestId: 86,
+	},
+	{
+		year: 2026,
+		dataDirectory: "raw-data/us/albany-ca/2026",
+		date: "2026-11-03",
+		electionPath: "2026/11",
+		electionName: "November 2026",
+		sourceUrl: "https://alamedacountyca.gov/rovresults/rcv/260",
+		councilContestId: 102,
+		boardContestId: 103,
+	},
+];
+
+function officeSlug(election: AlbanyElection, contestId: number): string {
+	if (contestId === election.councilContestId) return "city-council";
+	if (contestId === election.boardContestId) return "board-of-education";
+	throw new Error(`Unknown Albany ${election.year} contest ${contestId}`);
 }
 
-function displayOfficeName(contest: NistContest): string {
-	return contest.contestId === 85 ? "City Council" : "Board of Education";
+function displayOfficeName(
+	election: AlbanyElection,
+	contest: NistContest,
+): string {
+	return contest.contestId === election.councilContestId
+		? "City Council"
+		: "Board of Education";
 }
 
-function insertContest(db: Database, contest: NistContest): void {
+function insertContest(
+	db: Database,
+	election: AlbanyElection,
+	contest: NistContest,
+): void {
 	// Match the other STV loaders: ballots without a valid ranking never enter
 	// the count, so they should not appear as initially exhausted in the Sankey.
 	const countablePatterns = contest.ballots.filter(
@@ -56,10 +93,10 @@ function insertContest(db: Database, contest: NistContest): void {
 		result.candidates,
 		result.rounds,
 	);
-	const office = officeSlug(contest.contestId);
-	const officeName = displayOfficeName(contest);
+	const office = officeSlug(election, contest.contestId);
+	const officeName = displayOfficeName(election, contest);
 
-	console.log(`\nLoading ${officeName}...`);
+	console.log(`\nLoading ${officeName} ${election.year}...`);
 	console.log(
 		`  ${contest.totalBallots.toLocaleString()} ballots; ${contest.continuingBallots.toLocaleString()} continuing`,
 	);
@@ -80,17 +117,17 @@ function insertContest(db: Database, contest: NistContest): void {
       `,
 		)
 		.run(
-			`Albany ${officeName} 2024`,
-			DATE,
+			`Albany ${officeName} ${election.year}`,
+			election.date,
 			JURISDICTION_PATH,
-			ELECTION_PATH,
+			election.electionPath,
 			office,
 			officeName,
 			"Albany, CA",
-			"November 2024",
-			SOURCE_URL,
+			election.electionName,
+			election.sourceUrl,
 			contest.continuingBallots,
-			REPORT_PATH,
+			`${JURISDICTION_PATH}/${election.electionPath}`,
 			contest.seats,
 			result.quota,
 			result.rounds.length,
@@ -182,16 +219,23 @@ const db = new Database("data.sqlite3");
 db.run("PRAGMA foreign_keys = ON");
 db.run("DELETE FROM reports WHERE jurisdictionPath = ?", [JURISDICTION_PATH]);
 
-const contests = parseNistCvr(DATA_DIRECTORY, CONTEST_IDS);
-if (contests.length !== CONTEST_IDS.length) {
-	throw new Error(
-		`Expected ${CONTEST_IDS.length} Albany contests, found ${contests.length}`,
-	);
-}
+const loaded = ELECTIONS.map((election) => {
+	const contestIds = [election.councilContestId, election.boardContestId];
+	const contests = parseNistCvr(election.dataDirectory, contestIds);
+	if (contests.length !== contestIds.length) {
+		throw new Error(
+			`Expected ${contestIds.length} Albany ${election.year} contests, found ${contests.length}`,
+		);
+	}
+	return { election, contests };
+});
 
 db.transaction(() => {
-	for (const contest of contests) insertContest(db, contest);
+	for (const { election, contests } of loaded) {
+		for (const contest of contests) insertContest(db, election, contest);
+	}
 })();
 
-console.log(`\nLoaded ${contests.length} Albany reports into data.sqlite3`);
+const reportCount = loaded.reduce((sum, { contests }) => sum + contests.length, 0);
+console.log(`\nLoaded ${reportCount} Albany reports into data.sqlite3`);
 db.close();

@@ -1,0 +1,27 @@
+{
+  "Version": "5.19.7.5",
+  "List": [
+    {
+      "Description": "Members, City Council - Albany (RCV)",
+      "Id": 102,
+      "ExternalId": "1183",
+      "DistrictId": 153,
+      "VoteFor": 2,
+      "NumOfRanks": 5,
+      "NumOfWriteins": 2,
+      "Disabled": 0,
+      "Type": "Candidacy"
+    },
+    {
+      "Description": "Members, Board of Education - Albany (RCV)",
+      "Id": 103,
+      "ExternalId": "1104",
+      "DistrictId": 124,
+      "VoteFor": 4,
+      "NumOfRanks": 5,
+      "NumOfWriteins": 4,
+      "Disabled": 0,
+      "Type": "Candidacy"
+    }
+  ]
+}
