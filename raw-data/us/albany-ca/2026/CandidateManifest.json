@@ -1,0 +1,113 @@
+{
+  "Version": "5.19.7.5",
+  "List": [
+    {
+      "Description": "ROBIN D. LOPEZ",
+      "Id": 136,
+      "ExternalId": "7086",
+      "ContestId": 102,
+      "Type": "Regular",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "KATHERINE ENOS",
+      "Id": 135,
+      "ExternalId": "7085",
+      "ContestId": 102,
+      "Type": "Regular",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "JON DESTIN",
+      "Id": 134,
+      "ExternalId": "7084",
+      "ContestId": 102,
+      "Type": "Regular",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "AARON TIEDEMANN",
+      "Id": 138,
+      "ExternalId": "7088",
+      "ContestId": 102,
+      "Type": "Regular",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "CHRIS MCDANIELS",
+      "Id": 137,
+      "ExternalId": "7087",
+      "ContestId": 102,
+      "Type": "Regular",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "Write-in",
+      "Id": 388,
+      "ExternalId": "",
+      "ContestId": 102,
+      "Type": "WriteIn",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "MARGARET ALLEN",
+      "Id": 139,
+      "ExternalId": "7089",
+      "ContestId": 103,
+      "Type": "Regular",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "MELISSA BOYD",
+      "Id": 140,
+      "ExternalId": "7090",
+      "ContestId": 103,
+      "Type": "Regular",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "BECKY HOPWOOD",
+      "Id": 141,
+      "ExternalId": "7091",
+      "ContestId": 103,
+      "Type": "Regular",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "JOSH MAHONEY",
+      "Id": 142,
+      "ExternalId": "7092",
+      "ContestId": 103,
+      "Type": "Regular",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "DAVID MCKINNEY",
+      "Id": 143,
+      "ExternalId": "7093",
+      "ContestId": 103,
+      "Type": "Regular",
+      "Disabled": 0,
+      "Affiliations": []
+    },
+    {
+      "Description": "Write-in",
+      "Id": 410,
+      "ExternalId": "",
+      "ContestId": 103,
+      "Type": "WriteIn",
+      "Disabled": 0,
+      "Affiliations": []
+    }
+  ]
+}

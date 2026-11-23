@@ -39,7 +39,7 @@ bun run dev
 - `bun run init-db`: initialize empty SQLite database with schema
 - `bun run load-scotland`: load Scotland 2022 and 2024 council election data
 - `bun run load-portland`: load Portland OR November 2024 election data
-- `bun run load-albany`: load Albany CA November 2024 election data
+- `bun run load-albany`: load Albany CA November 2024 and November 2026 election data
 
 ### Card Image Generation
 
@@ -131,9 +131,9 @@ The official [National Results Reporting Portal](https://stv-results.prorep.org.
 
 Portland, OR election data (`raw-data/us/us-portland-or/`) consists of Cast Vote Records (CVR) from the November 2024 General Election. Data source: [Multnomah County Elections Division](https://multco.us/info/turnout-and-statistics-november-2024-general-election). Includes contests for Mayor, Auditor, and four Councilor districts.
 
-### Albany CA November 2024 Elections
+### Albany CA November 2024 and 2026 Elections
 
-Albany election data (`raw-data/us/albany-ca/2024/`) contains contest-scoped NIST SP 1500-103 JSON cast-vote records from the [Alameda County Registrar of Voters](https://alamedacountyca.gov/rovresults/rcv/252). It includes the three-seat City Council and two-seat Board of Education proportional ranked-choice voting contests.
+Albany election data (`raw-data/us/albany-ca/<year>/`) contains contest-scoped NIST SP 1500-103 JSON cast-vote records from the Alameda County Registrar of Voters ([2024](https://alamedacountyca.gov/rovresults/rcv/252), [2026](https://alamedacountyca.gov/rovresults/rcv/260)). 2024 has the three-seat City Council and two-seat Board of Education contests; 2026 has the two-seat City Council and four-seat Board of Education contests. The 2026 data is the county's preliminary CVR release of November 16, 2026, before certification.
 
 ### Minneapolis MN November 2025 Elections
 
