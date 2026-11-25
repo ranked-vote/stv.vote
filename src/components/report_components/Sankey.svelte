@@ -163,8 +163,7 @@
       if (this.isExhausted()) {
         return `
         <strong>${this.votes.toLocaleString()}</strong> votes${percentageText}
-        were exhausted
-        in round <strong>${this.round}</strong>`;
+        were exhausted by round <strong>${this.round}</strong>`;
       } else if (electedRound !== undefined && electedRound === this.round) {
         // Check if they actually reached quota or were elected by default
         const reachedQuota = quota && this.votes >= quota;
