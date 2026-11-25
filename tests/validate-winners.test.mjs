@@ -12,7 +12,7 @@ const EXPECTED_PORTLAND_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Portland, OR",
-		electionName: "November 2024",
+		electionName: "General Election",
 		officeName: "Mayor",
 		seats: 1,
 		winners: ["Keith Wilson"], // Matches official
@@ -20,7 +20,7 @@ const EXPECTED_PORTLAND_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Portland, OR",
-		electionName: "November 2024",
+		electionName: "General Election",
 		officeName: "Auditor",
 		seats: 1,
 		winners: ["Simone Rede"], // Matches official
@@ -28,7 +28,7 @@ const EXPECTED_PORTLAND_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Portland, OR",
-		electionName: "November 2024",
+		electionName: "General Election",
 		officeName: "Councilor, District 1",
 		seats: 3,
 		winners: ["Candace Avalos", "Jamie Dunphy", "Loretta Smith"],
@@ -36,7 +36,7 @@ const EXPECTED_PORTLAND_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Portland, OR",
-		electionName: "November 2024",
+		electionName: "General Election",
 		officeName: "Councilor, District 2",
 		seats: 3,
 		winners: ["Sameer Kanal", "Elana Pirtle-Guiney", "Dan Ryan"],
@@ -44,7 +44,7 @@ const EXPECTED_PORTLAND_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Portland, OR",
-		electionName: "November 2024",
+		electionName: "General Election",
 		officeName: "Councilor, District 3",
 		seats: 3,
 		winners: ["Steve Novick", "Angelita Morillo", "Tiffany Koyama Lane"],
@@ -52,7 +52,7 @@ const EXPECTED_PORTLAND_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Portland, OR",
-		electionName: "November 2024",
+		electionName: "General Election",
 		officeName: "Councilor, District 4",
 		seats: 3,
 		winners: ["Olivia Clark", "Mitch Green", "Eric Zimmerman"],
@@ -65,7 +65,7 @@ const EXPECTED_ALBANY_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Albany, CA",
-		electionName: "November 2024",
+		electionName: "General Election",
 		officeName: "City Council",
 		seats: 3,
 		winners: [
@@ -77,7 +77,7 @@ const EXPECTED_ALBANY_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Albany, CA",
-		electionName: "November 2024",
+		electionName: "General Election",
 		officeName: "Board of Education",
 		seats: 2,
 		winners: ["Veronica Davidson", "Dayna Inkeles"],
@@ -90,7 +90,7 @@ const EXPECTED_MINNEAPOLIS_WINNERS = [
 	{
 		year: 2025,
 		jurisdictionName: "Minneapolis, MN",
-		electionName: "November 2025",
+		electionName: "Municipal Election",
 		officeName: "Park & Recreation Commissioner At Large",
 		seats: 3,
 		winners: ["Meg Forney", "Tom Olsen", "Amber A. Frederick"],
@@ -98,7 +98,7 @@ const EXPECTED_MINNEAPOLIS_WINNERS = [
 	{
 		year: 2025,
 		jurisdictionName: "Minneapolis, MN",
-		electionName: "November 2025",
+		electionName: "Municipal Election",
 		officeName: "Board of Estimate and Taxation",
 		seats: 2,
 		winners: ["Eric Harris Bernstein", "Steve Brandt"],
@@ -111,7 +111,7 @@ const EXPECTED_SCOTLAND_BY_ELECTION_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Glasgow, Scotland",
-		electionName: "March 2024 By-Election",
+		electionName: "Council By-Election",
 		officeName: "Hillhead",
 		seats: 1,
 		winners: ["Seonad Hoy"],
@@ -119,7 +119,7 @@ const EXPECTED_SCOTLAND_BY_ELECTION_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Angus, Scotland",
-		electionName: "April 2024 By-Election",
+		electionName: "Council By-Election",
 		officeName: "Arbroath West Letham and Friockheim",
 		seats: 1,
 		winners: ["Jack Alistair James Cruickshanks"],
@@ -127,7 +127,7 @@ const EXPECTED_SCOTLAND_BY_ELECTION_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "North Ayrshire, Scotland",
-		electionName: "May 2024 By-Election",
+		electionName: "Council By-Election",
 		officeName: "Kilwinning",
 		seats: 1,
 		winners: ["Mary Hume"],
@@ -141,7 +141,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2008,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Brindabella",
 		seats: 5,
 		winners: ["Brendan Smyth", "Steve Doszpot", "Amanda Bresnan", "John Hargreaves", "Joy Burch"],
@@ -149,7 +149,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2008,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Ginninderra",
 		seats: 5,
 		winners: ["Jon Stanhope", "Meredith Hunter", "Alistair Coe", "Mary Porter", "Vicki Dunne"],
@@ -157,7 +157,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2008,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Molonglo",
 		seats: 7,
 		winners: ["Zed Seselja", "Katy Gallagher", "Shane Rattenbury", "Andrew Barr", "Jeremy Hanson", "Simon Corbell", "Caroline Le Couteur"],
@@ -165,7 +165,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2012,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Brindabella",
 		seats: 5,
 		winners: ["Zed Seselja", "Joy Burch", "Brendan Smyth", "Mick Gentleman", "Andrew Wall"],
@@ -173,7 +173,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2012,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Ginninderra",
 		seats: 5,
 		winners: ["Alistair Coe", "Vicki Dunne", "Mary Porter", "Yvette Berry", "Chris Bourke"],
@@ -181,7 +181,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2012,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Molonglo",
 		seats: 7,
 		winners: ["Katy Gallagher", "Jeremy Hanson", "Andrew Barr", "Simon Corbell", "Shane Rattenbury", "Giulia Jones", "Steve Doszpot"],
@@ -189,7 +189,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2016,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Brindabella",
 		seats: 5,
 		winners: ["Andrew Wall", "Mick Gentleman", "Joy Burch", "Mark Parton", "Nicole Lawder"],
@@ -197,7 +197,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2016,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Ginninderra",
 		seats: 5,
 		winners: ["Yvette Berry", "Vicki Dunne", "Elizabeth Kikkert", "Tara Cheyne", "Gordon Ramsay"],
@@ -205,7 +205,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2016,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Kurrajong",
 		seats: 5,
 		winners: ["Andrew Barr", "Shane Rattenbury", "Elizabeth Lee", "Steve Doszpot", "Rachel Stephen-Smith"],
@@ -213,7 +213,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2016,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Murrumbidgee",
 		seats: 5,
 		winners: ["Jeremy Hanson", "Bec Cody", "Chris Steel", "Giulia Jones", "Caroline Le Couteur"],
@@ -221,7 +221,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2016,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Yerrabi",
 		seats: 5,
 		winners: ["Meegan Fitzharris", "Alistair Coe", "Michael Pettersson", "Suzanne Orr", "James Milligan"],
@@ -229,7 +229,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2020,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Brindabella",
 		seats: 5,
 		winners: ["Joy Burch", "Mick Gentleman", "Nicole Lawder", "Mark Parton", "Johnathan Davis"],
@@ -237,7 +237,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2020,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Ginninderra",
 		seats: 5,
 		winners: ["Yvette Berry", "Elizabeth Kikkert", "Tara Cheyne", "Jo Clay", "Peter Cain"],
@@ -245,7 +245,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2020,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Kurrajong",
 		seats: 5,
 		winners: ["Andrew Barr", "Shane Rattenbury", "Rachel Stephen-Smith", "Elizabeth Lee", "Rebecca Vassarotti"],
@@ -253,7 +253,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2020,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Murrumbidgee",
 		seats: 5,
 		winners: ["Jeremy Hanson", "Chris Steel", "Giulia Jones", "Emma Davidson", "Marisa Paterson"],
@@ -261,7 +261,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2020,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Yerrabi",
 		seats: 5,
 		winners: ["Alistair Coe", "Michael Pettersson", "Suzanne Orr", "Leanne Castley", "Andrew Braddock"],
@@ -269,7 +269,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Brindabella",
 		seats: 5,
 		winners: ["Mark Parton", "Deborah Morris", "Caitlin Tough", "Taimus Werner-Gibbings", "Laura Nuttall"],
@@ -277,7 +277,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Ginninderra",
 		seats: 5,
 		winners: ["Tara Cheyne", "Yvette Berry", "Peter Cain", "Jo Clay", "Chiaka Barry"],
@@ -285,7 +285,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Kurrajong",
 		seats: 5,
 		winners: ["Andrew Barr", "Elizabeth Lee", "Rachel Stephen-Smith", "Thomas Emerson", "Shane Rattenbury"],
@@ -293,7 +293,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Murrumbidgee",
 		seats: 5,
 		winners: ["Jeremy Hanson", "Chris Steel", "Fiona Carrick", "Ed Cocks", "Marisa Paterson"],
@@ -301,7 +301,7 @@ const EXPECTED_ACT_WINNERS = [
 	{
 		year: 2024,
 		jurisdictionName: "Australian Capital Territory",
-		electionName: "Legislative Assembly",
+		electionName: "Legislative Assembly Election",
 		officeName: "Yerrabi",
 		seats: 5,
 		winners: ["Michael Pettersson", "Leanne Castley", "Suzanne Orr", "James Milligan", "Andrew Braddock"],
@@ -313,7 +313,7 @@ const EXPECTED_SENATE_WINNERS = [
 	{
 		year: 2025,
 		jurisdictionName: "Australian Senate",
-		electionName: "2025 Federal Election",
+		electionName: "Federal Election",
 		officeName: "New South Wales",
 		seats: 6,
 		winners: ["Tony Sheldon", "Andrew Bragg", "Tim Ayres", "Jessica Collins", "Mehreen Faruqi", "Warwick Stacey"],
@@ -321,7 +321,7 @@ const EXPECTED_SENATE_WINNERS = [
 	{
 		year: 2025,
 		jurisdictionName: "Australian Senate",
-		electionName: "2025 Federal Election",
+		electionName: "Federal Election",
 		officeName: "Victoria",
 		seats: 6,
 		winners: ["Raffaele Ciccone", "James Paterson", "Jess Walsh", "Jane Hume", "Steph Hodgins-May", "Michelle Ananda-Rajah"],
@@ -329,7 +329,7 @@ const EXPECTED_SENATE_WINNERS = [
 	{
 		year: 2025,
 		jurisdictionName: "Australian Senate",
-		electionName: "2025 Federal Election",
+		electionName: "Federal Election",
 		officeName: "Queensland",
 		seats: 6,
 		winners: ["Paul Scarr", "Nita Green", "Susan McDonald", "Corinne Mulholland", "Larissa Waters", "Malcolm Roberts"],
@@ -337,7 +337,7 @@ const EXPECTED_SENATE_WINNERS = [
 	{
 		year: 2025,
 		jurisdictionName: "Australian Senate",
-		electionName: "2025 Federal Election",
+		electionName: "Federal Election",
 		officeName: "Western Australia",
 		seats: 6,
 		winners: ["Ellie Whiteaker", "Slade Brockman", "Varun Ghosh", "Jordon Steele-John", "Matt O'Sullivan", "Tyron Whitten"],
@@ -345,7 +345,7 @@ const EXPECTED_SENATE_WINNERS = [
 	{
 		year: 2025,
 		jurisdictionName: "Australian Senate",
-		electionName: "2025 Federal Election",
+		electionName: "Federal Election",
 		officeName: "South Australia",
 		seats: 6,
 		winners: ["Marielle Smith", "Alex Antic", "Karen Grogan", "Anne Ruston", "Sarah Hanson-Young", "Charlotte Walker"],
@@ -353,7 +353,7 @@ const EXPECTED_SENATE_WINNERS = [
 	{
 		year: 2025,
 		jurisdictionName: "Australian Senate",
-		electionName: "2025 Federal Election",
+		electionName: "Federal Election",
 		officeName: "Tasmania",
 		seats: 6,
 		winners: ["Carol Brown", "Claire Chandler", "Richard Dowling", "Nick McKim", "Jacqui Lambie", "Richard Colbeck"],
@@ -361,7 +361,7 @@ const EXPECTED_SENATE_WINNERS = [
 	{
 		year: 2025,
 		jurisdictionName: "Australian Senate",
-		electionName: "2025 Federal Election",
+		electionName: "Federal Election",
 		officeName: "Australian Capital Territory",
 		seats: 2,
 		winners: ["Katy Gallagher", "David Pocock"],
@@ -369,7 +369,7 @@ const EXPECTED_SENATE_WINNERS = [
 	{
 		year: 2025,
 		jurisdictionName: "Australian Senate",
-		electionName: "2025 Federal Election",
+		electionName: "Federal Election",
 		officeName: "Northern Territory",
 		seats: 2,
 		winners: ["Malarndirri McCarthy", "Jacinta Nampijinpa Price"],
@@ -381,7 +381,7 @@ const EXPECTED_CAMBRIDGE_WINNERS = [
 	{
 		year: 2023,
 		jurisdictionName: "Cambridge, MA",
-		electionName: "November 2023",
+		electionName: "Municipal Election",
 		officeName: "City Council",
 		seats: 9,
 		// Official winners in order of election
@@ -402,7 +402,7 @@ const EXPECTED_CAMBRIDGE_WINNERS = [
 	{
 		year: 2021,
 		jurisdictionName: "Cambridge, MA",
-		electionName: "November 2021",
+		electionName: "Municipal Election",
 		officeName: "City Council",
 		seats: 9,
 		// Official winners (order may vary)
@@ -421,7 +421,7 @@ const EXPECTED_CAMBRIDGE_WINNERS = [
 	{
 		year: 2019,
 		jurisdictionName: "Cambridge, MA",
-		electionName: "November 2019",
+		electionName: "Municipal Election",
 		officeName: "City Council",
 		seats: 9,
 		winners: [

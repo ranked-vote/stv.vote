@@ -96,7 +96,7 @@ function insertElection(db: Database, config: ElectionConfig): void {
 			config.office,
 			config.officeName,
 			"Minneapolis, MN",
-			"November 2025",
+			"Municipal Election",
 			config.website,
 			parsed.countableBallots,
 			REPORT_PATH,

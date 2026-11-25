@@ -139,7 +139,7 @@ function loadElection(db: Database, config: ElectionConfig) {
         config.office,
         config.officeName,
         "Portland, OR",
-        "November 2024",
+        "General Election",
         totalBallots,
         path,
         parseResult.seats,

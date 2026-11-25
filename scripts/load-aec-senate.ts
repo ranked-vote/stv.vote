@@ -45,7 +45,7 @@ if (import.meta.main) {
 			jurisdictionPath: JURISDICTION_PATH,
 			jurisdictionName: "Australian Senate",
 			electionPath: "2025/05",
-			electionName: "2025 Federal Election",
+			electionName: "Federal Election",
 			office: slugify(state),
 			officeName: state,
 			website: "https://results.aec.gov.au/31496/Website/SenateDownloadsMenu-31496-Csv.htm",
