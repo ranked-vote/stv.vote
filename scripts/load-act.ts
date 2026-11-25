@@ -96,7 +96,7 @@ function loadElectorate(
 		jurisdictionPath: JURISDICTION_PATH,
 		jurisdictionName: JURISDICTION_NAME,
 		electionPath: `${election.year}/10`,
-		electionName: `${election.year} Legislative Assembly Election`,
+		electionName: "Legislative Assembly Election",
 		office: slugify(profile.electorate),
 		officeName: profile.electorate,
 		website: election.website,

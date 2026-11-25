@@ -114,7 +114,7 @@ function loadElection(db: Database, config: ElectionConfig) {
     config.office,
     config.officeName,
     "Cambridge, MA",
-    `November ${config.year}`,
+    "Municipal Election",
     parseResult.ballots.length,
     path,
     config.seats,

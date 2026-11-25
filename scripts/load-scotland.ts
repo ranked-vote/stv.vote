@@ -46,7 +46,7 @@ interface ScotlandByElection extends ScotlandElection {
 const GENERAL_ELECTION_2022: ScotlandElection = {
 	date: "2022-05-05",
 	electionPath: "2022/05",
-	electionName: "May 2022",
+	electionName: "Council Election",
 	dataFormat: "scotland-ballot-2022",
 };
 
@@ -54,7 +54,7 @@ const BY_ELECTIONS_2024: ScotlandByElection[] = [
 	{
 		date: "2024-03-07",
 		electionPath: "2024/03",
-		electionName: "March 2024 By-Election",
+		electionName: "Council By-Election",
 		dataFormat: "scotland-preference-profile-2024",
 		councilDirectory: "glasgow",
 		councilName: "Glasgow",
@@ -65,7 +65,7 @@ const BY_ELECTIONS_2024: ScotlandByElection[] = [
 	{
 		date: "2024-04-25",
 		electionPath: "2024/04",
-		electionName: "April 2024 By-Election",
+		electionName: "Council By-Election",
 		dataFormat: "scotland-preference-profile-2024",
 		councilDirectory: "angus",
 		councilName: "Angus",
@@ -76,7 +76,7 @@ const BY_ELECTIONS_2024: ScotlandByElection[] = [
 	{
 		date: "2024-05-09",
 		electionPath: "2024/05",
-		electionName: "May 2024 By-Election",
+		electionName: "Council By-Election",
 		dataFormat: "scotland-preference-profile-2024",
 		councilDirectory: "north-ayrshire",
 		councilName: "North_Ayrshire",
