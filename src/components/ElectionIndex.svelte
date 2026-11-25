@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { IElectionIndexEntry, IContestIndexEntry } from "$lib/report_types";
-  import tooltip from "$lib/tooltip";
+  import type { IElectionIndexEntry, IContestIndexEntry } from "#lib/report_types";
+  import tooltip from "#lib/tooltip";
   import { SvelteMap } from "svelte/reactivity";
   import { resolve } from "$app/paths";
 
@@ -161,7 +161,7 @@
                   class:winner-not-first={contest.winnerNotFirstRoundLeader}
                   use:tooltip={getTooltipText(contest)}
                 >
-                  <a href={resolve(`/report/${election.path}/${contest.office}`, {})}>
+                  <a href={resolve("/report/[...path]", { path: `${election.path}/${contest.office}` })}>
                     <div class="title">
                       <span class="office">{contest.officeName}</span>
                       <span class="winners">{getWinnerSurnames(contest)}</span>

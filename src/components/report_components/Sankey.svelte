@@ -5,12 +5,12 @@
     Allocatee,
     CandidateId,
     ICandidateVotes,
-  } from "$lib/report_types";
+  } from "#lib/report_types";
   import type { CandidateContext } from "../candidates";
   import { EXHAUSTED } from "../candidates";
   import { getContext } from "svelte";
   import { SvelteMap, SvelteSet } from "svelte/reactivity";
-  import tooltip from "$lib/tooltip";
+  import tooltip from "#lib/tooltip";
 
   export let rounds: ITabulatorRound[];
   export let totalVotes: ICandidateVotes[] = [];
@@ -675,6 +675,7 @@
   {/each}
   <g transform={`translate(${edgeMargin} ${topLabelSpace})`}>
     {#each voteBlockRows[0] as voteBlock (voteBlock.nodeKey())}
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <g
         transform={`translate(${voteBlock.x + voteBlock.width / 2} -10)`}
         on:pointerenter={() => (hover = { kind: "node", key: voteBlock.nodeKey() })}
@@ -687,6 +688,7 @@
 
     {#each voteBlockRows as voteBlockRow, rowIdx (rowIdx)}
       {#each voteBlockRow as voteBlock (voteBlock.nodeKey())}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <rect
           use:tooltip={voteBlock.tooltip()}
           class="voteBlock"
@@ -715,6 +717,7 @@
     {/each}
 
     {#each transfers as transfer, i (i)}
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <path
         use:tooltip={transfer.tooltip()}
         class="transfer"
@@ -727,6 +730,7 @@
     {/each}
 
     {#each voteBlockRows[voteBlockRows.length - 1] as voteBlock (voteBlock.nodeKey())}
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <g
         transform={`translate(${voteBlock.x + voteBlock.width / 2} ${innerHeight + 10})`}
         on:pointerenter={() => (hover = { kind: "node", key: voteBlock.nodeKey() })}

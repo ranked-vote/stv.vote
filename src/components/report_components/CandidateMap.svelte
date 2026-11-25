@@ -3,11 +3,11 @@
     ICandidatePairTable,
     CandidateId,
     ICandidateVotes,
-  } from "$lib/report_types";
+  } from "#lib/report_types";
   import type { CandidateContext } from "../candidates";
   import { getContext } from "svelte";
   import { SvelteSet } from "svelte/reactivity";
-  import tooltip from "$lib/tooltip";
+  import tooltip from "#lib/tooltip";
 
   export let firstAlternate: ICandidatePairTable;
   export let totalVotes: ICandidateVotes[] = [];
